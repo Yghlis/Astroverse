@@ -1,7 +1,3 @@
-<script setup>
-import HelloWorld from "./components/HelloWorld.vue";
-</script>
-
 <template>
   <div>
     <a href="https://vitejs.dev" target="_blank">
@@ -12,10 +8,16 @@ import HelloWorld from "./components/HelloWorld.vue";
     </a>
   </div>
   <HelloWorld msg="Vite + Vue" />
-  <RouterLink to="/">Go to Home </RouterLink>
-  <RouterLink to="/login">Go to test</RouterLink>
+  <NavBar></NavBar>
   <RouterView />
 </template>
+
+<script setup>
+// import { useRoute } from 'vue-router';
+import NavBar from "./components/NavBar.vue";
+
+// const route = useRoute(); //si on veux utiliser le route object dans le script
+</script>
 
 <style scoped>
 .logo {
