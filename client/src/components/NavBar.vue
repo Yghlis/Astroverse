@@ -7,10 +7,10 @@
     <RouterLink to="/" :class="{ active: $route.path === '/' }"
       >Home</RouterLink
     >
-    <RouterLink to="/login" :class="{ active: $route.path === '/login' }"
+    <RouterLink to="/hello" :class="{ active: $route.path === '/hello' }"
       >Shop</RouterLink
     >
-    <RouterLink to="/login">About us</RouterLink>
+    <RouterLink to="/">About us</RouterLink>
     <!-- Ajoutez d'autres liens ici -->
   </nav>
 </template>

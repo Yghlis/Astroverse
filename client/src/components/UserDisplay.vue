@@ -1,20 +1,29 @@
 <template>
   <span class="material-symbols-outlined"> person </span>
   <h2>Connectez-vous</h2>
-  <div class="log-btn-container" v-if="userClicked">
-    <RouterLink to="/login" class="log-btn">Login</RouterLink>
-    <RouterLink to="/register" class="log-btn">Register</RouterLink>
-  </div>
+  <Transition name="slide" mode="out-in">
+    <div v-if="!loginClicked" class="log-btn-container">
+      <button class="log-btn" @click="loginHandler">Login</button>
+      <RouterLink to="/" class="log-btn"
+        >Register</RouterLink
+      >
+    </div>
+    <div v-else class="log-btn-container">
+      <input type="email" class="log-input"placeholder="Email">
+      <input type="password" class="log-input" placeholder="Mot de passe">
+      <button class="log-btn alt" @click="loginHandler">Me Connecter</button>
+    </div>
+  </Transition>
 </template>
 
 <script setup>
-// Watch the parent prop to sync with the ref
-const props = defineProps({
-  userClicked: {
-    type: Boolean,
-    default: false,
-  },
-});
+import { ref } from "vue";
+
+const loginClicked = ref(false);
+
+const loginHandler = () => {
+  loginClicked.value = !loginClicked.value;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -46,13 +55,52 @@ h2 {
     border: 1px solid black;
     margin: 5px 0;
     border-radius: 25px;
+    font-size: 20px;
     font-weight: bold;
     transition: all 0.3s ease;
+    background-color: white;
+    cursor: pointer;
+    font-family: "Nippo", sans-serif;
     &:hover {
       color: white;
       background-color: #f2a45a;
       border: 1px solid #f2a45a;
     }
+    &.alt {
+      margin-top: 20px;
+      background-color: #f2a45a;
+      color: white;
+      border: 1px solid #f2a45a;
+      &:hover {
+        background-color: white;
+        color: black;
+      }
+    }
   }
+  .log-input {
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    color: black;
+    border: 1px solid black;
+    margin: 5px 0;
+    border-radius: 25px;
+    font-size: 20px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    background-color: white;
+    font-family: "Nippo", sans-serif;
+  }
+}
+// Transition de slide
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.5s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
 }
 </style>

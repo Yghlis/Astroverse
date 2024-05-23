@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '../views/Login.vue';
+import LandingPage from '../views/LandingPage.vue';
+import HelloWorld from '../components/HelloWorld.vue';
 // import Logout from '../views/Logout.vue';
 // import ForgotPassword from '../views/ForgotPassword.vue';
 
 const routes = [
-  { path: '/login', component: Login },
-//   { path: '/logout', component: Logout },
+  { path: '/', component: LandingPage },
+  { path: '/hello', component: HelloWorld },
 //   { path: '/forgot-password', component: ForgotPassword },
 //   // Ajoutez d'autres routes ici
 ];

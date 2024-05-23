@@ -6,10 +6,10 @@
     </div>
     <NavBar />
     <button class="login" @click="toggleUser">
-      <span class="material-symbols-outlined">{{ logIconChange }}</span>
+      <span class="material-symbols-outlined">account_circle</span>
     </button>
     <SideBar :showSideBar="userClicked" @update:hideSideBar="toggleUser">
-      <UserDisplay :userClicked="userClicked"></UserDisplay>
+      <UserDisplay v-if="userClicked"></UserDisplay>
       <!-- here add le panier -->
     </SideBar>
   </header>
@@ -25,9 +25,6 @@ import logoPath from "../assets/images/logo.png"; // Importer le logo
 const logo = ref(logoPath); // Référence au chemin du logo
 const userClicked = ref(false);
 
-const logIconChange = computed(() => {
-  return userClicked.value ? "close" : "account_circle";
-});
 
 const toggleUser = () => {
   userClicked.value = !userClicked.value;
@@ -76,7 +73,7 @@ header {
       transform: scale(1.1);
     }
     .material-symbols-outlined {
-      font-size: 30px;
+      font-size: 35px;
       font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
       transition: transform 0.5s ease;
     }
