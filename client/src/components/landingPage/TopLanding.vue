@@ -31,7 +31,7 @@
 
 <style lang="scss" scoped>
 .top-landing {
-  padding-bottom: 100px;
+  padding-bottom: 50px;
   width: 100%;
   background-color: #ffffff;
   display: flex;

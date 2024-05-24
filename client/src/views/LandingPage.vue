@@ -1,11 +1,13 @@
 <template>
   <div class="container-landing">
     <TopLanding></TopLanding>
+    <HighLight></HighLight>
   </div>
 </template>
 
 <script setup>
 import TopLanding from "../components/landingPage/TopLanding.vue";
+import HighLight from "../components/landingPage/HighLight.vue";
 </script>
 
 <style lang="scss" scoped>
