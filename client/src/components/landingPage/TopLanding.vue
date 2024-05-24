@@ -33,7 +33,7 @@
 .top-landing {
   padding-bottom: 100px;
   width: 100%;
-  background-color: #f2f2f2;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -58,6 +58,7 @@
       border: none;
       border-bottom: 2px solid #f2a45a;
       font-size: 19px;
+      background-color: #f5f5f5;
 
       &:focus {
         outline: none;
