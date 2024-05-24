@@ -16,6 +16,5 @@ import TopLanding from "../components/landingPage/TopLanding.vue";
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: #f2f2f2;
 }
 </style>
