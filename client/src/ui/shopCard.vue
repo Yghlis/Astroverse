@@ -1,22 +1,22 @@
 <template>
-  <div ref="selecteurCard" class="card" @mouseenter="handleMouseEnter" @mouseleave="handleMouseLeave">
+  <div
+    ref="selecteurCard"
+    class="card"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
+  >
     <span class="material-symbols-outlined favorite"> favorite </span>
-    <img
-      src="../assets/images/figurines/one-piece-figurine-luffy-gear-5-king-of-artist-banpresto.jpg"
-      alt="figurine image"
-    />
+    <img :src="imageSrc" alt="figurine image" />
     <div class="information">
-      <p>ONE PIECE - FIGURINE LUFFY - GEAR 5 - KING OF ARTIST - BANPRESTO</p>
+      <p class="title">{{ title }}</p>
       <div class="rating">
-        <span>★</span>
-        <span>★</span>
-        <span>★</span>
-        <span>★</span>
-        <span>★</span>
-        <p>(120)</p>
+        <span v-for="(star, index) in 5" :key="index" class="star">
+          {{ index < rating ? "★" : "☆" }}
+        </span>
+        <p>({{ numberOfRatings }})</p>
       </div>
       <div class="price">
-        <span>$35.99</span>
+        <span>{{ price }}</span>
       </div>
       <transition name="fade-slide">
         <button v-if="showBtn">Add to cart</button>
@@ -29,20 +29,35 @@
 import { ref } from "vue";
 import { animate } from "motion";
 
+const props = defineProps({
+  imageSrc: String,
+  title: String,
+  rating: Number,
+  numberOfRatings: Number,
+  price: String,
+});
+
+const imageSrcTwo = ref(props.imageSrc);
+
 const showBtn = ref(false);
 const selecteurCard = ref(null);
 
 const toggleBtn = () => {
   showBtn.value = !showBtn.value;
+  console.log(props.imageSrc);
 };
 
 const handleMouseEnter = () => {
-  animate(selecteurCard.value, { height: '430px', y:'-10px' }, { duration: 0.3 });
+  animate(
+    selecteurCard.value,
+    { height: "430px", y: "-10px" },
+    { duration: 0.3 }
+  );
   toggleBtn();
 };
 
 const handleMouseLeave = () => {
-  animate(selecteurCard.value, { height: '350px',y: '10px' }, { duration: 0.3 });
+  animate(selecteurCard.value, { height: "350px", y: "0" }, { duration: 0.3 });
   toggleBtn();
 };
 </script>
@@ -60,7 +75,7 @@ const handleMouseLeave = () => {
   cursor: pointer;
   height: 350px;
   &:hover {
-   border: 1px solid #f2a45a;
+    border: 1px solid #f2a45a;
   }
   .favorite {
     cursor: pointer;
@@ -96,13 +111,24 @@ const handleMouseLeave = () => {
       font-weight: 700;
       margin: 10px 0 0 0;
     }
+    .title {
+      height: 60px;
+      //for having ... when text is too long
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      line-height: 20px;
+    }
+
     .rating {
       width: 100%;
       display: flex;
       justify-content: flex-start;
       align-items: center;
       margin: 0;
-      span {
+      .star {
         color: #f1c40f;
         font-size: 17px;
       }
@@ -146,7 +172,8 @@ const handleMouseLeave = () => {
   }
 }
 
-.fade-slide-enter-active, .fade-slide-leave-active {
+.fade-slide-enter-active,
+.fade-slide-leave-active {
   transition: all 0.25s ease;
 }
 .fade-slide-enter-from {
