@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  client:
+    image: node:20.0.0-alpine
+    user: node
+    entrypoint: sh -c
+    working_dir: /home/node
+    command: '"npm install && npm run dev"'
+    ports:
+      - 5173:5173
+    volumes:
+      - ./client:/home/node
+    depends_on:
+      - server
+
+  server:
+    image: node:20.0.0-alpine
+    user: node
+    tty: true
+    stdin_open: true
+    working_dir: /home/node
+    entrypoint: sh -c
+    command: '"npm install && npm run dev"'
+    ports:
+      - 8000:8000
+    volumes:
+      - ./server:/home/node
+      - ./server/.env:/home/node/.env  # Ajoutez cette ligne pour monter le fichier .env
+    depends_on:
+      - postgres
+      - mongo
+    environment:
+      - NODE_ENV=development
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=example
+      - DB_NAME=astroverse
+      - DB_URI=mongodb://mongo:27017/astroverse
+
+  postgres:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: astroverse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  postgres-data:
+  mongo-data:
