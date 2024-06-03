@@ -2,7 +2,7 @@
   <Header></Header>
   <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
-        <component :is="Component" />
+        <component class="container" :is="Component" />
       </transition>
   </router-view>
 </template>
@@ -12,7 +12,7 @@ import Header from "./components/Header.vue";
 </script>
 
 <style lang="scss" scoped>
-.component {
+.container {
   margin-top: 100px;
 }
 .fade-enter-active,

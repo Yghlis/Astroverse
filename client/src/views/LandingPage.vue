@@ -12,7 +12,6 @@ import HighLight from "../components/landingPage/HighLight.vue";
 
 <style lang="scss" scoped>
 .container-landing {
-  margin-top: 100px;
   width: 100%;
   display: flex;
   flex-direction: column;

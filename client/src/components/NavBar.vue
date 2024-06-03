@@ -7,7 +7,7 @@
     <RouterLink to="/" :class="{ active: $route.path === '/' }"
       >Home</RouterLink
     >
-    <RouterLink to="/hello" :class="{ active: $route.path === '/hello' }"
+    <RouterLink to="/shop" :class="{ active: $route.path === '/shop' }"
       >Shop</RouterLink
     >
     <RouterLink to="/">About us</RouterLink>

@@ -83,5 +83,7 @@ const figurines = reactive([
     flex-wrap: wrap;
     gap: 20px;
   }
+
+  
 }
 </style>
