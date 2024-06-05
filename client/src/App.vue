@@ -1,30 +1,26 @@
-<script setup>
-import HelloWorld from "./components/HelloWorld.vue";
-</script>
-
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <Header></Header>
+  <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component class="container" :is="Component" />
+      </transition>
+  </router-view>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script setup>
+import Header from "./components/Header.vue";
+</script>
+
+<style lang="scss" scoped>
+.container {
+  margin-top: 100px;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

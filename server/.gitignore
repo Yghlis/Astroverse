@@ -47,3 +47,6 @@ dist/
 # Autres fichiers et répertoires
 .DS_Store
 Thumbs.db
+
+# Fichiers de sauvegarde
+.npm
