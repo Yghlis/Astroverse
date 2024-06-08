@@ -1,23 +1,20 @@
 <template>
-  <span class="material-symbols-outlined">person</span>
-  <h2 v-if="!userLoggedIn">Connectez-vous</h2>
+  <span class="material-symbols-outlined"> person </span>
+  <h2>Connectez-vous</h2>
   <Transition name="slide" mode="out-in">
     <div v-if="!loginClicked" class="log-btn-container">
       <button class="log-btn" @click="loginHandler">Login</button>
-      <RouterLink to="/" class="log-btn">Register</RouterLink>
-    </div>
-    <div v-else-if="!userLoggedIn" class="log-btn-container">
-      <input type="email" class="log-input" placeholder="Email" v-model="userEmail">
-      <input type="password" class="log-input" placeholder="Mot de passe" v-model="userPassword">
-      <button class="log-btn alt" @click="loginHandler">Me Connecter</button>
+      <RouterLink to="/" class="log-btn"
+        >Register</RouterLink
+      >
     </div>
     <div v-else class="log-btn-container">
-      <button class="log-btn" @click="logoutHandler">Logout</button>
-      <span>Bienvenue!</span>
+      <input type="email" class="log-input"placeholder="Email">
+      <input type="password" class="log-input" placeholder="Mot de passe">
+      <button class="log-btn alt" @click="loginHandler">Me Connecter</button>
     </div>
   </Transition>
 </template>
-
 
 <script setup>
 import { ref } from "vue";

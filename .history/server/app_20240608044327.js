@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { indexRouter } from './routes/index.js'; // Assurez-vous que le chemin est correct
+import indexRouter from './routes/index.js'; // Assurez-vous que le chemin est correct
 import sequelize from './config/database.js';
 
 dotenv.config();

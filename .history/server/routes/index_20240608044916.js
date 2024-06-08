@@ -3,11 +3,12 @@ import mongoose from 'mongoose';
 import sequelize from '../config/database.js';
 import authRoutes from './auth.js'; 
 
-const router = express.Router();
+import { indexRouter } from './routes/index.js';
+
 
 router.use('/auth', authRoutes);
 
-// Route de test pour MongoDB
+// Route de test pour MongoDB penser a les supprimer avant le rendu
 router.get('/test-mongo', async (req, res) => {
   try {
     const db = mongoose.connection;
@@ -19,7 +20,7 @@ router.get('/test-mongo', async (req, res) => {
   }
 });
 
-// Route de test pour PostgreSQL
+// Route de test pour PostgreSQL penser a les supprimer avant le rendu
 router.get('/test-postgres', async (req, res) => {
   try {
     await sequelize.authenticate();
