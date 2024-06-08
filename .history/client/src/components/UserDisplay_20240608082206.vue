@@ -6,7 +6,8 @@
     <div v-if="!userLoggedIn">
       <div v-if="!loginClicked && !passwordResetRequested" class="log-btn-container">
         <button class="log-btn" @click="loginClicked = true">Login</button>
-        <RouterLink to="/register" class="log-btn">Register</RouterLink>
+        <RouterLink to="/register" class="log-btn" @click.prevent="register">Register</RouterLink>
+
       </div>
       <div v-else class="log-btn-container">
         <div v-if="passwordResetRequested">
@@ -44,6 +45,17 @@ const passwordResetRequested = ref(false);
 const userEmail = ref('');
 const userPassword = ref('');
 const errorMessage = ref('');
+
+const isExiting = ref(false);
+const register = () => {
+  isExiting.value = true;  // Commencer l'animation de sortie
+  setTimeout(() => {
+    isExiting.value = false;  // Réinitialiser l'état
+    router.push('/register');  // Rediriger après l'animation
+  }, 500);  // Assurez-vous que la durée correspond à celle de l'animation CSS
+};
+
+
 
 const loginHandler = async () => {
   loginClicked.value = true;
@@ -99,8 +111,8 @@ const sendResetEmail = async () => {
 };
 
 const returnToLogin = () => {
-  loginClicked.value = false;
   passwordResetRequested.value = false;
+  loginClicked.value = true;
 };
 
 const returnToInitial = () => {
@@ -108,13 +120,13 @@ const returnToInitial = () => {
   passwordResetRequested.value = false;
 };
 
+
 const checkLoginStatus = () => {
   userLoggedIn.value = !!localStorage.getItem('jwt');
 };
 
 checkLoginStatus();
 </script>
-
 
 
 <style scoped>

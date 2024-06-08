@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LandingPage from '../views/LandingPage.vue';
 import HelloWorld from '../components/HelloWorld.vue';
 import TheShop from '../views/TheShop.vue';
-import Register from '../views/Register.vue';
 // import Logout from '../views/Logout.vue';
 // import ForgotPassword from '../views/ForgotPassword.vue';
 

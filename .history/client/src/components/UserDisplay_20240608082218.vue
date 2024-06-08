@@ -98,15 +98,7 @@ const sendResetEmail = async () => {
   }
 };
 
-const returnToLogin = () => {
-  loginClicked.value = false;
-  passwordResetRequested.value = false;
-};
 
-const returnToInitial = () => {
-  loginClicked.value = false;
-  passwordResetRequested.value = false;
-};
 
 const checkLoginStatus = () => {
   userLoggedIn.value = !!localStorage.getItem('jwt');
@@ -114,7 +106,6 @@ const checkLoginStatus = () => {
 
 checkLoginStatus();
 </script>
-
 
 
 <style scoped>

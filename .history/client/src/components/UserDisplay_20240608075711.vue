@@ -6,7 +6,7 @@
     <div v-if="!userLoggedIn">
       <div v-if="!loginClicked && !passwordResetRequested" class="log-btn-container">
         <button class="log-btn" @click="loginClicked = true">Login</button>
-        <RouterLink to="/register" class="log-btn">Register</RouterLink>
+        <button class="log-btn" @click="openRegisterModal">Register</button>
       </div>
       <div v-else class="log-btn-container">
         <div v-if="passwordResetRequested">
@@ -29,14 +29,12 @@
       <span>Bienvenue!</span>
     </div>
   </Transition>
+  <register-modal v-if="showRegisterModal" @close="closeRegisterModal" />
 </template>
-
-
-
 
 <script setup>
 import { ref } from "vue";
-import { RouterLink } from "vue-router";
+import RegisterModal from "./RegisterModal.vue"; // voir si on utilise vite pour mettre le chemin en mode vite.js
 
 const userLoggedIn = ref(false);
 const loginClicked = ref(false);
@@ -44,6 +42,7 @@ const passwordResetRequested = ref(false);
 const userEmail = ref('');
 const userPassword = ref('');
 const errorMessage = ref('');
+const showRegisterModal = ref(false);
 
 const loginHandler = async () => {
   loginClicked.value = true;
@@ -91,7 +90,7 @@ const sendResetEmail = async () => {
     }
 
     errorMessage.value = 'Un email de réinitialisation a été envoyé. Veuillez vérifier votre boîte de réception.';
-    passwordResetRequested.value = false;  // Réinitialiser la vue après l'envoi
+    passwordResetRequested.value = false;
   } catch (error) {
     console.error('Error during password reset request:', error);
     errorMessage.value = error.message || 'Erreur lors de la demande de réinitialisation du mot de passe.';
@@ -99,13 +98,21 @@ const sendResetEmail = async () => {
 };
 
 const returnToLogin = () => {
-  loginClicked.value = false;
   passwordResetRequested.value = false;
+  loginClicked.value = true;
 };
 
 const returnToInitial = () => {
   loginClicked.value = false;
   passwordResetRequested.value = false;
+};
+
+const openRegisterModal = () => {
+  showRegisterModal.value = true;
+};
+
+const closeRegisterModal = () => {
+  showRegisterModal.value = false;
 };
 
 const checkLoginStatus = () => {
@@ -114,8 +121,6 @@ const checkLoginStatus = () => {
 
 checkLoginStatus();
 </script>
-
-
 
 <style scoped>
 .material-symbols-outlined {
@@ -147,10 +152,10 @@ h2 {
   margin: 5px 0;
   border-radius: 25px;
   font-size: 20px;
-  font-weight: bold;
+  font-weight:bold;
   transition: all 0.3s ease;
   background-color: white;
-  cursor: pointer;
+  cursor:pointer;
   font-family: 'Nippo', sans-serif;
 }
 .log-btn:hover, .log-btn.alt:hover {

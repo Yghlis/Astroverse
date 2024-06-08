@@ -4,22 +4,24 @@
   <h2 v-else-if="passwordResetRequested">Réinitialisez votre mot de passe</h2>
   <Transition name="slide" mode="out-in">
     <div v-if="!userLoggedIn">
+      <!-- Affiche le bouton login et register seulement si la réinitialisation n'est pas demandée -->
       <div v-if="!loginClicked && !passwordResetRequested" class="log-btn-container">
         <button class="log-btn" @click="loginClicked = true">Login</button>
         <RouterLink to="/register" class="log-btn">Register</RouterLink>
       </div>
+      <!-- Affiche les champs de login ou le formulaire de réinitialisation -->
       <div v-else class="log-btn-container">
+        <!-- Formulaire de réinitialisation du mot de passe -->
         <div v-if="passwordResetRequested">
           <input type="email" class="log-input" placeholder="Votre email" v-model="userEmail">
           <button class="log-btn alt" @click="sendResetEmail">Envoyer un mail</button>
-          <button class="log-btn" @click="returnToLogin">Retour</button>
         </div>
+        <!-- Champs de connexion normaux -->
         <div v-else>
           <input type="email" class="log-input" placeholder="Email" v-model="userEmail">
           <input type="password" class="log-input" placeholder="Mot de passe" v-model="userPassword">
           <button class="log-btn alt" @click="loginHandler">Me Connecter</button>
           <button type="button" @click="forgotPassword" class="forgot-password">Mot de passe oublié?</button>
-          <button class="log-btn" @click="returnToInitial">Retour</button>
         </div>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </div>
@@ -30,7 +32,6 @@
     </div>
   </Transition>
 </template>
-
 
 
 
@@ -98,23 +99,12 @@ const sendResetEmail = async () => {
   }
 };
 
-const returnToLogin = () => {
-  loginClicked.value = false;
-  passwordResetRequested.value = false;
-};
-
-const returnToInitial = () => {
-  loginClicked.value = false;
-  passwordResetRequested.value = false;
-};
-
 const checkLoginStatus = () => {
   userLoggedIn.value = !!localStorage.getItem('jwt');
 };
 
 checkLoginStatus();
 </script>
-
 
 
 <style scoped>

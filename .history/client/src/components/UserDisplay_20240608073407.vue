@@ -99,8 +99,8 @@ const sendResetEmail = async () => {
 };
 
 const returnToLogin = () => {
-  loginClicked.value = false;
   passwordResetRequested.value = false;
+  loginClicked.value = true;
 };
 
 const returnToInitial = () => {
@@ -108,13 +108,13 @@ const returnToInitial = () => {
   passwordResetRequested.value = false;
 };
 
+
 const checkLoginStatus = () => {
   userLoggedIn.value = !!localStorage.getItem('jwt');
 };
 
 checkLoginStatus();
 </script>
-
 
 
 <style scoped>
