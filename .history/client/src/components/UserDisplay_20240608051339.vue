@@ -3,28 +3,17 @@
   <h2 v-if="!userLoggedIn">Connectez-vous</h2>
   <Transition name="slide" mode="out-in">
     <div v-if="!userLoggedIn">
-      <!-- Affiche le bouton login et register seulement si la réinitialisation n'est pas demandée -->
-      <div v-if="!loginClicked && !passwordResetRequested" class="log-btn-container">
+      <div v-if="!loginClicked" class="log-btn-container">
         <button class="log-btn" @click="loginClicked = true">Login</button>
         <RouterLink to="/register" class="log-btn">Register</RouterLink>
       </div>
-      <!-- Affiche les champs de login ou le formulaire de réinitialisation -->
       <div v-else class="log-btn-container">
-        <!-- Formulaire de réinitialisation du mot de passe -->
-        <div v-if="passwordResetRequested">
-          <input type="email" class="log-input" placeholder="Votre email" v-model="userEmail">
-          <button class="log-btn alt" @click="sendResetEmail">Envoyer un mail</button>
-        </div>
-        <!-- Champs de connexion normaux -->
-        <div v-else>
-          <input type="email" class="log-input" placeholder="Email" v-model="userEmail">
-          <input type="password" class="log-input" placeholder="Mot de passe" v-model="userPassword">
-          <button class="log-btn alt" @click="loginHandler">Me Connecter</button>
-          <button type="button" @click="forgotPassword" class="forgot-password">Mot de passe oublié?</button>
-        </div>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <input type="email" class="log-input" placeholder="Email" v-model="userEmail">
+        <input type="password" class="log-input" placeholder="Mot de passe" v-model="userPassword">
+        <button class="log-btn alt" @click="loginHandler">Me Connecter</button>
       </div>
     </div>
+    <!-- Afficher seulement si l'utilisateur est connecté -->
     <div v-else class="log-btn-container">
       <button class="log-btn" @click="logoutHandler">Logout</button>
       <span>Bienvenue!</span>
@@ -33,16 +22,16 @@
 </template>
 
 
+
 <script setup>
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
 
 const userLoggedIn = ref(false);
 const loginClicked = ref(false);
-const passwordResetRequested = ref(false);
 const userEmail = ref('');
 const userPassword = ref('');
-const errorMessage = ref('');
+const errorMessage = ref(''); // Pour stocker les messages d'erreur
 
 const loginHandler = async () => {
   loginClicked.value = true;
@@ -72,38 +61,12 @@ const logoutHandler = () => {
   userLoggedIn.value = false;
 };
 
-const forgotPassword = () => {
-  passwordResetRequested.value = true;
-};
-
-const sendResetEmail = async () => {
-  try {
-    const response = await fetch('http://localhost:8000/auth/forgot-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: userEmail.value })
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to send password reset email');
-    }
-
-    errorMessage.value = 'Un email de réinitialisation a été envoyé. Veuillez vérifier votre boîte de réception.';
-    passwordResetRequested.value = false;  // Réinitialiser la vue après l'envoi
-  } catch (error) {
-    console.error('Error during password reset request:', error);
-    errorMessage.value = error.message || 'Erreur lors de la demande de réinitialisation du mot de passe.';
-  }
-};
-
 const checkLoginStatus = () => {
   userLoggedIn.value = !!localStorage.getItem('jwt');
 };
 
 checkLoginStatus();
 </script>
-
 
 <style scoped>
 .material-symbols-outlined {
@@ -156,6 +119,7 @@ h2 {
   color: red;
   text-align: center;
 }
+
 .slide-enter-active, .slide-leave-active {
   transition: transform 0.5s ease;
 }

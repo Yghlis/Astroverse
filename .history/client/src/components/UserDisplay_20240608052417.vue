@@ -39,10 +39,9 @@ import { RouterLink } from "vue-router";
 
 const userLoggedIn = ref(false);
 const loginClicked = ref(false);
-const passwordResetRequested = ref(false);
 const userEmail = ref('');
 const userPassword = ref('');
-const errorMessage = ref('');
+const errorMessage = ref(''); // Pour stocker les messages d'erreur
 
 const loginHandler = async () => {
   loginClicked.value = true;
@@ -72,15 +71,13 @@ const logoutHandler = () => {
   userLoggedIn.value = false;
 };
 
-const forgotPassword = () => {
-  passwordResetRequested.value = true;
-};
-
-const sendResetEmail = async () => {
+const forgotPassword = async () => {
   try {
     const response = await fetch('http://localhost:8000/auth/forgot-password', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ email: userEmail.value })
     });
 
@@ -90,7 +87,6 @@ const sendResetEmail = async () => {
     }
 
     errorMessage.value = 'Un email de réinitialisation a été envoyé. Veuillez vérifier votre boîte de réception.';
-    passwordResetRequested.value = false;  // Réinitialiser la vue après l'envoi
   } catch (error) {
     console.error('Error during password reset request:', error);
     errorMessage.value = error.message || 'Erreur lors de la demande de réinitialisation du mot de passe.';
@@ -103,7 +99,6 @@ const checkLoginStatus = () => {
 
 checkLoginStatus();
 </script>
-
 
 <style scoped>
 .material-symbols-outlined {
