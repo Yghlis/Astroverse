@@ -93,6 +93,7 @@ const postLogin = async (req, res) => {
     });
 };
 
+
 function validatePassword(password) {
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{12,}$/;
     return passwordRegex.test(password);
@@ -148,25 +149,16 @@ const postSignup = async (req, res) => {
 const postLogout = (req, res) => {
     res.json({ message: 'Déconnexion réussie' });
 };
-const resetPasswordGet = async (req, res) => {
-    const { token } = req.params; // Récupérer le token de l'URL
-    const user = await User.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: new Date() }
-    });
-
-    if (!user) {
-        return res.status(400).send('Le lien de réinitialisation est invalide ou a expiré.');
-    }
-
-    // Assure-toi que cette page existe et est correctement configurée pour soumettre à la route '/auth/reset-password'
-    // La ligne suivante suppose que tu utilises un système de template côté serveur pour rendre une vue.
-    res.render('resetPassword', { token }); // 'resetPassword' devrait être un fichier .ejs, .pug, ou autre template rendu côté serveur
-};
-
 
 const postForgotPassword = async (req, res) => {
     const { email } = req.body;
+
+    // Validation de l'email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return sendError(res, 400, 'Format de l\'email invalide.');
+    }
+
     const user = await User.findOne({ email });
     if (user) {
         user.resetPasswordToken = uuidv4();
@@ -191,6 +183,7 @@ const postForgotPassword = async (req, res) => {
     // Réponse uniforme pour éviter la divulgation d'informations
     res.status(200).json({ message: 'Si votre email est enregistré chez nous, un lien de réinitialisation a été envoyé.' });
 };
+
 
 
 const postResetPassword = async (req, res) => {
@@ -219,6 +212,5 @@ export default {
     postLogout,
     verifyEmail,
     postForgotPassword,
-    postResetPassword,
-    resetPasswordGet,
+    postResetPassword
 };

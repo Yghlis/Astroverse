@@ -148,22 +148,6 @@ const postSignup = async (req, res) => {
 const postLogout = (req, res) => {
     res.json({ message: 'Déconnexion réussie' });
 };
-const resetPasswordGet = async (req, res) => {
-    const { token } = req.params; // Récupérer le token de l'URL
-    const user = await User.findOne({
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: new Date() }
-    });
-
-    if (!user) {
-        return res.status(400).send('Le lien de réinitialisation est invalide ou a expiré.');
-    }
-
-    // Assure-toi que cette page existe et est correctement configurée pour soumettre à la route '/auth/reset-password'
-    // La ligne suivante suppose que tu utilises un système de template côté serveur pour rendre une vue.
-    res.render('resetPassword', { token }); // 'resetPassword' devrait être un fichier .ejs, .pug, ou autre template rendu côté serveur
-};
-
 
 const postForgotPassword = async (req, res) => {
     const { email } = req.body;
@@ -219,6 +203,5 @@ export default {
     postLogout,
     verifyEmail,
     postForgotPassword,
-    postResetPassword,
-    resetPasswordGet,
+    postResetPassword
 };

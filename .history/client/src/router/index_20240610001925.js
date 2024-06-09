@@ -8,7 +8,7 @@ const routes = [
   { path: '/', component: LandingPage },
   { path: '/shop', component: TheShop },
   { path: '/register', component: Register, meta: { requiresGuest: true } },
-  { path: '/forgot-password', component: ForgotPassword }, 
+  { path: '/forgot-password', component: ForgotPassword }, // Utilise les métadonnées pour conditionner l'accès
   // { path: '/forgot-password', component: ForgotPassword },
   // Ajoutez d'autres routes ici
 ];

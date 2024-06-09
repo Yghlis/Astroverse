@@ -219,6 +219,6 @@ export default {
     postLogout,
     verifyEmail,
     postForgotPassword,
-    postResetPassword,
+    postResetPassword
     resetPasswordGet,
 };

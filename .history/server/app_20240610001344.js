@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { indexRouter } from './routes/index.js'; // Assurez-vous que le chemin est correct
 import sequelize from './config/database.js';
-
+const authRoutes = require('./routes/authRoutes');
 
 
 
@@ -13,7 +13,6 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 8000;
-import authRoutes from './routes/auth.js';
 
 // Middleware
 app.use(cors());
