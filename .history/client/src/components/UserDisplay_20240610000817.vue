@@ -38,6 +38,7 @@
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
 
+
 const userLoggedIn = ref(false);
 const loginClicked = ref(false);
 const passwordResetRequested = ref(false);

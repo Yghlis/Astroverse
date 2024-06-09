@@ -28,7 +28,7 @@
     </div>
   </template>
   
-  <script>
+<script>
 export default {
   data() {
     return {
@@ -46,25 +46,34 @@ export default {
   methods: {
     evaluatePassword() {
       const strength = this.getPasswordStrength(this.password);
-      if (strength < 4 || this.password.length < 12) {
-        this.passwordStrength.message = 'Weak';
-        this.passwordStrength.color = 'red';
-      } else if (strength === 4 || this.password.length >= 12) {
-        this.passwordStrength.message = 'Moderate';
-        this.passwordStrength.color = 'orange';
-      } else if (strength > 4 && this.password.length >= 16) {
-        this.passwordStrength.message = 'Good';
-        this.passwordStrength.color = 'green';
+      switch(strength) {
+        case 0:
+        case 1:
+        case 2:
+          this.passwordStrength.message = 'Weak';
+          this.passwordStrength.color = 'red';
+          break;
+        case 3:
+        case 4:
+          this.passwordStrength.message = 'Moderate';
+          this.passwordStrength.color = 'orange';
+          break;
+        case 5:
+          this.passwordStrength.message = 'Strong';
+          this.passwordStrength.color = 'green';
+          break;
       }
     },
     getPasswordStrength(password) {
-      let strength = 0;
-      if (password.match(/[a-z]/)) strength++; // Un point pour les minuscules
-      if (password.match(/[A-Z]/)) strength++; // Un point pour les majuscules
-      if (password.match(/[0-9]/)) strength++; // Un point pour les chiffres
-      if (password.match(/[\W]/)) strength++; // Un point pour les caractères spéciaux
-      return strength;
-    },
+  let strength = 0;
+  const lengthRequirement = 12; // Longueur minimale du mot de passe
+  if (password.length >= lengthRequirement) strength += 2; // Augmente de deux points si la longueur est respectée
+  if (password.match(/[a-z]/)) strength++; // Un point pour les minuscules
+  if (password.match(/[A-Z]/)) strength++; // Un point pour les majuscules
+  if (password.match(/[0-9]/)) strength++; // Un point pour les chiffres
+  if (password.match(/[\W]/)) strength++; // Un point pour les caractères spéciaux
+  return strength;
+}
     async register() {
       if (this.password !== this.confirmPassword) {
         alert("Passwords do not match");
@@ -99,4 +108,3 @@ export default {
   },
 }
 </script>
-

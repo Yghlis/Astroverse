@@ -67,7 +67,7 @@ const postLogin = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-        return sendError(res, 400, 'Invalid email or password');
+        return sendError(res, 400, 'Invalid email or passwordWOUF ');
     }
     if (!user.isEmailVerified) {
         return sendError(res, 401, 'Your email address has not been verified. Please check your email for the verification link.');

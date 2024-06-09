@@ -1,5 +1,6 @@
 <template>
   <span class="material-symbols-outlined">person</span>
+  <flash-message ref="flashMessage" />
   <h2 v-if="!userLoggedIn && !passwordResetRequested">Connectez-vous</h2>
   <h2 v-else-if="passwordResetRequested">Réinitialisez votre mot de passe</h2>
   <Transition name="slide" mode="out-in">
@@ -37,6 +38,7 @@
 <script setup>
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
+import FlashMessage from '@/components/global/FlashMessage.vue';
 
 const userLoggedIn = ref(false);
 const loginClicked = ref(false);

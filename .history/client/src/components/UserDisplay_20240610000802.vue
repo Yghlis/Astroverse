@@ -1,5 +1,6 @@
 <template>
   <span class="material-symbols-outlined">person</span>
+  <flash-message ref="flashMessage" />
   <h2 v-if="!userLoggedIn && !passwordResetRequested">Connectez-vous</h2>
   <h2 v-else-if="passwordResetRequested">Réinitialisez votre mot de passe</h2>
   <Transition name="slide" mode="out-in">
@@ -21,7 +22,6 @@
           <button type="button" @click="forgotPassword" class="forgot-password">Mot de passe oublié?</button>
           <button class="log-btn" @click="returnToInitial">Retour</button>
         </div>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </div>
     </div>
     <div v-else class="log-btn-container">
@@ -34,42 +34,42 @@
 
 
 
+
 <script setup>
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
+import FlashMessage from './global/FlashMessage.vue';
 
+const flashMessage = ref(null);
 const userLoggedIn = ref(false);
 const loginClicked = ref(false);
 const passwordResetRequested = ref(false);
 const userEmail = ref('');
 const userPassword = ref('');
-const errorMessage = ref('');
 
 const loginHandler = async () => {
-  loginClicked.value = true;
-  if (!userEmail.value || !userPassword.value) {
-    errorMessage.value = 'Veuillez entrer une adresse e-mail et un mot de passe.';
-    return;
-  }
+  try {
+    const response = await fetch('http://localhost:8000/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail.value, password: userPassword.value })
+    });
 
-  const response = await fetch('http://localhost:8000/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: userEmail.value, password: userPassword.value })
-  });
-
-  if (response.ok) {
     const data = await response.json();
-    console.log('Login successful:', data);  // Console log the successful response data
-    localStorage.setItem('jwt', data.token);
-    userLoggedIn.value = true;
-  } else {
-    const errorData = await response.json();
-    console.log('Login failed:', errorData); // Console log the error response data
-    errorMessage.value = errorData.message || 'Erreur de connexion';
+    if (response.ok) {
+      flashMessage.value.message = data.message;
+      flashMessage.value.type = 'success';
+      flashMessage.value.showMessage();
+      userLoggedIn.value = true;
+    } else {
+      throw new Error(data.message || 'Erreur non spécifiée par le serveur');
+    }
+  } catch (error) {
+    flashMessage.value.message = error.message;
+    flashMessage.value.type = 'error';
+    flashMessage.value.showMessage();
   }
 };
-
 
 const logoutHandler = () => {
   localStorage.removeItem('jwt');
@@ -83,8 +83,10 @@ const forgotPassword = () => {
 const sendResetEmail = async () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(userEmail.value)) {
-    errorMessage.value = 'Format de l\'email invalide.';
-    return; // Arrête l'exécution si le format n'est pas valide
+    flashMessage.value.message = 'Format de l\'email invalide.';
+    flashMessage.value.type = 'error';
+    flashMessage.value.showMessage();
+    return;
   }
 
   try {
@@ -94,19 +96,21 @@ const sendResetEmail = async () => {
       body: JSON.stringify({ email: userEmail.value })
     });
 
-    const data = await response.json();
-    if (!response.ok) {
+    if (response.ok) {
+      const data = await response.json();
+      flashMessage.value.message = data.message;
+      flashMessage.value.type = 'success';
+      flashMessage.value.showMessage();
+      passwordResetRequested.value = false;
+    } else {
       throw new Error(data.message || 'Failed to send password reset email');
     }
-
-    errorMessage.value = 'Si votre email est enregistré chez nous, un lien de réinitialisation a été envoyé.';
-    passwordResetRequested.value = false;  // Réinitialiser la vue après l'envoi
   } catch (error) {
-    console.error('Error during password reset request:', error);
-    errorMessage.value = error.message || 'Erreur lors de la demande de réinitialisation du mot de passe.';
+    flashMessage.value.message = error.message;
+    flashMessage.value.type = 'error';
+    flashMessage.value.showMessage();
   }
 };
-
 
 const returnToLogin = () => {
   loginClicked.value = false;
@@ -124,6 +128,7 @@ const checkLoginStatus = () => {
 
 checkLoginStatus();
 </script>
+
 
 
 

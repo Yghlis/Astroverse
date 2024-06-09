@@ -1,5 +1,6 @@
 <template>
   <span class="material-symbols-outlined">person</span>
+  <flash-message ref="flashMessage" />
   <h2 v-if="!userLoggedIn && !passwordResetRequested">Connectez-vous</h2>
   <h2 v-else-if="passwordResetRequested">Réinitialisez votre mot de passe</h2>
   <Transition name="slide" mode="out-in">
@@ -21,7 +22,6 @@
           <button type="button" @click="forgotPassword" class="forgot-password">Mot de passe oublié?</button>
           <button class="log-btn" @click="returnToInitial">Retour</button>
         </div>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </div>
     </div>
     <div v-else class="log-btn-container">
@@ -34,9 +34,11 @@
 
 
 
+
 <script setup>
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
+import FlashMessage from '@/components/global/FlashMessage.vue';
 
 const userLoggedIn = ref(false);
 const loginClicked = ref(false);
@@ -46,27 +48,26 @@ const userPassword = ref('');
 const errorMessage = ref('');
 
 const loginHandler = async () => {
-  loginClicked.value = true;
-  if (!userEmail.value || !userPassword.value) {
-    errorMessage.value = 'Veuillez entrer une adresse e-mail et un mot de passe.';
-    return;
-  }
+  try {
+    const response = await fetch('http://localhost:8000/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail.value, password: userPassword.value })
+    });
 
-  const response = await fetch('http://localhost:8000/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: userEmail.value, password: userPassword.value })
-  });
-
-  if (response.ok) {
     const data = await response.json();
-    console.log('Login successful:', data);  // Console log the successful response data
-    localStorage.setItem('jwt', data.token);
-    userLoggedIn.value = true;
-  } else {
-    const errorData = await response.json();
-    console.log('Login failed:', errorData); // Console log the error response data
-    errorMessage.value = errorData.message || 'Erreur de connexion';
+    if (response.ok) {
+      flashMessage.value.message = data.message;  // Utilise le message du serveur
+      flashMessage.value.type = 'success';
+      flashMessage.value.showMessage();
+      // Autres actions en cas de succès, comme la navigation ou le stockage de token
+    } else {
+      throw new Error(data.message || 'Erreur non spécifiée par le serveur');
+    }
+  } catch (error) {
+    flashMessage.value.message = error.message;
+    flashMessage.value.type = 'error';
+    flashMessage.value.showMessage();
   }
 };
 

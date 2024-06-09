@@ -81,12 +81,6 @@ const forgotPassword = () => {
 };
 
 const sendResetEmail = async () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(userEmail.value)) {
-    errorMessage.value = 'Format de l\'email invalide.';
-    return; // Arrête l'exécution si le format n'est pas valide
-  }
-
   try {
     const response = await fetch('http://localhost:8000/auth/forgot-password', {
       method: 'POST',
@@ -99,14 +93,13 @@ const sendResetEmail = async () => {
       throw new Error(data.message || 'Failed to send password reset email');
     }
 
-    errorMessage.value = 'Si votre email est enregistré chez nous, un lien de réinitialisation a été envoyé.';
+    errorMessage.value = 'Un email de réinitialisation a été envoyé. Veuillez vérifier votre boîte de réception.';
     passwordResetRequested.value = false;  // Réinitialiser la vue après l'envoi
   } catch (error) {
     console.error('Error during password reset request:', error);
     errorMessage.value = error.message || 'Erreur lors de la demande de réinitialisation du mot de passe.';
   }
 };
-
 
 const returnToLogin = () => {
   loginClicked.value = false;

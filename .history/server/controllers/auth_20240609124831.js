@@ -55,13 +55,13 @@ function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (token == null) return res.sendStatus(401);
-  
+
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) return res.sendStatus(403);
-      req.user = user;
-      next();
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
     });
-  }
+}
 
 const postLogin = async (req, res) => {
     const { email, password } = req.body;
@@ -101,34 +101,28 @@ function validatePassword(password) {
 const postSignup = async (req, res) => {
     const { email, password, confirmPassword, first_name, last_name } = req.body;
 
-    // Validation de la présence des champs
     if (!first_name || !last_name || !email || !password || !confirmPassword) {
         return sendError(res, 400, 'Tous les champs doivent être remplis.');
     }
 
-    // Validation de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return sendError(res, 400, 'Format de l\'email invalide.');
     }
 
-    // Validation de la force du mot de passe
     if (!validatePassword(password)) {
         return sendError(res, 400, 'Le mot de passe doit contenir au moins 12 caractères, dont un chiffre, une majuscule, une minuscule, et un symbole.');
     }
 
-    // Vérification de la correspondance des mots de passe
     if (password !== confirmPassword) {
         return sendError(res, 400, 'Les mots de passe ne correspondent pas.');
     }
 
-    // Vérification de l'existence préalable de l'email
     const userDoc = await User.findOne({ email });
     if (userDoc) {
         return sendError(res, 400, 'L\'email existe déjà.');
     }
 
-    // Hashage du mot de passe et création de l'utilisateur
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = new User({
         email: email,
@@ -144,7 +138,6 @@ const postSignup = async (req, res) => {
     res.status(201).json({ message: 'Inscription réussie. Veuillez vérifier votre email pour activer votre compte.' });
 };
 
-
 const postLogout = (req, res) => {
     res.json({ message: 'Déconnexion réussie' });
 };
@@ -152,38 +145,37 @@ const postLogout = (req, res) => {
 const postForgotPassword = async (req, res) => {
     const { email } = req.body;
 
-    // Validation de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return sendError(res, 400, 'Format de l\'email invalide.');
     }
 
     const user = await User.findOne({ email });
-    if (user) {
-        user.resetPasswordToken = uuidv4();
-        user.resetPasswordExpires = new Date(Date.now() + 3600000); // Le token expire dans 1 heure
-        await user.save();
-
-        const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${user.resetPasswordToken}`;
-        const mailOptions = {
-            from: process.env.EMAIL_USERNAME,
-            to: user.email,
-            subject: 'Réinitialisation de votre mot de passe',
-            html: `Pour réinitialiser votre mot de passe, veuillez cliquer sur ce lien : <a href="${resetUrl}">${resetUrl}</a>`
-        };
-
-        try {
-            await transporter.sendMail(mailOptions);
-        } catch (error) {
-            console.error("Failed to send reset email", error);
-            sendError(res, 500, 'Impossible d\'envoyer l\'email de réinitialisation.');
-        }
+    if (!user) {
+        return sendError(res, 404, 'Aucun utilisateur trouvé avec cet email.');
     }
-    // Réponse uniforme pour éviter la divulgation d'informations
+
+    user.resetPasswordToken = uuidv4();
+    user.resetPasswordExpires = new Date(Date.now() + 3600000); // Le token expire dans 1 heure
+    await user.save();
+
+    const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${user.resetPasswordToken}`;
+    const mailOptions = {
+        from: process.env.EMAIL_USERNAME,
+        to: user.email,
+        subject: 'Réinitialisation de votre mot de passe',
+        html: `Pour réinitialiser votre mot de passe, veuillez cliquer sur ce lien : <a href="${resetUrl}">${resetUrl}</a>`
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+    } catch (error) {
+        console.error("Failed to send reset email", error);
+        sendError(res, 500, 'Impossible d\'envoyer l\'email de réinitialisation.');
+    }
+
     res.status(200).json({ message: 'Si votre email est enregistré chez nous, un lien de réinitialisation a été envoyé.' });
 };
-
-
 
 const postResetPassword = async (req, res) => {
     const { token, newPassword } = req.body;
@@ -203,7 +195,6 @@ const postResetPassword = async (req, res) => {
 
     res.status(200).json({ message: 'Votre mot de passe a été mis à jour avec succès.' });
 };
-
 
 export default {
     postLogin,

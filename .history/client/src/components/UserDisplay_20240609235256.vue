@@ -37,6 +37,7 @@
 <script setup>
 import { ref } from "vue";
 import { RouterLink } from "vue-router";
+import FlashMessage from '@/components/global/FlashMessage.vue';
 
 const userLoggedIn = ref(false);
 const loginClicked = ref(false);

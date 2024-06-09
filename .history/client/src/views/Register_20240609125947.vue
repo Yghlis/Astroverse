@@ -1,34 +1,36 @@
 <template>
-    <div>
-      <h2>Register</h2>
-      <form @submit.prevent="register">
-        <div>
-          <label for="first_name">First Name:</label>
-          <input type="text" id="first_name" v-model="first_name" required />
-        </div>
-        <div>
-          <label for="last_name">Last Name:</label>
-          <input type="text" id="last_name" v-model="last_name" required />
-        </div>
-        <div>
-          <label for="email">Email:</label>
-          <input type="email" id="email" v-model="email" required />
-        </div>
-        <div>
-          <label for="password">Password:</label>
-          <input type="password" id="password" v-model="password" @input="evaluatePassword" required />
-          <div :style="{ color: passwordStrength.color }">{{ passwordStrength.message }}</div>
-        </div>
-        <div>
-          <label for="confirmPassword">Confirm Password:</label>
-          <input type="password" id="confirmPassword" v-model="confirmPassword" required />
-        </div>
-        <button type="submit">Register</button>
-      </form>
-    </div>
-  </template>
-  
-  <script>
+  <div>
+    <h2>Register</h2>
+    <form @submit.prevent="register">
+      <div>
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" v-model="first_name" required />
+      </div>
+      <div>
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" v-model="last_name" required />
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" v-model="email" required />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" v-model="password" @input="evaluatePassword" required />
+        <div :style="{ color: passwordStrength.color }">{{ passwordStrength.message }}</div>
+      </div>
+      <div>
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" v-model="confirmPassword" required />
+      </div>
+      <button type="submit">Register</button>
+    </form>
+  </div>
+</template>
+
+<script>
+import { useToast } from "vue-toastification";
+
 export default {
   data() {
     return {
@@ -66,8 +68,9 @@ export default {
       return strength;
     },
     async register() {
+      const toast = useToast();
       if (this.password !== this.confirmPassword) {
-        alert("Passwords do not match");
+        toast.error("Passwords do not match");
         return;
       }
       try {
@@ -85,18 +88,17 @@ export default {
           }),
         });
         const data = await response.json();
-        console.log('Register response:', data);
         if (response.ok) {
+          toast.success(data.message || 'Registration successful');
           this.$router.push('/');
         } else {
-          alert(data.message || 'Registration failed');
+          toast.error(data.message || 'Registration failed');
         }
       } catch (error) {
         console.error('Error during registration:', error);
-        alert('An error occurred during registration');
+        toast.error('An error occurred during registration');
       }
     },
   },
 }
 </script>
-

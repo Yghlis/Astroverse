@@ -70,7 +70,7 @@ const postLogin = async (req, res) => {
         return sendError(res, 400, 'Invalid email or password');
     }
     if (!user.isEmailVerified) {
-        return sendError(res, 401, 'Your email address has not been verified. Please check your email for the verification link.');
+        return sendError(res, 401, 'Your email address has not been verified. Please check your email for the verification link. WOUF');
     }
 
     const doMatch = await bcrypt.compare(password, user.password_hash);
@@ -151,39 +151,31 @@ const postLogout = (req, res) => {
 
 const postForgotPassword = async (req, res) => {
     const { email } = req.body;
-
-    // Validation de l'email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return sendError(res, 400, 'Format de l\'email invalide.');
-    }
-
     const user = await User.findOne({ email });
-    if (user) {
-        user.resetPasswordToken = uuidv4();
-        user.resetPasswordExpires = new Date(Date.now() + 3600000); // Le token expire dans 1 heure
-        await user.save();
-
-        const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${user.resetPasswordToken}`;
-        const mailOptions = {
-            from: process.env.EMAIL_USERNAME,
-            to: user.email,
-            subject: 'Réinitialisation de votre mot de passe',
-            html: `Pour réinitialiser votre mot de passe, veuillez cliquer sur ce lien : <a href="${resetUrl}">${resetUrl}</a>`
-        };
-
-        try {
-            await transporter.sendMail(mailOptions);
-        } catch (error) {
-            console.error("Failed to send reset email", error);
-            sendError(res, 500, 'Impossible d\'envoyer l\'email de réinitialisation.');
-        }
+    if (!user) {
+        return sendError(res, 404, 'Aucun utilisateur trouvé avec cet email.');
     }
-    // Réponse uniforme pour éviter la divulgation d'informations
-    res.status(200).json({ message: 'Si votre email est enregistré chez nous, un lien de réinitialisation a été envoyé.' });
+
+    user.resetPasswordToken = uuidv4();
+    user.resetPasswordExpires = new Date(Date.now() + 3600000); // Le token expire dans 1 heure
+    await user.save();
+
+    const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${user.resetPasswordToken}`;
+    const mailOptions = {
+        from: process.env.EMAIL_USERNAME,
+        to: user.email,
+        subject: 'Réinitialisation de votre mot de passe',
+        html: `Pour réinitialiser votre mot de passe, veuillez cliquer sur ce lien : <a href="${resetUrl}">${resetUrl}</a>`
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        res.status(200).json({ message: 'Un email de réinitialisation a été envoyé à votre adresse email.' });
+    } catch (error) {
+        console.error("Failed to send reset email", error);
+        sendError(res, 500, 'Impossible d\'envoyer l\'email de réinitialisation.');
+    }
 };
-
-
 
 const postResetPassword = async (req, res) => {
     const { token, newPassword } = req.body;

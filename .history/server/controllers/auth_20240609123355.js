@@ -151,13 +151,6 @@ const postLogout = (req, res) => {
 
 const postForgotPassword = async (req, res) => {
     const { email } = req.body;
-
-    // Validation de l'email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return sendError(res, 400, 'Format de l\'email invalide.');
-    }
-
     const user = await User.findOne({ email });
     if (user) {
         user.resetPasswordToken = uuidv4();
@@ -182,7 +175,6 @@ const postForgotPassword = async (req, res) => {
     // Réponse uniforme pour éviter la divulgation d'informations
     res.status(200).json({ message: 'Si votre email est enregistré chez nous, un lien de réinitialisation a été envoyé.' });
 };
-
 
 
 const postResetPassword = async (req, res) => {

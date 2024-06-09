@@ -81,12 +81,6 @@ const forgotPassword = () => {
 };
 
 const sendResetEmail = async () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(userEmail.value)) {
-    errorMessage.value = 'Format de l\'email invalide.';
-    return; // Arrête l'exécution si le format n'est pas valide
-  }
-
   try {
     const response = await fetch('http://localhost:8000/auth/forgot-password', {
       method: 'POST',
@@ -106,7 +100,6 @@ const sendResetEmail = async () => {
     errorMessage.value = error.message || 'Erreur lors de la demande de réinitialisation du mot de passe.';
   }
 };
-
 
 const returnToLogin = () => {
   loginClicked.value = false;
