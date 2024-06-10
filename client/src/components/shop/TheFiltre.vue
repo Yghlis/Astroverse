@@ -8,7 +8,10 @@
         v-for="option in filterOptions"
         :key="option.id"
         :option-name="option.optionName"
+        :option-type="option.optionType"
         :option-values="option.optionValues"
+        :range-min="option.rangeMin"
+        :range-max="option.rangeMax"
       />
     </div>
   </div>
@@ -23,6 +26,7 @@ const filterOptions = reactive([
   {
     id: 1,
     optionName: "Category",
+    optionType: "checkbox",
     optionValues: [
       { value: "manga", label: "Manga" },
       { value: "anime", label: "Anime" },
@@ -32,21 +36,13 @@ const filterOptions = reactive([
   {
     id: 2,
     optionName: "Price",
-    optionValues: [
-      { value: "0-20", label: "0-20" },
-      { value: "20-50", label: "20-50" },
-      { value: "50-100", label: "50-100" },
-      { value: "50-100", label: "50-100" },
-      { value: "50-100", label: "50-100" },
-      { value: "50-100", label: "50-100" },
-      { value: "50-100", label: "50-100" },
-      { value: "50-100", label: "50-100" },
-      { value: "50-100", label: "50-100" },
-      { value: "50-100", label: "50-100" },
-    ],
+    optionType: "range",
+    rangeMin: 0,
+    rangeMax: 100,
   },{
     id: 3,
     optionName: "Autres",
+    optionType: "range",
     optionValues: [
       { value: "0-20", label: "0-20" },
       { value: "20-50", label: "20-50" },
