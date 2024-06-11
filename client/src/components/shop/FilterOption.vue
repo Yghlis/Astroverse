@@ -1,11 +1,20 @@
 <template>
   <div ref="optionAnimation" class="filter-section">
-    <div :class="['filter-section-title', { 'active': isOptionVisible }]" @click="toggleOption">
+    <div
+      :class="['filter-section-title', { active: isOptionVisible }]"
+      @click="toggleOption"
+    >
       <p>{{ optionName }}</p>
-      <span ref="arrowDown" class="material-symbols-outlined">keyboard_arrow_down</span>
+      <span ref="arrowDown" class="material-symbols-outlined"
+        >keyboard_arrow_down</span
+      >
     </div>
     <transition name="fade-slide">
-      <div v-show="isOptionVisible" ref="filterContent" class="filter-section-content">
+      <div
+        v-show="isOptionVisible"
+        ref="filterContent"
+        class="filter-section-content"
+      >
         <div v-if="optionType === 'checkbox'" class="checkbox-options">
           <div
             v-for="option in optionValues"
@@ -17,6 +26,7 @@
               :id="option.value"
               v-model="selectedCheckboxes"
               :value="option.value"
+              @change="emitCheckboxChange"
             />
             <label :for="option.value">{{ option.label }}</label>
           </div>
@@ -31,6 +41,7 @@
               :min="rangeMin"
               :max="rangeMax"
               step="5"
+               @input="emitRangeChange"
             />
             <span>{{ selectedMin }} €</span>
           </div>
@@ -51,7 +62,6 @@
     </transition>
   </div>
 </template>
-
 
 <script setup>
 import { ref, nextTick } from "vue";
@@ -81,6 +91,21 @@ const toggleOption = async () => {
   console.log(props.rangeMin);
 };
 
+// Emit events
+const emit = defineEmits(['update:checkboxes', 'update:range']);
+
+// Emit changes for checkboxes
+const emitCheckboxChange = () => {
+  emit('update:checkboxes', { optionName: props.optionName, values: selectedCheckboxes.value });
+};
+
+// Emit changes for range inputs
+const emitRangeChange = () => {
+  emit('update:range', { optionName: props.optionName, min: selectedMin.value, max: selectedMax.value });
+};
+
+
+
 // Animation
 const showFilterOption = () => {
   const element = optionAnimation.value;
@@ -93,17 +118,16 @@ const showFilterOption = () => {
     const sequence = isOptionVisible.value
       ? [
           [element, { height: `${contentHeight + 50}px` }],
-          [arrow, { rotate: "180deg" }, { at: '<' }],
+          [arrow, { rotate: "180deg" }, { at: "<" }],
         ]
       : [
           [element, { height: "50px" }],
-          [arrow, { rotate: "0deg" }, { at: '<' }],
+          [arrow, { rotate: "0deg" }, { at: "<" }],
         ];
     timeline(sequence, { duration: 0.3 });
   }
 };
 </script>
-
 
 <style lang="scss" scoped>
 .filter-section {
@@ -153,15 +177,40 @@ const showFilterOption = () => {
     padding: 10px 10px 20px 10px;
 
     .checkbox-options {
+      user-select: none;
       .filter-option {
         display: flex;
         justify-content: flex-start;
         align-items: center;
         input {
           margin-right: 10px;
+          cursor: pointer;
+          appearance: none;
+          height: 15px;
+          width: 15px;
+          background-color: white; 
+          border: 1px solid #000; 
+          border-radius: 3px;
+          transition: all 0.2s ease;
+          &:checked {
+            background-color: black !important;
+            position: relative;
+            &::after {
+              content: ""; 
+              position: absolute; 
+              left: 5px; 
+              top: 2px;
+              width: 2px;
+              height: 7px; 
+              border: solid white;
+              border-width: 0 2px 2px 0;
+              transform: rotate(45deg); 
+            }
+          }
         }
         label {
           font-size: 15px;
+          cursor: pointer;
         }
       }
     }

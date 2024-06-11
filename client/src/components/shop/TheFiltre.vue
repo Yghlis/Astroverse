@@ -12,6 +12,8 @@
         :option-values="option.optionValues"
         :range-min="option.rangeMin"
         :range-max="option.rangeMax"
+        @update:checkboxes="handleCheckboxUpdate"
+        @update:range="handleRangeUpdate"
       />
     </div>
   </div>
@@ -20,6 +22,18 @@
 <script setup>
 import FilterOption from "./FilterOption.vue";
 import { reactive } from "vue";
+
+
+const handleCheckboxUpdate = ({ optionName, values }) => {
+  console.log(`Selected checkboxes for ${optionName}:`, values);
+};
+
+const handleRangeUpdate = ({ optionName, min, max }) => {
+  console.log(`Selected range for ${optionName}: Min=${min}, Max=${max}`);
+};
+
+
+
 
 // ################################################################# API CALL #################################################################
 const filterOptions = reactive([
