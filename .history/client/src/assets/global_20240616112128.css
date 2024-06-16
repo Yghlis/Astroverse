@@ -1,0 +1,26 @@
+.flash-message {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background-color: #f2a45a;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    transform: translateY(-50px);
+    opacity: 0;
+}
+
+.flash-message.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.flash-message.success {
+    background-color: #82c91e; /* Vert clair, pour un contraste doux avec l'orange */
+  }
+  .flash-message.error {
+    background-color: #f03e3e; /* Rouge clair, pour un meilleur contraste avec l'orange */
+  }
