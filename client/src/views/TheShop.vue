@@ -6,7 +6,7 @@
     <!-- <h1>{{ searchText }}</h1> -->
     <div class="sub_container">
       <TheFiltre />
-      <div class="right"></div>
+      <product-list/>
     </div>
   </div>
 </template>
@@ -15,6 +15,7 @@
 import TheFiltre from '../components/shop/TheFiltre.vue';
 import { ref } from 'vue';
 import SearchBar from '../ui/SearchBar.vue';
+import ProductList from '../components/shop/ProductList.vue';
 
 const searchText = ref('');
 
@@ -33,11 +34,11 @@ const handleSearch = (text) => {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  margin: 0 auto;
+  margin: 100px auto 0 auto;
   gap: 20px;
   .banner {
     width: 100%;
-    height: 300px;
+    height: 200px;
     background-color: #f2a45a;
   }
   .sub_container {
@@ -45,11 +46,6 @@ const handleSearch = (text) => {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    .right {
-      width: 78%;
-      height: 1000px;
-      background-color: #f2a45a;
-    }
   }
 }
 </style>

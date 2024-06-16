@@ -41,7 +41,7 @@
               :min="rangeMin"
               :max="rangeMax"
               step="5"
-               @input="emitRangeChange"
+              @input="emitRangeChange"
             />
             <span>{{ selectedMin }} €</span>
           </div>
@@ -54,6 +54,7 @@
               :min="rangeMin"
               :max="rangeMax"
               step="5"
+              @input="emitRangeChange"
             />
             <span>{{ selectedMax }} €</span>
           </div>
@@ -64,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from "vue";
+import { ref, nextTick, watch } from "vue";
 import { timeline } from "motion";
 
 const arrowDown = ref(null);
@@ -77,6 +78,7 @@ const props = defineProps({
   optionValues: Array,
   rangeMin: Number,
   rangeMax: Number,
+  resetEvent: Boolean,
 });
 
 const selectedCheckboxes = ref([]);
@@ -86,25 +88,46 @@ const isOptionVisible = ref(false);
 
 const toggleOption = async () => {
   isOptionVisible.value = !isOptionVisible.value;
-  await nextTick(); // Wait for the DOM to reflect the updated state
+  await nextTick(); 
   showFilterOption();
-  console.log(props.rangeMin);
 };
 
-// Emit events
-const emit = defineEmits(['update:checkboxes', 'update:range']);
 
-// Emit changes for checkboxes
+const emit = defineEmits(["update:checkboxes", "update:range"]);
+
+// Emit pour les checkboxes
 const emitCheckboxChange = () => {
-  emit('update:checkboxes', { optionName: props.optionName, values: selectedCheckboxes.value });
+  emit("update:checkboxes", {
+    optionName: props.optionName,
+    values: selectedCheckboxes.value,
+  });
 };
 
-// Emit changes for range inputs
+// Emit pour les range inputs
 const emitRangeChange = () => {
-  emit('update:range', { optionName: props.optionName, min: selectedMin.value, max: selectedMax.value });
+  emit("update:range", {
+    optionName: props.optionName,
+    min: selectedMin.value,
+    max: selectedMax.value,
+  });
 };
 
+// Watch pour resetEvent prop 
+watch(
+  () => props.resetEvent,
+  (newVal) => {
+    if (newVal) {
+      resetFilters();
+    }
+  }
+);
 
+// Function to reset filters
+const resetFilters = () => {
+  selectedCheckboxes.value = [];
+  selectedMin.value = props.rangeMin || 0;
+  selectedMax.value = props.rangeMax || 100;
+};
 
 // Animation
 const showFilterOption = () => {
@@ -188,23 +211,23 @@ const showFilterOption = () => {
           appearance: none;
           height: 15px;
           width: 15px;
-          background-color: white; 
-          border: 1px solid #000; 
+          background-color: white;
+          border: 1px solid #000;
           border-radius: 3px;
           transition: all 0.2s ease;
           &:checked {
             background-color: black !important;
             position: relative;
             &::after {
-              content: ""; 
-              position: absolute; 
-              left: 5px; 
+              content: "";
+              position: absolute;
+              left: 5px;
               top: 2px;
               width: 2px;
-              height: 7px; 
+              height: 7px;
               border: solid white;
               border-width: 0 2px 2px 0;
-              transform: rotate(45deg); 
+              transform: rotate(45deg);
             }
           }
         }
