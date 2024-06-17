@@ -16,7 +16,7 @@
         <p>({{ numberOfRatings }})</p>
       </div>
       <div class="price">
-        <span>{{ price }}</span>
+        <span>{{ price }} €</span>
       </div>
       <transition name="fade-slide">
         <button v-if="showBtn">Add to cart</button>
@@ -44,7 +44,6 @@ const selecteurCard = ref(null);
 
 const toggleBtn = () => {
   showBtn.value = !showBtn.value;
-  console.log(props.imageSrc);
 };
 
 const handleMouseEnter = () => {
