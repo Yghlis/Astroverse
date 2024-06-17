@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { jwtDecode } from "jwt-decode"; // Importation nommée, en supposant que c'est correct
+import jwt_decode from 'jwt-decode'; // Assurez-vous d'importer jwt-decode
 import LandingPage from '../views/LandingPage.vue';
 import TheShop from '../views/TheShop.vue';
 import Register from '../views/Register.vue';
@@ -28,7 +28,7 @@ router.beforeEach((to, from, next) => {
 
   if (token) {
     try {
-      const decoded = jwtDecode(token); // Utilisez la fonction importée correctement ici
+      const decoded = jwt_decode(token);
       isAuthenticated = true;
       userRole = decoded.role;
     } catch (error) {
@@ -42,11 +42,11 @@ router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresGuest) && isAuthenticated) {
     next('/');
   } else if (to.matched.some(record => record.meta.requiresAuth && !isAuthenticated)) {
-    next('/');
+    next('/login'); // Assurez-vous d'avoir une route de connexion définie
   } else if (to.matched.some(record => record.meta.role && record.meta.role !== userRole)) {
-    next('/');
+    next('/'); // Redirige vers la page d'accueil si le rôle ne correspond pas
   } else {
-    next();
+    next(); // Continue vers la route demandée si aucune condition n'est remplie
   }
 });
 
