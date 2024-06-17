@@ -3,10 +3,9 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { indexRouter } from './routes/index.js';
+import { indexRouter } from './routes/index.js'; // Assurez-vous que le chemin est correct
 import sequelize from './config/database.js';
 import Product from './models/Product.js'; // Importer le modèle Product
-import productRoutes from './routes/product.js'; // Importer les routes des produits
 
 dotenv.config();
 
@@ -22,7 +21,6 @@ app.use(express.urlencoded({ extended: true }));
 // Utilisation du routeur
 app.use('/', indexRouter);
 app.use('/auth', authRoutes);
-app.use('/products', productRoutes); // Ajouter le routeur des produits
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {

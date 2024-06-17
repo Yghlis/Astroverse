@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { indexRouter } from './routes/index.js';
+import { indexRouter } from './routes/index.js'; // Assurez-vous que le chemin est correct
 import sequelize from './config/database.js';
 import Product from './models/Product.js'; // Importer le modèle Product
 import productRoutes from './routes/product.js'; // Importer les routes des produits
@@ -15,7 +15,7 @@ const port = process.env.PORT || 8000;
 import authRoutes from './routes/auth.js';
 
 // Middleware
-app.use(cors());
+app.use(cors());x 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
