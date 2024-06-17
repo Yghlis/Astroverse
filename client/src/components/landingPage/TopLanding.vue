@@ -50,7 +50,6 @@
     align-items: center;
     position: relative;
     width: 80%;
-    max-width: 750px;
     input {
       width: 100%;
       height: 50px;
