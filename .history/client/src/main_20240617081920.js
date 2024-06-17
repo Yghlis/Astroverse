@@ -1,7 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import { jwtDecode } from "jwt-decode"; // Importation nommée, s'assurer que jwt-decode expose vraiment cette fonction
+import jwt_decode from 'jwt-decode'; // Corrected import
+
 import './style.css'
 import './assets/global.css'
 
@@ -10,7 +11,7 @@ const app = createApp(App)
 // Décoder le JWT et stocker le rôle dès que l'app est chargée
 const token = localStorage.getItem('jwt');
 if (token) {
-    const decoded = jwtDecode(token); // Utiliser jwtDecode qui a été importé
+    const decoded = jwt_decode(token);
     localStorage.setItem('role', decoded.role); // Stocker le rôle dans localStorage pour utilisation ultérieure
 }
 

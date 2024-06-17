@@ -1,18 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { jwtDecode } from "jwt-decode"; // Importation nommée, en supposant que c'est correct
 import LandingPage from '../views/LandingPage.vue';
 import TheShop from '../views/TheShop.vue';
 import Register from '../views/Register.vue';
 import ForgotPassword from '../components/ForgotPassword.vue';
-import ResetPassword from '../components/ResetPassword.vue';
-import AdminDashboard from '../views/AdminDashboard.vue';
+import ResetPassword from '../components/ResetPassword.vue';  // Assure-toi que ce composant existe et est correct
+import AdminDashboard from '../views/AdminDashboard.vue';  // Importez la vue AdminDashboard
 
 const routes = [
   { path: '/', component: LandingPage },
   { path: '/shop', component: TheShop },
   { path: '/register', component: Register, meta: { requiresGuest: true } },
   { path: '/forgot-password', component: ForgotPassword }, 
-  { path: '/reset-password/:token', component: ResetPassword },
+  { path: '/reset-password/:token', component: ResetPassword },  // Route pour réinitialiser le mot de passe avec token
+  // Ajoutez la route admin avec une vérification de rôle
   { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, role: 'ROLE_ADMIN' } }
 ];
 
@@ -22,31 +22,17 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('jwt');
-  let isAuthenticated = false;
-  let userRole = null;
-
-  if (token) {
-    try {
-      const decoded = jwtDecode(token); // Utilisez la fonction importée correctement ici
-      isAuthenticated = true;
-      userRole = decoded.role;
-    } catch (error) {
-      console.error('Failed to decode JWT:', error);
-    }
-  }
-
-  console.log('JWT:', isAuthenticated);
-  console.log('Role:', userRole);
+  const isAuthenticated = localStorage.getItem('jwt'); // Change cela en fonction de comment tu gères l'authentification
+  const userRole = localStorage.getItem('role'); // Assurez-vous que le rôle est stocké et récupéré correctement
 
   if (to.matched.some(record => record.meta.requiresGuest) && isAuthenticated) {
-    next('/');
+    next('/'); // Redirige l'utilisateur connecté vers la page d'accueil s'il essaie d'accéder à `/register`
   } else if (to.matched.some(record => record.meta.requiresAuth && !isAuthenticated)) {
-    next('/');
+    next('/login'); // Redirige vers la page de connexion si non authentifié
   } else if (to.matched.some(record => record.meta.role && record.meta.role !== userRole)) {
-    next('/');
+    next('/'); // Redirige vers la page d'accueil si le rôle ne correspond pas
   } else {
-    next();
+    next(); // Continue vers la route demandée si aucune condition n'est remplie
   }
 });
 

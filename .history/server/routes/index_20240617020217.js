@@ -7,7 +7,6 @@ import adminRoutes from './admin.js';
 const router = express.Router();
 
 router.use('/auth', authRoutes);
-router.use('/admin', adminRoutes); 
 
 // Route de test pour MongoDB
 router.get('/test-mongo', async (req, res) => {
