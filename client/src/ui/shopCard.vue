@@ -63,7 +63,7 @@ const handleMouseLeave = () => {
 
 <style lang="scss" scoped>
 .card {
-  width: 250px;
+  width: 280px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
