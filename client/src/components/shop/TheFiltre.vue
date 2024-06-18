@@ -1,55 +1,70 @@
 <template>
-  <Transition name="fade">
-    <div v-if="responsiveFilterOverlay" class="overlay"></div>
-  </Transition>
-  <div class="filter">
-    <div class="filter-header">
-      <h2>Filter</h2>
-      <div v-if="NombreDeFilter" class="number-filtre">
-        <span>{{ NombreDeFilter }}</span>
-      </div>
-      <h2 class="mobile-header">
-        {{ nombreDeProduit }} produits correspondent
-      </h2>
-      <button class="mobile-header" @click="openFilter">
-        FILTRER
+  <div>
+    <Transition name="fade">
+      <div v-if="responsiveFilterOverlay" class="overlay"></div>
+    </Transition>
+    <div class="filter">
+      <div class="filter-header">
+        <h2>Filter</h2>
         <div v-if="NombreDeFilter" class="number-filtre">
           <span>{{ NombreDeFilter }}</span>
         </div>
-      </button>
-    </div>
-    <Transition :name="transitionName">
-      <div v-show="responsiveFilter" class="filter-body">
-        <div class="mobile-header">
-          <div class="filter-body-title">
-            <span class="material-symbols-outlined"> tune </span>
-            <h2>Trier / Filtrer</h2>
+        <h2 class="mobile-header">
+          {{ nombreDeProduit }} produits correspondent
+        </h2>
+        <button class="mobile-header" @click="openFilter">
+          FILTRER
+          <div v-if="NombreDeFilter" class="number-filtre">
+            <span>{{ NombreDeFilter }}</span>
           </div>
-          <button class="close-btn" @click="openFilter">
-            <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <Transition :name="transitionName">
+        <div v-show="responsiveFilter" class="filter-body">
+          <div class="mobile-header">
+            <div class="filter-body-title">
+              <span class="material-symbols-outlined"> tune </span>
+              <h2>Trier / Filtrer</h2>
+            </div>
+            <button class="close-btn" @click="openFilter">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <FilterOption
+            v-for="option in filterOptions"
+            :key="option.id"
+            :option-name="option.optionName"
+            :option-type="option.optionType"
+            :option-values="option.optionValues"
+            :range-min="option.rangeMin"
+            :range-max="option.rangeMax"
+            @update:checkboxes="handleCheckboxUpdate"
+            @update:range="handleRangeUpdate"
+            :reset-event="resetEvent"
+            :rating="option.rating"
+          />
+          <button class="reset" @click="resetFilters">
+            Réinitialiser les filtres
           </button>
         </div>
-        <FilterOption
-          v-for="option in filterOptions"
-          :key="option.id"
-          :option-name="option.optionName"
-          :option-type="option.optionType"
-          :option-values="option.optionValues"
-          :range-min="option.rangeMin"
-          :range-max="option.rangeMax"
-          @update:checkboxes="handleCheckboxUpdate"
-          @update:range="handleRangeUpdate"
-          :reset-event="resetEvent"
-        />
-        <button class="reset" @click="resetFilters">Réinitialiser les filtres</button>
-      </div>
-    </Transition>
+      </Transition>
+      {{ filterOptions }}
+    </div>
   </div>
 </template>
 
 <script setup>
 import FilterOption from "./FilterOption.vue";
-import { ref, reactive, onMounted, onUnmounted, watch, nextTick } from "vue";
+import {
+  ref,
+  reactive,
+  onMounted,
+  onUnmounted,
+  watch,
+  nextTick,
+  computed,
+} from "vue";
+import { useShopStore } from "../../stores/useShopStore";
 
 const nombreDeProduit = ref(0);
 const NombreDeFilter = ref(0);
@@ -58,6 +73,14 @@ const responsiveFilterOverlay = ref(false);
 const screenWidth = ref(window.innerWidth);
 const transitionName = ref("slideUp");
 const resetEvent = ref(false);
+
+// Props
+const props = defineProps({
+  filterOptions: {
+    type: Array,
+    required: true,
+  },
+});
 
 // ################################################################# Filter Logic #################################################################
 
@@ -104,20 +127,14 @@ const resetFilters = () => {
 
   NombreDeFilter.value = 0;
 
-  console.log(selectedFilters);
-  console.log(NombreDeFilter.value);
-  
   updateNombreDeFilter();
 
   console.log(NombreDeFilter.value);
-
 
   resetEvent.value = true;
   setTimeout(() => {
     resetEvent.value = false;
   }, 0);
-
-
 };
 
 // ################################################################# RESPONSIVE FILTER #################################################################
@@ -164,36 +181,6 @@ watch(screenWidth, (newWidth) => {
 
 // ################################################################# API CALL #################################################################
 nombreDeProduit.value = 100;
-
-const filterOptions = reactive([
-  {
-    id: 1,
-    optionName: "Category",
-    optionType: "checkbox",
-    optionValues: [
-      { value: "manga", label: "Manga" },
-      { value: "anime", label: "Anime" },
-      { value: "movie", label: "Movie" },
-    ],
-  },
-  {
-    id: 2,
-    optionName: "Price",
-    optionType: "range",
-    rangeMin: 0,
-    rangeMax: 100,
-  },
-  {
-    id: 3,
-    optionName: "Autres",
-    optionType: "range",
-    optionValues: [
-      { value: "0-20", label: "0-20" },
-      { value: "20-50", label: "20-50" },
-      { value: "50-100", label: "50-100" },
-    ],
-  },
-]);
 </script>
 
 <style lang="scss" scoped>

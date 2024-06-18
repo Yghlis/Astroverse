@@ -40,7 +40,6 @@
               v-model="selectedMin"
               :min="rangeMin"
               :max="rangeMax"
-              step="5"
               @input="emitRangeChange"
             />
             <span>{{ selectedMin }} €</span>
@@ -53,7 +52,6 @@
               v-model="selectedMax"
               :min="rangeMin"
               :max="rangeMax"
-              step="5"
               @input="emitRangeChange"
             />
             <span>{{ selectedMax }} €</span>
@@ -82,16 +80,15 @@ const props = defineProps({
 });
 
 const selectedCheckboxes = ref([]);
-const selectedMin = ref(props.rangeMin || 0);
-const selectedMax = ref(props.rangeMax || 100);
+const selectedMin = ref(props.rangeMin);
+const selectedMax = ref(props.rangeMax);
 const isOptionVisible = ref(false);
 
 const toggleOption = async () => {
   isOptionVisible.value = !isOptionVisible.value;
-  await nextTick(); 
+  await nextTick();
   showFilterOption();
 };
-
 
 const emit = defineEmits(["update:checkboxes", "update:range"]);
 
@@ -112,13 +109,26 @@ const emitRangeChange = () => {
   });
 };
 
-// Watch pour resetEvent prop 
+// Watch pour resetEvent prop
 watch(
   () => props.resetEvent,
   (newVal) => {
     if (newVal) {
       resetFilters();
     }
+  }
+);
+watch(
+  () => props.rangeMin,
+  (newVal) => {
+    selectedMin.value = newVal;
+  }
+);
+
+watch(
+  () => props.rangeMax,
+  (newVal) => {
+    selectedMax.value = newVal;
   }
 );
 

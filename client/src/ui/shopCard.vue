@@ -34,7 +34,7 @@ const props = defineProps({
   title: String,
   rating: Number,
   numberOfRatings: Number,
-  price: String,
+  price: Number,
 });
 
 const imageSrcTwo = ref(props.imageSrc);

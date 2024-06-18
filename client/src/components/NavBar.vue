@@ -14,7 +14,7 @@
     <RouterLink to="/admin" :class="{ active: $route.path === '/admin' }"
       >Admin</RouterLink
     >
-    <!-- Ajoutez d'autres liens ici -->
+
   </nav>
 </template>
 
