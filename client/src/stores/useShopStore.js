@@ -16,6 +16,13 @@ export const useShopStore = defineStore("shop", {
       },
       is_promotion: false,
     },
+    selectedFilters: {
+      characters: [],
+      universes: [],
+      ratings: [],
+      priceRange: { min: 0, max: 0 },
+      is_promotion: false,
+    },
   }),
 
   actions: {
@@ -30,6 +37,7 @@ export const useShopStore = defineStore("shop", {
         const data = await response.json();
         this.products = data;
         this.updatePriceRange(data);
+        this.applyFilters();
       } catch (error) {
         this.error = "Failed to fetch products";
       } finally {
@@ -70,6 +78,14 @@ export const useShopStore = defineStore("shop", {
       const prices = products.map((product) => product.price);
       this.filters.ranges.price.min = Math.min(...prices);
       this.filters.ranges.price.max = Math.max(...prices);
+    },
+
+    updateSelectedFilters(selectedFilters) {
+      this.selectedFilters = { ...this.selectedFilters, ...selectedFilters };
+    },
+
+    applyFilters() {
+      // Implémentez la logique de filtrage ici en utilisant this.selectedFilters
     },
   },
 });

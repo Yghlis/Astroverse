@@ -6,7 +6,11 @@
     <div class="sub_container">
       <TheLoader v-if="loading" :loading="loading"> </TheLoader>
       <div v-if="error">{{ error }}</div>
-      <TheFiltre v-show="!loading && !error" :filter-options="filterOptions" />
+      <TheFiltre
+        v-show="!loading && !error"
+        :filter-options="filterOptions"
+        :selected-filters="selectedFilters"
+      />
       <product-list v-show="!loading && !error" :products="products" />
     </div>
   </div>
@@ -33,6 +37,7 @@ const shopStore = useShopStore();
 const products = computed(() => shopStore.products);
 const loading = computed(() => shopStore.loading);
 const error = computed(() => shopStore.error);
+const selectedFilters = computed(() => shopStore.selectedFilters);
 
 const filterOptions = computed(() => {
   const options = [];
@@ -67,10 +72,7 @@ const filterOptions = computed(() => {
     id: idCounter++,
     optionName: "Promotion",
     optionType: "checkbox",
-    optionValues: [
-      { value: true, label: "On Promotion" },
-      { value: false, label: "Not On Promotion" },
-    ],
+    optionValues: [{ value: true, label: "On Promotion" }],
   });
 
   return options;

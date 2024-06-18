@@ -48,8 +48,8 @@
           </button>
         </div>
       </Transition>
-      {{ filterOptions }}
     </div>
+    {{ selectedFilters }}
   </div>
 </template>
 
@@ -80,56 +80,55 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  selectedFilters: {
+    type: Array,
+    required: true,
+  },
 });
 
 // ################################################################# Filter Logic #################################################################
 
-const selectedFilters = reactive({
-  checkboxes: {},
-  ranges: {},
-});
+
 
 const updateNombreDeFilter = () => {
   let count = 0;
 
-  for (const key in selectedFilters.checkboxes) {
-    count += selectedFilters.checkboxes[key].length;
+  count += props.selectedFilters.characters.length;
+  count += props.selectedFilters.universes.length;
+  count += props.selectedFilters.ratings.length;
+
+  if (
+    props.selectedFilters.priceRange.min !== 0 ||
+    props.selectedFilters.priceRange.max !== 0
+  ) {
+    count += 1;
   }
 
-  for (const key in selectedFilters.ranges) {
-    const range = selectedFilters.ranges[key];
-    if (range.min !== null && range.max !== null) {
-      count += 1;
-    }
+  if (props.selectedFilters.is_promotion) {
+    count += 1;
   }
 
   NombreDeFilter.value = count;
 };
 
 const handleCheckboxUpdate = ({ optionName, values }) => {
-  selectedFilters.checkboxes[optionName] = values;
+  props.selectedFilters[optionName] = values;
   updateNombreDeFilter();
 };
 
 const handleRangeUpdate = ({ optionName, min, max }) => {
-  selectedFilters.ranges[optionName] = { min, max };
+  props.selectedFilters.priceRange = { min, max };
   updateNombreDeFilter();
 };
 
 const resetFilters = () => {
-  for (const key in selectedFilters.checkboxes) {
-    selectedFilters.checkboxes[key] = [];
-  }
-
-  for (const key in selectedFilters.ranges) {
-    selectedFilters.ranges[key] = { min: null, max: null };
-  }
-
-  NombreDeFilter.value = 0;
+  props.selectedFilters.characters = [];
+  props.selectedFilters.universes = [];
+  props.selectedFilters.ratings = [];
+  props.selectedFilters.priceRange = { min: 0, max: 0 };
+  props.selectedFilters.is_promotion = false;
 
   updateNombreDeFilter();
-
-  console.log(NombreDeFilter.value);
 
   resetEvent.value = true;
   setTimeout(() => {
@@ -178,9 +177,6 @@ watch(screenWidth, (newWidth) => {
     responsiveFilter.value = false;
   }
 });
-
-// ################################################################# API CALL #################################################################
-nombreDeProduit.value = 100;
 </script>
 
 <style lang="scss" scoped>
@@ -195,7 +191,6 @@ nombreDeProduit.value = 100;
 }
 .filter {
   width: 250px;
-  height: 1000px; // a enlever
   background-color: white;
   border-radius: 15px;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,

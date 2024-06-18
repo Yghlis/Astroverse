@@ -23,12 +23,12 @@
           >
             <input
               type="checkbox"
-              :id="option.value"
+              :id="option.value + optionName"
               v-model="selectedCheckboxes"
               :value="option.value"
               @change="emitCheckboxChange"
             />
-            <label :for="option.value">{{ option.label }}</label>
+            <label :for="option.value + optionName">{{ option.label }}</label>
           </div>
         </div>
         <div v-else-if="optionType === 'range'" class="range-option">
@@ -92,7 +92,6 @@ const toggleOption = async () => {
 
 const emit = defineEmits(["update:checkboxes", "update:range"]);
 
-// Emit pour les checkboxes
 const emitCheckboxChange = () => {
   emit("update:checkboxes", {
     optionName: props.optionName,
@@ -100,7 +99,6 @@ const emitCheckboxChange = () => {
   });
 };
 
-// Emit pour les range inputs
 const emitRangeChange = () => {
   emit("update:range", {
     optionName: props.optionName,
@@ -109,7 +107,6 @@ const emitRangeChange = () => {
   });
 };
 
-// Watch pour resetEvent prop
 watch(
   () => props.resetEvent,
   (newVal) => {
@@ -118,6 +115,7 @@ watch(
     }
   }
 );
+
 watch(
   () => props.rangeMin,
   (newVal) => {
@@ -132,14 +130,32 @@ watch(
   }
 );
 
-// Function to reset filters
+watch(
+  () => selectedMin.value,
+  (newVal) => {
+    if (newVal > selectedMax.value) {
+      selectedMax.value = newVal;
+    }
+    emitRangeChange();
+  }
+);
+
+watch(
+  () => selectedMax.value,
+  (newVal) => {
+    if (newVal < selectedMin.value) {
+      selectedMin.value = newVal;
+    }
+    emitRangeChange();
+  }
+);
+
 const resetFilters = () => {
   selectedCheckboxes.value = [];
   selectedMin.value = props.rangeMin || 0;
   selectedMax.value = props.rangeMax || 100;
 };
 
-// Animation
 const showFilterOption = () => {
   const element = optionAnimation.value;
   const content = filterContent.value;
