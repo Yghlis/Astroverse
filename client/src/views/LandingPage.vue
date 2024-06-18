@@ -2,12 +2,14 @@
   <div class="container-landing">
     <TopLanding></TopLanding>
     <HighLight></HighLight>
+    <UniversDisplay></UniversDisplay>
   </div>
 </template>
 
 <script setup>
 import TopLanding from "../components/landingPage/TopLanding.vue";
 import HighLight from "../components/landingPage/HighLight.vue";
+import UniversDisplay from "../components/landingPage/UniversDisplay.vue";
 </script>
 
 <style lang="scss" scoped>
