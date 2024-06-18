@@ -18,7 +18,7 @@ const props = defineProps({
   color1: String,
   color2: String,
   colorText: String,
-  link: String  // Ajout de la propriété link
+  link: String 
 });
 </script>
 
@@ -34,9 +34,8 @@ const props = defineProps({
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  margin: 20px 0;
   cursor: pointer;
-  text-decoration: none;  // Pour enlever le soulignement des liens
+  text-decoration: none;  
   &:hover {
     transform: scale(1.05);
   }

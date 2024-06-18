@@ -28,47 +28,47 @@ const universes = [
     id: 1,
     title: 'One Piece',
     color1: '#1c47d6',  
-    color2: '#42a8f7',  // Bleu pour représenter l'océan
+    color2: '#42a8f7', 
     colorText: '#FFFFFF',
     link: 'https://onepiece.com' 
   },
   {
     id: 2,
     title: 'Naruto',
-    color1: '#e97504',  // Rouge tomate pour le chakra et les tenues ninja
-    color2: '#f4ce3c',  // Orange foncé pour l'énergie du Kyuubi
+    color1: '#e97504', 
+    color2: '#f4ce3c',  
     colorText: '#FFFFFF',
     link: 'https://naruto.com' 
   },
   {
     id: 3,
     title: 'Dragon Ball',
-    color1: '#FF0000',  // Rouge vif pour la puissance et les batailles épiques
-    color2: '#FFD700',  // Jaune doré pour les super saiyans
+    color1: '#FF0000', 
+    color2: '#FFD700', 
     colorText: '#FFFFFF',
     link: 'https://dragonball.com'
   },
   {
     id: 4,
     title: 'My Hero Academia',
-    color1: '#216b52',  // Bleu ciel pour l'espoir et la jeunesse
-    color2: '#160d10',  // Bleu plus foncé pour les héros en action
+    color1: '#216b52',  
+    color2: '#160d10',  
     colorText: '#FFFFFF',
     link: 'https://myheroacademia.com' 
   },
   {
     id: 5,
     title: 'Attack on Titan',
-    color1: '#73522e',  // Brun pour les murs et le monde post-apocalyptique
-    color2: '#d19050',  // Marron foncé pour le danger et les titans
+    color1: '#73522e', 
+    color2: '#d19050',  
     colorText: '#FFFFFF',
     link: 'https://attackontitan.com'
   },
   {
     id: 6,
     title: 'Demon Slayer',
-    color1: '#62baa2',  // Marron pour la tradition et les combats de samouraïs
-    color2: '#362722',  // Orange foncé pour le sang et la détermination
+    color1: '#62baa2', 
+    color2: '#362722', 
     colorText: '#FFFFFF',
     link: 'https://demonslayer.com'
   }
@@ -95,9 +95,10 @@ const universes = [
   .univers-card-container {
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     flex-wrap: wrap;
+    gap: 20px;
   }
 }
 
