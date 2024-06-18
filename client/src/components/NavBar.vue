@@ -27,7 +27,7 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 350px;
+  width: 450px;
   a {
     color: black;
     font-size: 22px;
