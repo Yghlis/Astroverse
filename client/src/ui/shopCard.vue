@@ -13,7 +13,7 @@
         <span v-for="(star, index) in 5" :key="index" class="star">
           {{ index < rating ? "★" : "☆" }}
         </span>
-        <p>({{ numberOfRatings }})</p>
+        <!-- <p>({{ numberOfRatings }})</p> -->
       </div>
       <div class="price">
         <span>{{ price }} €</span>
