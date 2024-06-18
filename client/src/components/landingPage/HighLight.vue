@@ -1,6 +1,6 @@
 <template>
   <div class="highlight">
-    <h1>Top Products</h1>
+    <h2>Top Products</h2>
     <div class="products">
       <TheCarousel>
         <shopCard
@@ -106,8 +106,7 @@ const figurines = reactive([
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 200px;
-  h1 {
+  h2 {
     font-size: 2.5rem;
     font-weight: 700;
     text-align: center;
