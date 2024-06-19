@@ -152,8 +152,8 @@ watch(
 
 const resetFilters = () => {
   selectedCheckboxes.value = [];
-  selectedMin.value = props.rangeMin || 0;
-  selectedMax.value = props.rangeMax || 100;
+  selectedMin.value = props.rangeMin;
+  selectedMax.value = props.rangeMax;
 };
 
 const showFilterOption = () => {

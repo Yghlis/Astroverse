@@ -14,14 +14,14 @@ export const useShopStore = defineStore("shop", {
       ranges: {
         price: { min: 0, max: 0 },
       },
-      is_promotion: false,
+      promotion: false,
     },
     selectedFilters: {
       characters: [],
       universes: [],
       ratings: [],
       priceRange: { min: 0, max: 0 },
-      is_promotion: false,
+      promotion: false,
     },
   }),
 
@@ -78,6 +78,8 @@ export const useShopStore = defineStore("shop", {
       const prices = products.map((product) => product.price);
       this.filters.ranges.price.min = Math.min(...prices);
       this.filters.ranges.price.max = Math.max(...prices);
+      this.selectedFilters.priceRange.min = this.filters.ranges.price.min;
+      this.selectedFilters.priceRange.max = this.filters.ranges.price.max;
     },
 
     updateSelectedFilters(selectedFilters) {

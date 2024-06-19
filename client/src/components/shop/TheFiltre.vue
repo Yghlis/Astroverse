@@ -61,6 +61,7 @@ import {
   onMounted,
   onUnmounted,
   watch,
+  watchEffect,
   nextTick,
   computed,
 } from "vue";
@@ -81,14 +82,22 @@ const props = defineProps({
     required: true,
   },
   selectedFilters: {
-    type: Array,
+    type: Object,
     required: true,
   },
 });
 
+
+// Stockage des valeurs initiales de priceRange
+const initialPriceRange = reactive({ min: 0, max: 0 });
+
+onMounted(() => {
+  initialPriceRange.min = parseFloat(props.selectedFilters.priceRange.min);
+  initialPriceRange.max = parseFloat(props.selectedFilters.priceRange.max);
+  updateNombreDeFilter(); // Mettre à jour le compteur initial
+});
+
 // ################################################################# Filter Logic #################################################################
-
-
 
 const updateNombreDeFilter = () => {
   let count = 0;
@@ -97,28 +106,43 @@ const updateNombreDeFilter = () => {
   count += props.selectedFilters.universes.length;
   count += props.selectedFilters.ratings.length;
 
+  // Vérifie si priceRange a été modifié par rapport à la valeur par défaut { min: 0, max: 0 }
+  // ou par rapport aux valeurs initiales
   if (
-    props.selectedFilters.priceRange.min !== 0 ||
-    props.selectedFilters.priceRange.max !== 0
+    props.selectedFilters.priceRange.min !== initialPriceRange.min ||
+    props.selectedFilters.priceRange.max !== initialPriceRange.max
   ) {
     count += 1;
   }
 
-  if (props.selectedFilters.is_promotion) {
+  if (props.selectedFilters.promotion) {
     count += 1;
   }
 
   NombreDeFilter.value = count;
 };
 
+// Watchers pour surveiller les modifications des filtres
+watch(() => props.selectedFilters.characters, updateNombreDeFilter, {
+  deep: true,
+});
+watch(() => props.selectedFilters.universes, updateNombreDeFilter, {
+  deep: true,
+});
+watch(() => props.selectedFilters.ratings, updateNombreDeFilter, {
+  deep: true,
+});
+watch(() => props.selectedFilters.priceRange, updateNombreDeFilter, {
+  deep: true,
+});
+watch(() => props.selectedFilters.promotion, updateNombreDeFilter);
+
 const handleCheckboxUpdate = ({ optionName, values }) => {
   props.selectedFilters[optionName] = values;
-  updateNombreDeFilter();
 };
 
 const handleRangeUpdate = ({ optionName, min, max }) => {
   props.selectedFilters.priceRange = { min, max };
-  updateNombreDeFilter();
 };
 
 const resetFilters = () => {

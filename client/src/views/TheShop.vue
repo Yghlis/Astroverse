@@ -47,7 +47,7 @@ const filterOptions = computed(() => {
   for (const key in shopStore.filters.checkboxes) {
     options.push({
       id: idCounter++,
-      optionName: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize the first letter
+      optionName: key, 
       optionType: "checkbox",
       optionValues: shopStore.filters.checkboxes[key].map((value) => ({
         value: value,
@@ -60,7 +60,7 @@ const filterOptions = computed(() => {
   for (const key in shopStore.filters.ranges) {
     options.push({
       id: idCounter++,
-      optionName: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize the first letter
+      optionName: key, 
       optionType: "range",
       rangeMin: shopStore.filters.ranges[key].min,
       rangeMax: shopStore.filters.ranges[key].max,
@@ -70,9 +70,9 @@ const filterOptions = computed(() => {
   // Handle promotion filter
   options.push({
     id: idCounter++,
-    optionName: "Promotion",
+    optionName: "promotion",
     optionType: "checkbox",
-    optionValues: [{ value: true, label: "On Promotion" }],
+    optionValues: [{ value: true, label: "En Promotion" }],
   });
 
   return options;
