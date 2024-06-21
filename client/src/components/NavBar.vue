@@ -10,7 +10,7 @@
     <RouterLink to="/shop" :class="{ active: $route.path === '/shop' }"
       >Shop</RouterLink
     >
-    <RouterLink to="/">About us</RouterLink>
+    <RouterLink to="/form">About us</RouterLink>
     <RouterLink to="/admin" :class="{ active: $route.path === '/admin' }"
       >Admin</RouterLink
     >
