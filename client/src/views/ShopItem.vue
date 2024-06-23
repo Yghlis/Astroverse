@@ -3,7 +3,12 @@
     <ZoomImg v-model:isFullscreen="zoomIn" :imageSrc="activeImage" />
     <div class="left">
       <transition name="fade" mode="out-in">
-        <img @click="zoomInImg" :src="activeImage" alt="image de produit"  :key="activeImage" />
+        <img
+          @click="zoomInImg"
+          :src="activeImage"
+          alt="image de produit"
+          :key="activeImage"
+        />
       </transition>
       <div class="galerie">
         <img
@@ -17,14 +22,44 @@
       </div>
     </div>
     <div class="right">
-      <h2>Title Du produit {{ itemID }}</h2>
-      <span>Note</span>
-      <p>Description</p>
-      <span>Prix</span>
-      <span>Stock</span>
-      <button>Ajouter au panier</button>
+      <div class="right-content">
+        <h2>{{ item.title }}</h2>
+        <div class="rating">
+          <span v-for="(star, index) in 5" :key="index" class="star">
+            {{ index < item.rating ? "★" : "☆" }}
+          </span>
+        </div>
+        <div class="call-to-action">
+          <span class="price">{{ item.price }} €</span>
+          <button>Ajouter au panier</button>
+        </div>
+        <span class="reference">Ref: {{ item.reference }}</span>
+        <div class="description">
+          <h3>Description:</h3>
+          <p>{{ item.description }}</p>
+        </div>
+        <div class="details">
+          <h3>Caractéristiques:</h3>
+          <div class="content">
+            <span v-for="(value, key) in item.details" :key="key"
+              >{{ capitalizeFirstLetter(key) }}: {{ value }}</span
+            >
+          </div>
+        </div>
+        <div class="tags">
+          <span v-for="value in item.tags">
+            {{ value }}
+          </span>
+        </div>
+      </div>
     </div>
   </div>
+  <!-- <span v-if="item.is_promotion">Promotion</span>
+        <span>{{ item.availability_status }}</span>
+        <span>{{ item.reference }}</span>
+        <span>{{ item.details.height }}</span>
+        <span>{{ item.details.material }}</span>
+        <span>{{ item.tags.join(", ") }}</span> -->
 </template>
 
 <script setup>
@@ -62,7 +97,10 @@ const item = reactive({
 let activeImage = ref(item.image_gallery[0]);
 
 const zoomInImg = () => {
-    zoomIn.value = !zoomIn.value;
+  zoomIn.value = !zoomIn.value;
+};
+const capitalizeFirstLetter = (string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
 [
@@ -115,7 +153,6 @@ const zoomInImg = () => {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-top: 50px;
   .left {
     // background-color: #f2a45a;
     width: 700px;
@@ -152,24 +189,135 @@ const zoomInImg = () => {
     }
   }
   .right {
-    background-color: aqua;
     width: 30%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    button {
-      padding: 0.5rem 1rem;
-      border-radius: 15px;
-      background-color: #f2a45a;
-      color: white;
-      font-weight: bold;
-      font-size: 18px;
-      margin-top: 1rem;
-      transition: all 0.3s ease;
-      &:hover {
-        background-color: #f2a45a;
-        color: white;
-        transform: scale(1.1);
+    min-width: 390px;
+    position: relative;
+    .right-content {
+      width: 30%;
+      min-width: 390px;
+      max-height: 70vh; 
+      overflow-y: auto;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      padding: 20px;
+      border: 1px solid #e2e2e2;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
+        rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+      h2 {
+        font-size: 20px;
+        margin: 0;
+        font-weight: bold;
+      }
+      .rating {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin: 0;
+        .star {
+          color: #f1c40f;
+          font-size: 20px;
+        }
+      }
+      .call-to-action {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin: 10px 0;
+        gap: 10px;
+        .price {
+          font-size: 20px;
+          font-weight: bold;
+          margin: 10px 0;
+          color: white;
+          background-color: black;
+          padding: 0.5rem 1rem;
+          border-radius: 5px;
+        }
+        button {
+          padding: 0.5rem 1rem;
+          border-radius: 5px;
+          background-color: #f2a45a;
+          width: 221px;
+          color: white;
+          border: none;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 20px;
+          transition: all 0.3s ease;
+          &:hover {
+            background-color: #4ccc48;
+            color: white;
+          }
+          &:active {
+            background-color: #43af40;
+            color: white;
+          }
+        }
+      }
+      .reference {
+        font-size: 14px;
+        margin: 0;
+      }
+      .description {
+        width: 100%;
+        margin-top: 20px;
+        h3 {
+          font-size: 18px;
+          margin: 0;
+          font-weight: bold;
+        }
+        p {
+          font-size: 16px;
+          margin: 10px 0;
+          padding: 10px;
+          background-color: rgb(240, 240, 240);
+        }
+      }
+      .details {
+        width: 100%;
+        margin-top: 20px;
+        h3 {
+          font-size: 18px;
+          margin: 0;
+          font-weight: bold;
+        }
+        .content {
+          width: 100%;
+          margin-top: 5px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          background-color: rgb(240, 240, 240);
+          padding: 10px;
+          span {
+            font-size: 16px;
+            margin: 2px 0;
+          }
+        }
+      }
+      .tags {
+        width: 100%;
+        margin-top: 20px;
+        span {
+          font-size: 16px;
+          font-weight: bold;
+          margin: 0 5px 0 0;
+          padding: 5px 10px;
+          background-color: black;
+          color: white;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          &:hover {
+            background-color: #f2a45a;
+          }
+        }
       }
     }
   }
