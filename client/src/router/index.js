@@ -7,6 +7,7 @@ import ForgotPassword from "../components/ForgotPassword.vue";
 import ResetPassword from "../components/ResetPassword.vue";
 import AdminDashboard from "../views/AdminDashboard.vue";
 import TheForm from "../ui/TheForm.vue";
+import ShopItem from "../views/ShopItem.vue";
 
 const routes = [
   { path: "/", component: LandingPage },
@@ -17,6 +18,7 @@ const routes = [
   // { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, role: 'ROLE_ADMIN' } }
   { path: "/admin", component: AdminDashboard },
   { path: "/form", component: TheForm },
+  { path: "/item/:id", component: ShopItem }
 ];
 
 const router = createRouter({
