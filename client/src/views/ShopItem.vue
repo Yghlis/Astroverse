@@ -30,8 +30,14 @@
           </span>
         </div>
         <div class="call-to-action">
-          <span class="price">{{ item.price }} €</span>
+          <span class="price" :class="{ promotion: item.is_promotion }">
+            {{ item.is_promotion ? item.discounted_price : item.price }} €
+          </span>
           <button>Ajouter au panier</button>
+        </div>
+        <div v-if="item.is_promotion" class="call-to-action alt">
+          <span class="price-original"> {{ item.price }} € </span>
+          <span class="promo">- {{ discountPercentage }}%</span>
         </div>
         <span class="reference">Ref: {{ item.reference }}</span>
         <div class="description">
@@ -70,7 +76,7 @@ import kaido from "../assets/images/figurines/kaido.webp";
 import mha from "../assets/images/figurines/my-hero-academia-figurine-izuku-midoriya-the-amazing-hero-plus.webp";
 import ZoomImg from "../ui/ZoomImg.vue";
 
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -91,7 +97,8 @@ const item = reactive({
   tags: ["figurine", "One Piece", "Luffy"],
   availability_status: "En stock",
   reference: "OP-LUFFY-GEAR5",
-  is_promotion: false,
+  is_promotion: true,
+  discounted_price: 25.99,
 });
 
 let activeImage = ref(item.image_gallery[0]);
@@ -102,6 +109,15 @@ const zoomInImg = () => {
 const capitalizeFirstLetter = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
+
+const discountPercentage = computed(() => {
+  if (item.is_promotion && item.discounted_price) {
+    return Math.round(
+      ((item.price - item.discounted_price) / item.price) * 100
+    );
+  }
+  return 0;
+});
 
 [
   {
@@ -153,6 +169,7 @@ const capitalizeFirstLetter = (string) => {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  flex-wrap: wrap;
   .left {
     // background-color: #f2a45a;
     width: 700px;
@@ -168,6 +185,7 @@ const capitalizeFirstLetter = (string) => {
     .galerie {
       margin-top: 20px;
       width: 100%;
+      padding: 10px;
       display: flex;
       justify-content: flex-start;
       flex-wrap: wrap;
@@ -192,12 +210,15 @@ const capitalizeFirstLetter = (string) => {
     width: 30%;
     min-width: 390px;
     position: relative;
+    min-height: 547px;
     .right-content {
       width: 30%;
       min-width: 390px;
-      max-height: 70vh; 
+      min-height: 547px;
+      max-height: 70vh;
       overflow-y: auto;
-      position: fixed;
+      position: absolute;
+      top: 0;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -227,7 +248,7 @@ const capitalizeFirstLetter = (string) => {
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        margin: 10px 0;
+        margin: 10px 0 0;
         gap: 10px;
         .price {
           font-size: 20px;
@@ -237,6 +258,9 @@ const capitalizeFirstLetter = (string) => {
           background-color: black;
           padding: 0.5rem 1rem;
           border-radius: 5px;
+          &.promotion {
+            background-color: #ff0000;
+          }
         }
         button {
           padding: 0.5rem 1rem;
@@ -257,6 +281,26 @@ const capitalizeFirstLetter = (string) => {
             background-color: #43af40;
             color: white;
           }
+        }
+        .price-original {
+          font-size: 20px;
+          font-weight: bold;
+          color: white;
+          background-color: black;
+          padding: 0.5rem 1rem;
+          border-radius: 5px;
+          text-decoration: line-through;
+        }
+        .promo {
+          font-size: 20px;
+          font-weight: bold;
+          color: white;
+          background-color: #36c229;
+          padding: 0.5rem 1rem;
+          border-radius: 5px;
+        }
+        &.alt {
+          margin-bottom: 10px;
         }
       }
       .reference {
@@ -318,6 +362,27 @@ const capitalizeFirstLetter = (string) => {
             background-color: #f2a45a;
           }
         }
+      }
+    }
+  }
+}
+
+@media (max-width: 1107px) {
+  .item-container {
+    .left {
+      order: 2;
+      margin-top: 20px;
+      .galerie {
+        justify-content: center;
+      }
+    }
+    .right {
+      order: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      .right-content {
+        width: 90%;
       }
     }
   }
