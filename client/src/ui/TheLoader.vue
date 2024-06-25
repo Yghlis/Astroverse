@@ -1,0 +1,38 @@
+<template>
+    <div class="loader" v-if="loading">
+      <span class="material-symbols-outlined">autorenew</span>
+    </div>
+  </template>
+  
+  <script setup>
+  const props = defineProps({
+    loading: {
+      type: Boolean,
+      default: false
+    }
+  });
+  </script>
+  
+  <style scoped>
+  .loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .material-symbols-outlined {
+    font-size: 48px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  </style>
+  
