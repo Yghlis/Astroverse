@@ -60,12 +60,6 @@
       </div>
     </div>
   </div>
-  <!-- <span v-if="item.is_promotion">Promotion</span>
-        <span>{{ item.availability_status }}</span>
-        <span>{{ item.reference }}</span>
-        <span>{{ item.details.height }}</span>
-        <span>{{ item.details.material }}</span>
-        <span>{{ item.tags.join(", ") }}</span> -->
 </template>
 
 <script setup>

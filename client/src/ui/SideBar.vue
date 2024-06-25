@@ -5,7 +5,7 @@
   </Transition>
   <Transition name="slide">
     <div v-if="showSideBar" class="side-bar">
-      <button class="close-btn" @click="toggleUser">
+      <button class="close-btn" @click="toggle">
         <span class="material-symbols-outlined">close</span>
       </button>
       <div class="slot-content">
@@ -23,14 +23,22 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  type: {
+    type: String,
+    default: "",
+  },
 });
 
 // Définir les événements
-const emit = defineEmits(['update:hideSideBar']);
+const emit = defineEmits(["update:hideUserSideBar", "update:hideCartSideBar"]);
 
 // Fonction pour émettre l'événement
-const toggleUser = () => {
-  emit("update:hideSideBar", false);
+const toggle = () => {
+  if (props.type === "user") {
+    emit("update:hideUserSideBar", false);
+  } else if (props.type === "cart") {
+    emit("update:hideCartSideBar", false);
+  }
 };
 
 </script>
@@ -101,11 +109,13 @@ const toggleUser = () => {
 }
 
 /* Transition de fondu */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.5s ease;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

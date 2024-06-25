@@ -8,9 +8,17 @@
     <button class="login" @click="toggleUser">
       <span class="material-symbols-outlined">account_circle</span>
     </button>
-    <SideBar :showSideBar="userClicked" @update:hideSideBar="toggleUser">
+    <button class="login" @click="toggleCart">
+      <span class="material-symbols-outlined"> shopping_cart </span>
+    </button>
+    <SideBar
+      :showSideBar="userClicked || cartClicked"
+      :type="type"
+      @update:hideUserSideBar="toggleUser"
+      @update:hideCartSideBar="toggleCart"
+    >
       <UserDisplay v-if="userClicked"></UserDisplay>
-      <!-- here add le panier -->
+      <ShoppingCart v-if="cartClicked"></ShoppingCart>
     </SideBar>
   </header>
 </template>
@@ -19,15 +27,23 @@
 import NavBar from "./NavBar.vue";
 import SideBar from "../ui/SideBar.vue";
 import UserDisplay from "./UserDisplay.vue";
+import ShoppingCart from "./ShoppingCart.vue";
 import { computed, ref } from "vue";
 import logoPath from "../assets/images/logo.png"; // Importer le logo
 
 const logo = ref(logoPath); // Référence au chemin du logo
 const userClicked = ref(false);
-
+const cartClicked = ref(false);
+const type = ref("");
 
 const toggleUser = () => {
+  type.value = "user";
   userClicked.value = !userClicked.value;
+};
+
+const toggleCart = () => {
+  type.value = "cart";
+  cartClicked.value = !cartClicked.value;
 };
 </script>
 
