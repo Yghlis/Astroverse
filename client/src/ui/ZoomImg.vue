@@ -6,7 +6,7 @@
   
   <script setup>
   import { ref } from 'vue';
-  import { defineProps,  defineEmits } from 'vue';
+  import { defineEmits } from 'vue';
   
   // Définir les props
   const props = defineProps({

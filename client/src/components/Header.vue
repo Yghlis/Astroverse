@@ -5,12 +5,17 @@
       <h1>Astroverse</h1>
     </div>
     <NavBar />
-    <button class="login" @click="toggleUser">
-      <span class="material-symbols-outlined">account_circle</span>
-    </button>
-    <button class="login" @click="toggleCart">
-      <span class="material-symbols-outlined"> shopping_cart </span>
-    </button>
+    <div class="right-btn">
+      <button class="login" @click="toggleUser">
+        <span class="material-symbols-outlined">account_circle</span>
+      </button>
+      <button class="login" @click="toggleCart">
+        <span class="material-symbols-outlined alt"> shopping_cart </span>
+        <div v-if="NombreDeItem" class="number-filtre" ref="numberItem">
+          <span>{{ NombreDeItem }}</span>
+        </div>
+      </button>
+    </div>
     <SideBar
       :showSideBar="userClicked || cartClicked"
       :type="type"
@@ -28,13 +33,14 @@ import NavBar from "./NavBar.vue";
 import SideBar from "../ui/SideBar.vue";
 import UserDisplay from "./UserDisplay.vue";
 import ShoppingCart from "./ShoppingCart.vue";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import logoPath from "../assets/images/logo.png"; // Importer le logo
 
 const logo = ref(logoPath); // Référence au chemin du logo
 const userClicked = ref(false);
 const cartClicked = ref(false);
 const type = ref("");
+
 
 const toggleUser = () => {
   type.value = "user";
@@ -45,6 +51,30 @@ const toggleCart = () => {
   type.value = "cart";
   cartClicked.value = !cartClicked.value;
 };
+
+//Panier
+
+import { useCartStore } from '../stores/cartStore';
+import { animate } from "motion";
+
+const cartStore = useCartStore();
+
+const NombreDeItem = computed(() => cartStore.cartItemCount);
+const numberItem = ref(null);
+
+
+watch(NombreDeItem, (newValue, oldValue) => {
+  if (newValue !== oldValue && numberItem.value) {
+    animate(numberItem.value, [
+      { scale: 1, backgroundColor: 'black' },
+      { scale: 1.5, backgroundColor: 'orange' },
+      { scale: 1, backgroundColor: 'black' }
+    ], {
+      duration: 0.5,
+      easing: 'ease-in-out'
+    });
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -72,27 +102,53 @@ header {
       height: 100px;
     }
   }
-  .login {
-    position: relative;
-    cursor: pointer;
-    color: black;
-    background-color: white;
-    transition: all 0.3s ease;
-    padding: 10px;
-    border-radius: 100%;
-    border: none;
+  .right-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    &:hover {
-      color: white;
-      background-color: #f2a45a;
-      transform: scale(1.1);
+    button {
+      margin: 0 10px;
     }
-    .material-symbols-outlined {
-      font-size: 35px;
-      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
-      transition: transform 0.5s ease;
+    .login {
+      position: relative;
+      cursor: pointer;
+      color: black;
+      background-color: white;
+      transition: all 0.3s ease;
+      padding: 10px;
+      border-radius: 100%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        color: white;
+        background-color: #f2a45a;
+        transform: scale(1.1);
+      }
+      .material-symbols-outlined {
+        font-size: 35px;
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
+        transition: transform 0.5s ease;
+        &.alt {
+          font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+        }
+      }
+    }
+    .number-filtre {
+      position: absolute;
+      right: -10px;
+      background-color: black;
+      border-radius: 100%;
+      height: 20px;
+      width: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      span {
+        color: white;
+        font-size: 15px;
+      }
     }
   }
 }
