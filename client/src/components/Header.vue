@@ -5,12 +5,25 @@
       <h1>Astroverse</h1>
     </div>
     <NavBar />
-    <button class="login" @click="toggleUser">
-      <span class="material-symbols-outlined">account_circle</span>
-    </button>
-    <SideBar :showSideBar="userClicked" @update:hideSideBar="toggleUser">
+    <div class="right-btn">
+      <button class="btn" @click="toggleUser">
+        <span class="material-symbols-outlined">account_circle</span>
+      </button>
+      <button class="btn" @click="toggleCart" ref="numberItems">
+        <span class="material-symbols-outlined alt"> shopping_cart </span>
+        <div v-if="NombreDeItems" class="number-filtre">
+          <span>{{ NombreDeItems }}</span>
+        </div>
+      </button>
+    </div>
+    <SideBar
+      :showSideBar="userClicked || cartClicked"
+      :type="type"
+      @update:hideUserSideBar="toggleUser"
+      @update:hideCartSideBar="toggleCart"
+    >
       <UserDisplay v-if="userClicked"></UserDisplay>
-      <!-- here add le panier -->
+      <ShoppingCart v-if="cartClicked"></ShoppingCart>
     </SideBar>
   </header>
 </template>
@@ -19,16 +32,55 @@
 import NavBar from "./NavBar.vue";
 import SideBar from "../ui/SideBar.vue";
 import UserDisplay from "./UserDisplay.vue";
-import { computed, ref } from "vue";
+import ShoppingCart from "./ShoppingCart.vue";
+import { computed, ref, watch, onMounted, nextTick } from "vue";
 import logoPath from "../assets/images/logo.png"; // Importer le logo
 
 const logo = ref(logoPath); // Référence au chemin du logo
 const userClicked = ref(false);
-
+const cartClicked = ref(false);
+const type = ref("");
 
 const toggleUser = () => {
+  type.value = "user";
   userClicked.value = !userClicked.value;
 };
+
+const toggleCart = () => {
+  type.value = "cart";
+  cartClicked.value = !cartClicked.value;
+};
+
+//Panier
+
+import { useCartStore } from "../stores/cartStore";
+import { animate } from "motion";
+
+const cartStore = useCartStore();
+
+const NombreDeItems = computed(() => cartStore.cartItemCount);
+const numberItems = ref(null);
+
+watch(NombreDeItems, async (newValue, oldValue) => {
+  await nextTick();
+  if (newValue !== oldValue && numberItems.value) {
+    animate(
+      numberItems.value,
+      {
+        transform: ["translateY(0)", "translateY(50px)", "translateY(0)"],
+        backgroundColor: [null, "#f2a45a", 'white'],
+      },
+      {
+        duration: 0.8,
+        easing: "ease",
+      }
+    );
+     // Ajouter la classe après la durée de l'animation
+     setTimeout(() => {
+      numberItems.value.style.cssText = '';
+    }, 850);
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -56,27 +108,53 @@ header {
       height: 100px;
     }
   }
-  .login {
-    position: relative;
-    cursor: pointer;
-    color: black;
-    background-color: white;
-    transition: all 0.3s ease;
-    padding: 10px;
-    border-radius: 100%;
-    border: none;
+  .right-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    &:hover {
-      color: white;
-      background-color: #f2a45a;
-      transform: scale(1.1);
+    button {
+      margin: 0 10px;
     }
-    .material-symbols-outlined {
-      font-size: 35px;
-      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
-      transition: transform 0.5s ease;
+    .btn {
+      position: relative;
+      cursor: pointer;
+      color: black;
+      background-color: white;
+      transition: all 0.3s ease;
+      padding: 10px;
+      border-radius: 100%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        color: white;
+        background-color: #f2a45a;
+        transform: scale(1.1);
+      }
+      .material-symbols-outlined {
+        font-size: 35px;
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
+        transition: transform 0.5s ease;
+        &.alt {
+          font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+        }
+      }
+    }
+    .number-filtre {
+      position: absolute;
+      right: -10px;
+      background-color: black;
+      border-radius: 100%;
+      height: 20px;
+      width: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      span {
+        color: white;
+        font-size: 15px;
+      }
     }
   }
 }

@@ -33,7 +33,7 @@
           <span class="price" :class="{ promotion: item.is_promotion }">
             {{ item.is_promotion ? item.discounted_price : item.price }} €
           </span>
-          <button>Ajouter au panier</button>
+          <button @click="addToCart">Ajouter au panier</button>
         </div>
         <div v-if="item.is_promotion" class="call-to-action alt">
           <span class="price-original"> {{ item.price }} € </span>
@@ -60,12 +60,6 @@
       </div>
     </div>
   </div>
-  <!-- <span v-if="item.is_promotion">Promotion</span>
-        <span>{{ item.availability_status }}</span>
-        <span>{{ item.reference }}</span>
-        <span>{{ item.details.height }}</span>
-        <span>{{ item.details.material }}</span>
-        <span>{{ item.tags.join(", ") }}</span> -->
 </template>
 
 <script setup>
@@ -78,10 +72,12 @@ import ZoomImg from "../ui/ZoomImg.vue";
 
 import { ref, reactive, computed } from "vue";
 import { useRoute } from "vue-router";
+import { useCartStore } from '../stores/cartStore';
 
 const route = useRoute();
 const itemID = ref(route.params.id);
 const zoomIn = ref(false);
+
 
 const item = reactive({
   title: "ONE PIECE - FIGURINE LUFFY - GEAR 5 - KING OF ARTIST - BANPRESTO",
@@ -118,6 +114,12 @@ const discountPercentage = computed(() => {
   }
   return 0;
 });
+
+//STORE PANIER ICI
+const cartStore = useCartStore();
+const addToCart = () => {
+  cartStore.addItemToCart(item);
+};
 
 [
   {
