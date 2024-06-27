@@ -6,13 +6,13 @@
     </div>
     <NavBar />
     <div class="right-btn">
-      <button class="login" @click="toggleUser">
+      <button class="btn" @click="toggleUser">
         <span class="material-symbols-outlined">account_circle</span>
       </button>
-      <button class="login" @click="toggleCart">
+      <button class="btn" @click="toggleCart" ref="numberItems">
         <span class="material-symbols-outlined alt"> shopping_cart </span>
-        <div v-if="NombreDeItem" class="number-filtre" ref="numberItem">
-          <span>{{ NombreDeItem }}</span>
+        <div v-if="NombreDeItems" class="number-filtre">
+          <span>{{ NombreDeItems }}</span>
         </div>
       </button>
     </div>
@@ -33,14 +33,13 @@ import NavBar from "./NavBar.vue";
 import SideBar from "../ui/SideBar.vue";
 import UserDisplay from "./UserDisplay.vue";
 import ShoppingCart from "./ShoppingCart.vue";
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted, nextTick } from "vue";
 import logoPath from "../assets/images/logo.png"; // Importer le logo
 
 const logo = ref(logoPath); // Référence au chemin du logo
 const userClicked = ref(false);
 const cartClicked = ref(false);
 const type = ref("");
-
 
 const toggleUser = () => {
   type.value = "user";
@@ -54,25 +53,32 @@ const toggleCart = () => {
 
 //Panier
 
-import { useCartStore } from '../stores/cartStore';
+import { useCartStore } from "../stores/cartStore";
 import { animate } from "motion";
 
 const cartStore = useCartStore();
 
-const NombreDeItem = computed(() => cartStore.cartItemCount);
-const numberItem = ref(null);
+const NombreDeItems = computed(() => cartStore.cartItemCount);
+const numberItems = ref(null);
 
-
-watch(NombreDeItem, (newValue, oldValue) => {
-  if (newValue !== oldValue && numberItem.value) {
-    animate(numberItem.value, [
-      { scale: 1, backgroundColor: 'black' },
-      { scale: 1.5, backgroundColor: 'orange' },
-      { scale: 1, backgroundColor: 'black' }
-    ], {
-      duration: 0.5,
-      easing: 'ease-in-out'
-    });
+watch(NombreDeItems, async (newValue, oldValue) => {
+  await nextTick();
+  if (newValue !== oldValue && numberItems.value) {
+    animate(
+      numberItems.value,
+      {
+        transform: ["translateY(0)", "translateY(50px)", "null"],
+        backgroundColor: [null, "#f2a45a", 'null'],
+      },
+      {
+        duration: 0.8,
+        easing: "ease",
+      }
+    );
+     // Ajouter la classe après la durée de l'animation
+     setTimeout(() => {
+      numberItems.value.classList.add("btn");
+    }, 800);
   }
 });
 </script>
@@ -109,7 +115,7 @@ header {
     button {
       margin: 0 10px;
     }
-    .login {
+    .btn {
       position: relative;
       cursor: pointer;
       color: black;
