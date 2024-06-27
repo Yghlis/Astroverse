@@ -1,13 +1,18 @@
 <template>
   <div>
-    <h2>Panier</h2>
-    <ul>
+    <h2>Mon Panier</h2>
+    <transition-group name="list" tag="ul">
       <li v-for="item in cartItems" :key="item.id">
-        {{ item.title }} - {{ item.quantity }} x {{ item.price }}€
-        <button @click="removeItem(item.id)">Supprimer</button>
+        <img :src="item.image_gallery[0]" alt="item image" />
+        {{ item.title }}
+        <div class="right">
+          <span> {{ item.quantity }} x {{ item.price }}€ </span>
+          <button @click="removeItem(item.id)">Supprimer</button>
+        </div>
       </li>
-    </ul>
+    </transition-group>
     <p>Total: {{ cartTotal }}€</p>
+    <button class="call-to-action">Passer votre Commande</button>
   </div>
 </template>
 
@@ -26,65 +31,91 @@ const removeItem = (itemId) => {
 </script>
 
 <style scoped>
-.material-symbols-outlined {
-  font-size: 150px;
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
-  transition: transform 0.5s ease;
-  text-align: center;
-  width: 100%;
-}
 h2 {
   text-align: center;
   font-size: 2rem;
   margin: 0;
 }
 
-.log-btn-container {
+ul {
+  list-style: none;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: flex-start;
-  margin-top: 20px;
-  width: 100%;
+  align-items: flex-start;
+  gap: 20px;
 }
-.log-btn,
-.log-input {
-  padding: 10px;
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
-  text-align: center;
-  color: black;
   border: 1px solid black;
-  margin: 5px 0;
-  border-radius: 25px;
-  font-size: 20px;
-  font-weight: bold;
+  border-radius: 5px;
+  padding: 10px;
   transition: all 0.3s ease;
-  background-color: white;
+  .right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    span {
+      font-size: 14px;
+      font-weight: bold;
+      width: 86px;
+      text-align: center;
+      margin: 10px 0;
+      color: white;
+      background-color: black;
+      padding: 0.5rem 0.5rem;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #f00;
+      font-size: 14px;
+      font-weight: bold;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      &:hover {
+        background-color: #d10303;
+      }
+    }
+  }
+  img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 10px;
+  }
+}
+
+.call-to-action {
+  background-color: #41c902;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
   cursor: pointer;
-  font-family: "Nippo", sans-serif;
+  transition: all 0.3s ease;
+  &:hover {
+    background-color: #55af00;
+  }
 }
-.log-btn:hover,
-.log-btn.alt:hover {
-  color: white;
-  background-color: #f2a45a;
-  border: 1px solid #f2a45a;
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
 }
-.log-btn.alt {
-  margin-top: 20px;
-  background-color: #f2a45a;
-  color: white;
-  border: 1px solid #f2a45a;
-}
-.error-message {
-  color: red;
-  text-align: center;
-}
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.5s ease;
-}
-.slide-enter-from,
-.slide-leave-to {
-  transform: translateY(100%);
+
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
 }
 </style>

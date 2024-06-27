@@ -1,18 +1,20 @@
 import { defineStore } from 'pinia';
 
 export const useCartStore = defineStore('cart', {
-  state: () => ({
-    cartItems: [],
-  }),
+  state: () => {
+    // Charger l'état initial à partir du localStorage, s'il existe
+    const savedState = localStorage.getItem('cartStore');
+    return savedState ? JSON.parse(savedState) : {
+      cartItems: [],
+    };
+  },
   getters: {
-    // Calculer le total des éléments dans le panier
     cartTotal: (state) => {
-        return state.cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-      },
-      // Compter le nombre d'articles dans le panier
-      cartItemCount: (state) => {
-        return state.cartItems.reduce((count, item) => count + item.quantity, 0);
-      },
+      return state.cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    },
+    cartItemCount: (state) => {
+      return state.cartItems.reduce((count, item) => count + item.quantity, 0);
+    },
   },
   actions: {
     addItemToCart(item) {
@@ -31,3 +33,4 @@ export const useCartStore = defineStore('cart', {
     },
   },
 });
+

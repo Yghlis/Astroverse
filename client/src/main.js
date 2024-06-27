@@ -5,6 +5,8 @@ import { createPinia } from 'pinia'; // Importer Pinia
 import { jwtDecode } from "jwt-decode"; // Importation nommée, s'assurer que jwt-decode expose vraiment cette fonction
 import './style.css';
 import './assets/global.css';
+import { usePersistedState } from './composables/usePersistedState';
+import { useCartStore } from './stores/cartStore';
 
 const app = createApp(App);
 
@@ -20,6 +22,9 @@ if (token) {
 
 // Utiliser Pinia dans l'application Vue
 app.use(pinia);
+
+const cartStore = useCartStore();
+usePersistedState(cartStore, 'cartStore'); // Utiliser usePersistedState pour sauvegarder le panier dans localStorage
 
 // Utiliser le router et monter l'application
 app.use(router).mount('#app');

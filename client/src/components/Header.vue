@@ -67,8 +67,8 @@ watch(NombreDeItems, async (newValue, oldValue) => {
     animate(
       numberItems.value,
       {
-        transform: ["translateY(0)", "translateY(50px)", "null"],
-        backgroundColor: [null, "#f2a45a", 'null'],
+        transform: ["translateY(0)", "translateY(50px)", "translateY(0)"],
+        backgroundColor: [null, "#f2a45a", 'white'],
       },
       {
         duration: 0.8,
@@ -77,8 +77,8 @@ watch(NombreDeItems, async (newValue, oldValue) => {
     );
      // Ajouter la classe après la durée de l'animation
      setTimeout(() => {
-      numberItems.value.classList.add("btn");
-    }, 800);
+      numberItems.value.style.cssText = '';
+    }, 850);
   }
 });
 </script>
