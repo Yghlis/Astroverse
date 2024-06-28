@@ -137,21 +137,18 @@ export const useProductFormStore = defineStore('productForm', () => {
       const formDataToSend = new FormData();
       for (const key in formData) {
         if (formData.hasOwnProperty(key) && key !== 'image_gallery') {
-          if (typeof formData[key] === 'object' && formData[key] !== null) {
-            formDataToSend.append(key, JSON.stringify(formData[key]));
-          } else {
-            formDataToSend.append(key, formData[key]);
-          }
+          formDataToSend.append(key, formData[key]);
         }
       }
   
       // Ajoutez les fichiers d'images
-      if (formData.image_preview instanceof File) {
-        formDataToSend.append('image_preview', formData.image_preview);
+      const imagePreviewInput = document.querySelector('input[name="image_preview"]');
+      if (imagePreviewInput && imagePreviewInput.files[0]) {
+        formDataToSend.append('image_preview', imagePreviewInput.files[0]);
       }
   
       formData.image_gallery.forEach((image, index) => {
-        if (image instanceof File) {
+        if (image) {
           formDataToSend.append('image_gallery', image);
         }
       });
@@ -188,7 +185,6 @@ export const useProductFormStore = defineStore('productForm', () => {
       isSubmitting.value = false;
     }
   }
-  
   
   function handleImagePreviewChange(event) {
     const file = event.target.files[0];
