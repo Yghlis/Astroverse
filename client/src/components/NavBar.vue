@@ -10,9 +10,6 @@
     <RouterLink to="/shop" :class="{ active: $route.path === '/shop' }"
       >Shop</RouterLink
     >
-    <RouterLink to="/item/123" :class="{ active: $route.path.startsWith('/item')}"
-      >Item</RouterLink
-    >
     <RouterLink to="/form">About us</RouterLink>
     <RouterLink to="/admin" :class="{ active: $route.path === '/admin' }"
       >Admin</RouterLink
@@ -58,8 +55,3 @@ nav {
   }
 }
 </style>
-
-<!-- 'FILL' 0,        /* 0 pour contour, 1 pour remplissage */
-'wght' 400,      /* Poids de 100 à 700 */
-'GRAD' 0,        /* Graduation de -50 à 200 */
-'opsz' 24;       /* Taille optique de 20 à 48 */ -->

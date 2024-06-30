@@ -1,5 +1,7 @@
 <template>
-  <div class="item-container">
+  <TheLoader v-if="loading" :loading="loading"> </TheLoader>
+  <div v-else-if="error">{{ error }}</div>
+  <div v-else-if="product" class="item-container">
     <ZoomImg v-model:isFullscreen="zoomIn" :imageSrc="activeImage" />
     <div class="left">
       <transition name="fade" mode="out-in">
@@ -12,7 +14,7 @@
       </transition>
       <div class="galerie">
         <img
-          v-for="(image, index) in item.image_gallery"
+          v-for="(image, index) in product.image_gallery"
           :key="index"
           :src="image"
           alt="image de produit"
@@ -23,37 +25,40 @@
     </div>
     <div class="right">
       <div class="right-content">
-        <h2>{{ item.title }}</h2>
+        <h2>{{ product.title }}</h2>
         <div class="rating">
           <span v-for="(star, index) in 5" :key="index" class="star">
-            {{ index < item.rating ? "★" : "☆" }}
+            {{ index < product.rating ? "★" : "☆" }}
           </span>
         </div>
         <div class="call-to-action">
-          <span class="price" :class="{ promotion: item.is_promotion }">
-            {{ item.is_promotion ? item.discounted_price : item.price }} €
+          <span class="price" :class="{ promotion: product.is_promotion }">
+            {{
+              product.is_promotion ? product.discounted_price : product.price
+            }}
+            €
           </span>
           <button @click="addToCart">Ajouter au panier</button>
         </div>
-        <div v-if="item.is_promotion" class="call-to-action alt">
-          <span class="price-original"> {{ item.price }} € </span>
+        <div v-if="product.is_promotion" class="call-to-action alt">
+          <span class="price-original"> {{ product.price }} € </span>
           <span class="promo">- {{ discountPercentage }}%</span>
         </div>
-        <span class="reference">Ref: {{ item.reference }}</span>
+        <span class="reference">Ref: {{ product.reference }}</span>
         <div class="description">
           <h3>Description:</h3>
-          <p>{{ item.description }}</p>
+          <p>{{ product.description }}</p>
         </div>
         <div class="details">
           <h3>Caractéristiques:</h3>
           <div class="content">
-            <span v-for="(value, key) in item.details" :key="key"
+            <span v-for="(value, key) in product.details" :key="key"
               >{{ capitalizeFirstLetter(key) }}: {{ value }}</span
             >
           </div>
         </div>
         <div class="tags">
-          <span v-for="value in item.tags">
+          <span v-for="value in product.tags">
             {{ value }}
           </span>
         </div>
@@ -63,41 +68,30 @@
 </template>
 
 <script setup>
-import Luffy from "../assets/images/figurines/one-piece-figurine-luffy-gear-5-king-of-artist-banpresto.jpg";
-import naruto from "../assets/images/figurines/bandai-btn65560-8-naruto-s-h-figuarts-naruto-uzumaki-kurama-link-mod.jpg";
-import dbz from "../assets/images/figurines/04_4b0d2f02-6ae8-44bd-be40-36de2d56317c.jpg";
-import kaido from "../assets/images/figurines/kaido.webp";
-import mha from "../assets/images/figurines/my-hero-academia-figurine-izuku-midoriya-the-amazing-hero-plus.webp";
-import ZoomImg from "../ui/ZoomImg.vue";
-
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { useCartStore } from '../stores/cartStore';
+import { useCartStore } from "../stores/cartStore";
+import { useProductStore } from "../stores/useProductStore";
+import ZoomImg from "../ui/ZoomImg.vue";
+import TheLoader from "../ui/TheLoader.vue";
 
 const route = useRoute();
-const itemID = ref(route.params.id);
 const zoomIn = ref(false);
+const productStore = useProductStore();
+const activeImage = ref("null");
 
 
-const item = reactive({
-  title: "ONE PIECE - FIGURINE LUFFY - GEAR 5 - KING OF ARTIST - BANPRESTO",
-  price: 35.99,
-  description: "Figurine de Luffy en Gear 5 de la série One Piece.",
-  stock: 100,
-  rating: 5,
-  image_gallery: [Luffy, naruto, dbz, kaido, mha],
-  details: {
-    height: "20cm",
-    material: "PVC",
-  },
-  tags: ["figurine", "One Piece", "Luffy"],
-  availability_status: "En stock",
-  reference: "OP-LUFFY-GEAR5",
-  is_promotion: true,
-  discounted_price: 25.99,
+
+const product = computed(() => productStore.product);
+const loading = computed(() => productStore.loading);
+const error = computed(() => productStore.error);
+
+onMounted(async () => {
+  const productId = route.params.id;
+  await productStore.fetchProduct(productId);
+
+  activeImage.value = product.value.image_gallery[0];
 });
-
-let activeImage = ref(item.image_gallery[0]);
 
 const zoomInImg = () => {
   zoomIn.value = !zoomIn.value;
@@ -107,9 +101,9 @@ const capitalizeFirstLetter = (string) => {
 };
 
 const discountPercentage = computed(() => {
-  if (item.is_promotion && item.discounted_price) {
+  if (product.is_promotion && product.discounted_price) {
     return Math.round(
-      ((item.price - item.discounted_price) / item.price) * 100
+      ((product.price - product.discounted_price) / product.price) * 100
     );
   }
   return 0;
@@ -118,7 +112,7 @@ const discountPercentage = computed(() => {
 //STORE PANIER ICI
 const cartStore = useCartStore();
 const addToCart = () => {
-  cartStore.addItemToCart(item);
+  cartStore.addItemToCart(product.value);
 };
 
 [

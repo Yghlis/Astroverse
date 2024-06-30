@@ -13,6 +13,7 @@
     imageSrc: {
       type: String,
       required: true,
+      default: '',
     },
     isFullscreen : {
       type: Boolean,

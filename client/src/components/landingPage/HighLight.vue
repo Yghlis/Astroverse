@@ -6,6 +6,7 @@
         <shopCard
           v-for="item in figurines"
           :key="item.id"
+          :id="item.id"
           :image-src="item.imageSrc"
           :title="item.title"
           :rating="item.rating"

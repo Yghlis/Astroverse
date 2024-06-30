@@ -28,9 +28,10 @@ export const useShopStore = defineStore("shop", {
   actions: {
     async fetchProducts() {
       this.loading = true;
+      const apiUrl = import.meta.env.VITE_API_URL;
       this.error = null;
       try {
-        const response = await fetch("http://localhost:8000/products");
+        const response = await fetch(`${apiUrl}/products`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -47,11 +48,12 @@ export const useShopStore = defineStore("shop", {
 
     async fetchFilterOptions() {
       this.loading = true;
+      const apiUrl = import.meta.env.VITE_API_URL;
       this.error = null;
       try {
         const [charactersResponse, universesResponse] = await Promise.all([
-          fetch("http://localhost:8000/characters"),
-          fetch("http://localhost:8000/universes"),
+          fetch(`${apiUrl}/characters`),
+          fetch(`${apiUrl}/universes`),
         ]);
 
         if (!charactersResponse.ok || !universesResponse.ok) {

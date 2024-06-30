@@ -4,6 +4,7 @@
     class="card"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
+    @click="navigateToDetail"
   >
     <span class="material-symbols-outlined favorite"> favorite </span>
     <img :src="imageSrc" alt="figurine image" />
@@ -28,8 +29,10 @@
 <script setup>
 import { ref } from "vue";
 import { animate } from "motion";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
+  id: String,
   imageSrc: String,
   title: String,
   rating: Number,
@@ -41,6 +44,8 @@ const imageSrcTwo = ref(props.imageSrc);
 
 const showBtn = ref(false);
 const selecteurCard = ref(null);
+
+const router = useRouter();
 
 const toggleBtn = () => {
   showBtn.value = !showBtn.value;
@@ -58,6 +63,10 @@ const handleMouseEnter = () => {
 const handleMouseLeave = () => {
   animate(selecteurCard.value, { height: "350px", y: "0" }, { duration: 0.3 });
   toggleBtn();
+};
+
+const navigateToDetail = () => {
+  router.push(`/item/${props.id}`);
 };
 </script>
 
