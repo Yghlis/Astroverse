@@ -25,6 +25,7 @@
     </div>
     <div class="right">
       <div class="right-content">
+        <span @click="handleNotification" class="material-symbols-outlined notification" :class="{ active: notification }"> notifications_active </span>
         <h2>{{ product.title }}</h2>
         <div class="rating">
           <span v-for="(star, index) in 5" :key="index" class="star">
@@ -79,9 +80,7 @@ const route = useRoute();
 const zoomIn = ref(false);
 const productStore = useProductStore();
 const activeImage = ref("null");
-
-
-
+const notification = ref(false);
 const product = computed(() => productStore.product);
 const loading = computed(() => productStore.loading);
 const error = computed(() => productStore.error);
@@ -108,6 +107,10 @@ const discountPercentage = computed(() => {
   }
   return 0;
 });
+
+const handleNotification = () => {
+  notification.value = !notification.value;
+};
 
 //STORE PANIER ICI
 const cartStore = useCartStore();
@@ -227,6 +230,23 @@ const addToCart = () => {
         font-size: 20px;
         margin: 0;
         font-weight: bold;
+      }
+      .notification {
+        font-size: 30px;
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+        position: absolute;
+        right: 20px;
+        margin: 0;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.3s ease;
+        &:hover {
+          transform: scale(1.2);
+        }
+        &.active {
+          color: #FFD700;
+          font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
+        }
       }
       .rating {
         width: 100%;
