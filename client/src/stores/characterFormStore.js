@@ -1,17 +1,17 @@
-import { defineStore } from 'pinia';
-import { reactive, ref } from 'vue';
-import { z } from 'zod';
+import { defineStore } from "pinia";
+import { reactive, ref } from "vue";
+import { z } from "zod";
 
-export const useCharacterFormStore = defineStore('characterForm', () => {
+export const useCharacterFormStore = defineStore("characterForm", () => {
   const initialData = {
-    id: '',
-    name: '',
-    universe: ''
+    id: "",
+    name: "",
+    universe: "",
   };
 
   const schema = z.object({
-    name: z.string().nonempty('Le nom est requis'),
-    universe: z.string().nonempty('L\'univers est requis')
+    name: z.string().nonempty("Le nom est requis"),
+    universe: z.string().nonempty("L'univers est requis"),
   });
 
   const formData = reactive({ ...initialData });
@@ -21,25 +21,26 @@ export const useCharacterFormStore = defineStore('characterForm', () => {
   const universes = ref([]);
 
   function setFormData(data) {
-    console.log('Setting form data:', data);
+    console.log("Setting form data:", data);
     Object.assign(formData, data);
-    console.log('Form data after setting:', formData);
+    console.log("Form data after setting:", formData);
   }
 
   async function fetchUniverses() {
+    const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
     try {
-      console.log('Fetching universes...');
-      const response = await fetch('http://localhost:8000/universes', {
-        method: 'GET',
+      console.log("Fetching universes...");
+      const response = await fetch(`${apiUrl}/universes`, {
+        method: "GET",
       });
       if (!response.ok) {
-        throw new Error('Failed to fetch universes');
+        throw new Error("Failed to fetch universes");
       }
       const data = await response.json();
-      console.log('Universes fetched:', data);
+      console.log("Universes fetched:", data);
       universes.value = data;
     } catch (error) {
-      console.error('Error fetching universes:', error);
+      console.error("Error fetching universes:", error);
     }
   }
 
@@ -58,35 +59,35 @@ export const useCharacterFormStore = defineStore('characterForm', () => {
   async function handleSubmit() {
     validate();
     if (Object.keys(errors.value).length > 0) {
-      console.log('Validation errors:', errors.value);
+      console.log("Validation errors:", errors.value);
       return;
     }
     isSubmitting.value = true;
+    const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
     try {
-      const url = `http://localhost:8000/characters/${formData.id}`;
-      console.log('Updating existing character with ID:', formData.id);
-      console.log('URL:', url);
-      console.log('Form Data:', JSON.stringify(formData));
+      const url = `${apiUrl}/characters/${formData.id}`;
+      console.log("Updating existing character with ID:", formData.id);
+      console.log("URL:", url);
+      console.log("Form Data:", JSON.stringify(formData));
 
       const response = await fetch(url, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       const responseData = await response.json();
-      console.log('API response:', responseData);
+      console.log("API response:", responseData);
 
       if (!response.ok) {
         const errorMessage = await responseData;
         throw new Error(`Erreur: ${response.status} - ${errorMessage.message}`);
       }
-
     } catch (error) {
       httpError.value = error.message;
-      console.log('HTTP error:', error.message);
+      console.log("HTTP error:", error.message);
     } finally {
       isSubmitting.value = false;
     }
@@ -101,6 +102,6 @@ export const useCharacterFormStore = defineStore('characterForm', () => {
     setFormData,
     fetchUniverses,
     validate,
-    handleSubmit
+    handleSubmit,
   };
 });

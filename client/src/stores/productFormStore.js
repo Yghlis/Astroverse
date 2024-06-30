@@ -70,9 +70,10 @@ export const useProductFormStore = defineStore('productForm', () => {
   }
 
   async function fetchCharacters() {
+    const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
     try {
       console.log('Fetching characters...');
-      const response = await fetch('http://localhost:8000/characters', {
+      const response = await fetch(`${apiUrl}/characters`, {
         method: 'GET',
       });
       if (!response.ok) {
@@ -87,9 +88,10 @@ export const useProductFormStore = defineStore('productForm', () => {
   }
 
   async function fetchUniverses() {
+    const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
     try {
       console.log('Fetching universes...');
-      const response = await fetch('http://localhost:8000/universes', {
+      const response = await fetch(`${apiUrl}/universes`, {
         method: 'GET',
       });
       if (!response.ok) {
@@ -117,55 +119,55 @@ export const useProductFormStore = defineStore('productForm', () => {
     }
   }
 
-  // productFormStore.js
   async function handleSubmit() {
+    const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
     try {
       console.log('Handling submit...');
       isSubmitting.value = true;
-  
+
       formData.price = parseFloat(formData.price.replace(',', '.'));
       formData.discounted_price = formData.discounted_price ? parseFloat(formData.discounted_price.replace(',', '.')) : 0;
-  
+
       console.log('Form data after conversion:', formData);
-  
+
       validate();
-  
+
       console.log('Form data after validation:', formData);
-  
-      const url = formData.id ? `http://localhost:8000/products/${formData.id}` : 'http://localhost:8000/products';
+
+      const url = formData.id ? `${apiUrl}/products/${formData.id}` : `${apiUrl}/products`;
       const method = formData.id ? 'PUT' : 'POST';
-  
+
       const formDataToSend = new FormData();
       for (const key in formData) {
         if (formData.hasOwnProperty(key) && key !== 'image_gallery') {
           formDataToSend.append(key, formData[key]);
         }
       }
-  
+
       // Ajoutez les fichiers d'images
       const imagePreviewInput = document.querySelector('input[name="image_preview"]');
       if (imagePreviewInput && imagePreviewInput.files[0]) {
         formDataToSend.append('image_preview', imagePreviewInput.files[0]);
       }
-  
+
       for (let i = 0; i < 4; i++) {
         const imageGalleryInput = document.querySelector(`input[id="image_gallery_${i}"]`);
         if (imageGalleryInput && imageGalleryInput.files[0]) {
           formDataToSend.append('image_gallery', imageGalleryInput.files[0]);
         }
       }
-  
+
       const response = await fetch(url, {
         method,
         body: formDataToSend
       });
-  
+
       if (!response.ok) {
         const errorMessage = await response.json();
         console.error(`Erreur: ${response.status} - ${errorMessage.error}`);
         throw new Error(`Erreur: ${response.status} - ${errorMessage.error}`);
       }
-  
+
       const responseData = await response.json();
       console.log('API response:', responseData);
     } catch (error) {
@@ -182,9 +184,6 @@ export const useProductFormStore = defineStore('productForm', () => {
       isSubmitting.value = false;
     }
   }
-  
-  
-  
 
   function handleImagePreviewChange(event) {
     const file = event.target.files[0];
@@ -194,7 +193,7 @@ export const useProductFormStore = defineStore('productForm', () => {
       errors.image_preview = 'Please select a valid image file.';
     }
   }
-  
+
   function handleImageGalleryChange(event, index) {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
