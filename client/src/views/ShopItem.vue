@@ -235,6 +235,7 @@ const addToCart = () => {
         font-size: 30px;
         font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
         position: absolute;
+        top: 10px;
         right: 20px;
         margin: 0;
         cursor: pointer;

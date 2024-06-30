@@ -3,12 +3,7 @@
     <shopCard
       v-for="item in products"
       :key="item.id"
-      :id="item.id"
-      :image-src="getImageUrl(item.image_preview)"
-      :title="item.title"
-      :rating="item.rating"
-      :number-of-ratings="item.numberOfRatings"
-      :price="item.price"
+      :product="item"
     ></shopCard>
   </div>
 </template>

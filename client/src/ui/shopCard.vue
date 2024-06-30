@@ -7,20 +7,20 @@
     @click="navigateToDetail"
   >
     <span class="material-symbols-outlined favorite"> favorite </span>
-    <img :src="imageSrc" alt="figurine image" />
+    <img :src="product.image_preview" alt="figurine image" />
     <div class="information">
-      <p class="title">{{ title }}</p>
+      <p class="title">{{ product.title }}</p>
       <div class="rating">
         <span v-for="(star, index) in 5" :key="index" class="star">
-          {{ index < rating ? "★" : "☆" }}
+          {{ index < product.rating ? "★" : "☆" }}
         </span>
         <!-- <p>({{ numberOfRatings }})</p> -->
       </div>
       <div class="price">
-        <span>{{ price }} €</span>
+        <span>{{ product.price }} €</span>
       </div>
       <transition name="fade-slide">
-        <button v-if="showBtn">Add to cart</button>
+        <button v-if="showBtn" @click.stop="addToCart">Add to cart</button>
       </transition>
     </div>
   </div>
@@ -30,17 +30,14 @@
 import { ref } from "vue";
 import { animate } from "motion";
 import { useRouter } from "vue-router";
+import { useCartStore } from "../stores/cartStore";
+import { useProductStore } from "../stores/useProductStore";
+
 
 const props = defineProps({
-  id: String,
-  imageSrc: String,
-  title: String,
-  rating: Number,
-  numberOfRatings: Number,
-  price: Number,
+  product: Object,
 });
 
-const imageSrcTwo = ref(props.imageSrc);
 
 const showBtn = ref(false);
 const selecteurCard = ref(null);
@@ -66,7 +63,14 @@ const handleMouseLeave = () => {
 };
 
 const navigateToDetail = () => {
-  router.push(`/item/${props.id}`);
+  router.push(`/item/${props.product.id}`);
+};
+
+//STORE PANIER ICI
+const cartStore = useCartStore();
+
+const addToCart = () => {
+  cartStore.addItemToCart(props.product);
 };
 </script>
 
