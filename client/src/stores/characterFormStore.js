@@ -10,8 +10,8 @@ export const useCharacterFormStore = defineStore("characterForm", () => {
   };
 
   const schema = z.object({
-    name: z.string().nonempty("Le nom est requis"),
-    universe: z.string().nonempty("L'univers est requis"),
+    name: z.string().nonempty('Le nom est requis'),
+    universe: z.string().uuid('L\'univers est requis et doit être un UUID valide')
   });
 
   const formData = reactive({ ...initialData });
@@ -19,6 +19,7 @@ export const useCharacterFormStore = defineStore("characterForm", () => {
   const isSubmitting = ref(false);
   const httpError = ref(null);
   const universes = ref([]);
+  const universeName = ref('');  // Ajoutez cette ligne
 
   function setFormData(data) {
     console.log("Setting form data:", data);
@@ -44,6 +45,21 @@ export const useCharacterFormStore = defineStore("characterForm", () => {
     }
   }
 
+  async function fetchUniverseNameById(universeId) {
+    try {
+      const response = await fetch(`http://localhost:8000/universes/${universeId}`, {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch universe name');
+      }
+      const data = await response.json();
+      universeName.value = data.name;
+    } catch (error) {
+      console.error('Error fetching universe name:', error);
+    }
+  }
+
   function validate() {
     try {
       schema.parse(formData);
@@ -53,6 +69,43 @@ export const useCharacterFormStore = defineStore("characterForm", () => {
         acc[err.path[0]] = err.message;
         return acc;
       }, {});
+    }
+  }
+
+  async function handleCreate() {
+    validate();
+    if (Object.keys(errors.value).length > 0) {
+      console.log('Validation errors:', errors.value);
+      return;
+    }
+    isSubmitting.value = true;
+    try {
+      const url = 'http://localhost:8000/characters';
+      console.log('Creating new character');
+      console.log('URL:', url);
+      console.log('Form Data:', JSON.stringify(formData));
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const responseData = await response.json();
+      console.log('API response:', responseData);
+
+      if (!response.ok) {
+        const errorMessage = await responseData;
+        throw new Error(`Erreur: ${response.status} - ${errorMessage.message}`);
+      }
+
+    } catch (error) {
+      httpError.value = error.message;
+      console.log('HTTP error:', error.message);
+    } finally {
+      isSubmitting.value = false;
     }
   }
 
@@ -99,9 +152,12 @@ export const useCharacterFormStore = defineStore("characterForm", () => {
     isSubmitting,
     httpError,
     universes,
+    universeName,
     setFormData,
     fetchUniverses,
+    fetchUniverseNameById,
     validate,
     handleSubmit,
+    handleCreate
   };
 });

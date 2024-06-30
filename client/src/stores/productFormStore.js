@@ -2,6 +2,14 @@ import { defineStore } from 'pinia';
 import { reactive, ref } from 'vue';
 import { z } from 'zod';
 
+function ensureAbsoluteUrl(url) {
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+      return `http://localhost:8000/uploads/${url.split('/').pop()}`;
+    }
+    return url;
+  }
+  
+
 export const useProductFormStore = defineStore('productForm', () => {
   const initialData = {
     id: '',
@@ -12,6 +20,11 @@ export const useProductFormStore = defineStore('productForm', () => {
     is_promotion: false,
     description: '',
     stock: 0,
+    number_of_purchases: 0,
+    number_of_favorites: 0,
+    rating: 0,
+    availability_status: 'En stock',
+    views_count: 0,
     image_preview: '',
     image_gallery: ['', '', '', ''],
     character: '',
@@ -22,7 +35,9 @@ export const useProductFormStore = defineStore('productForm', () => {
       weight: '',
       materials: ''
     },
-    tags: []
+    tags: [],
+    image_preview_url: '',
+    image_gallery_urls: ['', '', '', '']
   };
 
   const schema = z.object({
@@ -49,7 +64,7 @@ export const useProductFormStore = defineStore('productForm', () => {
   });
 
   const formData = reactive({ ...initialData });
-  const errors = reactive({});  // Make errors reactive to track changes
+  const errors = reactive({});
   const isSubmitting = ref(false);
   const httpError = ref(null);
   const characters = ref([]);
@@ -64,7 +79,9 @@ export const useProductFormStore = defineStore('productForm', () => {
       character: data.character != null ? (data.character.id || data.character) : '',
       universe: data.universe != null ? (data.universe.id || data.universe) : '',
       tags: Array.isArray(data.tags) ? data.tags : [],
-      details: data.details || { dimensions: '', weight: '', materials: '' }
+      details: data.details || { dimensions: '', weight: '', materials: '' },
+      image_preview_url: data.image_preview ? ensureAbsoluteUrl(data.image_preview) : '',
+      image_gallery_urls: data.image_gallery ? data.image_gallery.map(ensureAbsoluteUrl) : ['', '', '', '']
     });
     console.log('Form data after setting:', formData);
   }
@@ -134,28 +151,103 @@ export const useProductFormStore = defineStore('productForm', () => {
 
       console.log('Form data after validation:', formData);
 
-      const url = formData.id ? `${apiUrl}/products/${formData.id}` : `${apiUrl}/products`;
-      const method = formData.id ? 'PUT' : 'POST';
+      const url = `http://localhost:8000/products/${formData.id}`;
+      const method = 'PUT';
 
       const formDataToSend = new FormData();
       for (const key in formData) {
         if (formData.hasOwnProperty(key) && key !== 'image_gallery') {
-          formDataToSend.append(key, formData[key]);
+          if (typeof formData[key] === 'object' && formData[key] !== null) {
+            formDataToSend.append(key, JSON.stringify(formData[key]));
+          } else {
+            formDataToSend.append(key, formData[key]);
+          }
         }
       }
 
-      // Ajoutez les fichiers d'images
-      const imagePreviewInput = document.querySelector('input[name="image_preview"]');
-      if (imagePreviewInput && imagePreviewInput.files[0]) {
-        formDataToSend.append('image_preview', imagePreviewInput.files[0]);
+      if (formData.image_preview instanceof File) {
+        formDataToSend.append('image_preview', formData.image_preview);
       }
 
-      for (let i = 0; i < 4; i++) {
-        const imageGalleryInput = document.querySelector(`input[id="image_gallery_${i}"]`);
-        if (imageGalleryInput && imageGalleryInput.files[0]) {
-          formDataToSend.append('image_gallery', imageGalleryInput.files[0]);
+      formData.image_gallery.forEach((image, index) => {
+        if (image instanceof File) {
+          formDataToSend.append('image_gallery', image);
+        }
+      });
+
+      formDataToSend.forEach((value, key) => {
+        console.log(`Key: ${key}, Value:`, value);
+      });
+
+      const response = await fetch(url, {
+        method,
+        body: formDataToSend
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.json();
+        console.error(`Erreur: ${response.status} - ${errorMessage.error}`);
+        throw new Error(`Erreur: ${response.status} - ${errorMessage.error}`);
+      }
+
+      const responseData = await response.json();
+      console.log('API response:', responseData);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach(err => {
+          errors[err.path[0]] = err.message;
+        });
+        console.log('Validation errors:', errors);
+      } else {
+        httpError.value = error.message;
+        console.log('HTTP error:', httpError.value);
+      }
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  async function handleCreate() {
+    try {
+      console.log('Handling create...');
+      isSubmitting.value = true;
+
+      formData.price = parseFloat(formData.price.replace(',', '.'));
+      formData.discounted_price = formData.discounted_price ? parseFloat(formData.discounted_price.replace(',', '.')) : 0;
+
+      console.log('Form data after conversion:', formData);
+
+      validate();
+
+      console.log('Form data after validation:', formData);
+
+      const url = 'http://localhost:8000/products';
+      const method = 'POST';
+
+      const formDataToSend = new FormData();
+      for (const key in formData) {
+        if (formData.hasOwnProperty(key) && key !== 'image_gallery') {
+          if (typeof formData[key] === 'object' && formData[key] !== null) {
+            formDataToSend.append(key, JSON.stringify(formData[key]));
+          } else {
+            formDataToSend.append(key, formData[key]);
+          }
         }
       }
+
+      if (formData.image_preview instanceof File) {
+        formDataToSend.append('image_preview', formData.image_preview);
+      }
+
+      formData.image_gallery.forEach((image, index) => {
+        if (image instanceof File) {
+          formDataToSend.append('image_gallery', image);
+        }
+      });
+
+      formDataToSend.forEach((value, key) => {
+        console.log(`Key: ${key}, Value:`, value);
+      });
 
       const response = await fetch(url, {
         method,
@@ -189,6 +281,7 @@ export const useProductFormStore = defineStore('productForm', () => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
       formData.image_preview = file;
+      formData.image_preview_url = URL.createObjectURL(file);
     } else {
       errors.image_preview = 'Please select a valid image file.';
     }
@@ -198,6 +291,7 @@ export const useProductFormStore = defineStore('productForm', () => {
     const file = event.target.files[0];
     if (file && file.type.startsWith('image/')) {
       formData.image_gallery[index] = file;
+      formData.image_gallery_urls[index] = URL.createObjectURL(file);
     } else {
       errors.image_gallery = errors.image_gallery || [];
       errors.image_gallery[index] = 'Please select a valid image file.';
@@ -216,6 +310,7 @@ export const useProductFormStore = defineStore('productForm', () => {
     fetchUniverses,
     validate,
     handleSubmit,
+    handleCreate,
     handleImagePreviewChange,
     handleImageGalleryChange
   };
