@@ -18,10 +18,6 @@ const props = defineProps({
     required: true,
   },
 });
-
-const getImageUrl = (relativePath) => {
-  return new URL(`${relativePath}`, import.meta.url).href;
-};
 </script>
 
 <style lang="scss" scoped>

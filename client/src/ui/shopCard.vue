@@ -7,7 +7,7 @@
     @click="navigateToDetail"
   >
     <span class="material-symbols-outlined favorite"> favorite </span>
-    <img :src="product.image_preview" alt="figurine image" />
+    <img :src="getImageUrl(product.image_preview)" alt="figurine image" />
     <div class="information">
       <p class="title">{{ product.title }}</p>
       <div class="rating">
@@ -33,11 +33,9 @@ import { useRouter } from "vue-router";
 import { useCartStore } from "../stores/cartStore";
 import { useProductStore } from "../stores/useProductStore";
 
-
 const props = defineProps({
   product: Object,
 });
-
 
 const showBtn = ref(false);
 const selecteurCard = ref(null);
@@ -64,6 +62,13 @@ const handleMouseLeave = () => {
 
 const navigateToDetail = () => {
   router.push(`/item/${props.product.id}`);
+};
+
+const getImageUrl = (absolutePath) => {
+  // Extraire la partie relative du chemin absolu
+  const relativePath = absolutePath.split("/uploads/")[1];
+  const apiUrl = import.meta.env.VITE_API_URL;
+  return `${apiUrl}/uploads/${relativePath}`;
 };
 
 //STORE PANIER ICI

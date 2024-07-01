@@ -3,7 +3,7 @@
     <h2>Mon Panier</h2>
     <transition-group name="list" tag="ul">
       <li v-for="item in cartItems" :key="item.id">
-        <img :src="item.image_gallery[0]" alt="item image" />
+        <img :src="getImageUrl(item.image_gallery[0])" alt="item image" />
         {{ item.title }}
         <div class="right">
           <span> {{ item.quantity }} x {{ item.price }}€ </span>
@@ -24,6 +24,13 @@ const cartStore = useCartStore();
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
+
+const getImageUrl = (absolutePath) => {
+  // Extraire la partie relative du chemin absolu
+  const relativePath = absolutePath.split("/uploads/")[1];
+  const apiUrl = import.meta.env.VITE_API_URL;
+  return `${apiUrl}/uploads/${relativePath}`;
+};
 
 const removeItem = (itemId) => {
   cartStore.removeItemFromCart(itemId);
