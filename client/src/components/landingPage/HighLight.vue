@@ -20,15 +20,10 @@ import TheCarousel from "../../ui/TheCarousel.vue";
 
 // ################################################################# API CALL #################################################################
 
-import luffyImage from "../../assets/images/figurines/one-piece-figurine-luffy-gear-5-king-of-artist-banpresto.jpg";
-import narutoImage from "../../assets/images/figurines/bandai-btn65560-8-naruto-s-h-figuarts-naruto-uzumaki-kurama-link-mod.jpg";
-
-import gokuImage from "../../assets/images/figurines/04_4b0d2f02-6ae8-44bd-be40-36de2d56317c.jpg";
-import izukuImage from "../../assets/images/figurines/my-hero-academia-figurine-izuku-midoriya-the-amazing-hero-plus.webp";
 const figurines = reactive([
   {
     id: 1,
-    imageSrc: luffyImage,
+    image_preview:' luffyImage',
     title: "ONE PIECE - FIGURINE LUFFY - GEAR 5 - KING OF ARTIST - BANPRESTO",
     rating: 5,
     numberOfRatings: 120,
@@ -36,7 +31,7 @@ const figurines = reactive([
   },
   {
     id: 2,
-    imageSrc: narutoImage,
+    image_preview: ' luffyImage',
     title:
       "NARUTO - FIGURINE NARUTO SAGE MODE NARUTO - FIGURINE NARUTO SAGE MODE NARUTO - FIGURINE NARUTO SAGE MODE",
     rating: 4,
@@ -45,7 +40,7 @@ const figurines = reactive([
   },
   {
     id: 3,
-    imageSrc: gokuImage,
+    image_preview: ' luffyImage',
     title: "DRAGON BALL - FIGURINE GOKU ULTRA INSTINCT",
     rating: 4,
     numberOfRatings: 150,
@@ -53,7 +48,7 @@ const figurines = reactive([
   },
   {
     id: 4,
-    imageSrc: izukuImage,
+    image_preview:' luffyImage',
     title: "My Hero Academia - Figurine Izuku Midoriya The Amazing Hero Plus ",
     rating: 5,
     numberOfRatings: 54,
@@ -61,7 +56,7 @@ const figurines = reactive([
   },
   {
     id: 5,
-    imageSrc: izukuImage,
+    image_preview: ' luffyImage',
     title: "My Hero Academia - Figurine Izuku Midoriya The Amazing Hero Plus ",
     rating: 5,
     numberOfRatings: 54,
@@ -69,7 +64,7 @@ const figurines = reactive([
   },
   {
     id: 6,
-    imageSrc: izukuImage,
+    image_preview: ' luffyImage',
     title: "My Hero Academia - Figurine Izuku Midoriya The Amazing Hero Plus ",
     rating: 5,
     numberOfRatings: 54,
@@ -77,7 +72,7 @@ const figurines = reactive([
   },
   {
     id: 7,
-    imageSrc: izukuImage,
+    image_preview: ' luffyImage',
     title: "My Hero Academia - Figurine Izuku Midoriya The Amazing Hero Plus ",
     rating: 5,
     numberOfRatings: 54,
@@ -85,7 +80,7 @@ const figurines = reactive([
   },
   {
     id: 8,
-    imageSrc: izukuImage,
+    image_preview:' luffyImage',
     title: "My Hero Academia - Figurine Izuku Midoriya The Amazing Hero Plus ",
     rating: 5,
     numberOfRatings: 54,

@@ -158,3 +158,54 @@ const universes = [
       __v: 0,
     },
   ];
+
+  const universes = [
+    {
+      id: 1,
+      title: 'One Piece',
+      color1: '#1c47d6',  
+      color2: '#42a8f7', 
+      colorText: '#FFFFFF',
+      link: 'https://onepiece.com' 
+    },
+    {
+      id: 2,
+      title: 'Naruto',
+      color1: '#e97504', 
+      color2: '#f4ce3c',  
+      colorText: '#FFFFFF',
+      link: 'https://naruto.com' 
+    },
+    {
+      id: 3,
+      title: 'Dragon Ball',
+      color1: '#FF0000', 
+      color2: '#FFD700', 
+      colorText: '#FFFFFF',
+      link: 'https://dragonball.com'
+    },
+    {
+      id: 4,
+      title: 'My Hero Academia',
+      color1: '#216b52',  
+      color2: '#160d10',  
+      colorText: '#FFFFFF',
+      link: 'https://myheroacademia.com' 
+    },
+    {
+      id: 5,
+      title: 'Attack on Titan',
+      color1: '#73522e', 
+      color2: '#d19050',  
+      colorText: '#FFFFFF',
+      link: 'https://attackontitan.com'
+    },
+    {
+      id: 6,
+      title: 'Demon Slayer',
+      color1: '#62baa2', 
+      color2: '#362722', 
+      colorText: '#FFFFFF',
+      link: 'https://demonslayer.com'
+    }
+  ];

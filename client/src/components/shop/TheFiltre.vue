@@ -50,8 +50,6 @@
       </Transition>
     </div>
   </div>
-  {{ selectedFilters }}
-  {{ initialPriceRange }}
 </template>
 
 <script setup>
