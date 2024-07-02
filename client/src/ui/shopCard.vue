@@ -17,7 +17,16 @@
         <!-- <p>({{ numberOfRatings }})</p> -->
       </div>
       <div class="price">
-        <span>{{ product.price }} €</span>
+        <span :class="{ promotion: product.is_promotion }">
+            {{
+              product.is_promotion ? product.discounted_price : product.price
+            }}
+            €
+          </span>
+          <div v-if="product.is_promotion" class="promo-data">
+            <span class="promo">- {{ discountPercentage }}%</span>
+          <span class="price-original"> {{ product.price }} € </span>
+        </div>
       </div>
       <transition name="fade-slide">
         <button v-if="showBtn" @click.stop="addToCart">Add to cart</button>
@@ -27,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { animate } from "motion";
 import { useRouter } from "vue-router";
 import { useCartStore } from "../stores/cartStore";
@@ -70,6 +79,15 @@ const getImageUrl = (absolutePath) => {
   const apiUrl = import.meta.env.VITE_API_URL;
   return `${apiUrl}/uploads/${relativePath}`;
 };
+
+const discountPercentage = computed(() => {
+  if (props.product && props.product.is_promotion && props.product.discounted_price) {
+    return Math.round(
+      ((props.product.price - props.product.discounted_price) / props.product.price) * 100
+    );
+  }
+  return 0;
+});
 
 //STORE PANIER ICI
 const cartStore = useCartStore();
@@ -161,10 +179,36 @@ const addToCart = () => {
       display: flex;
       justify-content: flex-start;
       align-items: center;
-      margin: 10px 0 0 0;
+      margin: 5px 0 0 0;
       span {
         font-size: 20px;
         font-weight: 700;
+        border-radius: 5px;
+        background-color: black;
+            color: #ffffff;
+            padding: 5px 10px;
+        &.promotion {
+            background-color: #ff0000;
+            color: #ffffff;
+          }
+      }
+      .promo-data {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+        margin-left: 5px;
+        .promo {
+          background-color: #36c229;
+          color: #ffffff;
+          padding: 5px 10px;
+        }
+        .price-original {
+          text-decoration: line-through;
+          padding: 0;
+          color: black;
+          background-color: transparent;
+        }
       }
     }
     button {

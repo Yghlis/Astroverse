@@ -118,9 +118,9 @@ const capitalizeFirstLetter = (string) => {
 };
 
 const discountPercentage = computed(() => {
-  if (product.is_promotion && product.discounted_price) {
+  if (product.value && product.value.is_promotion && product.value.discounted_price) {
     return Math.round(
-      ((product.price - product.discounted_price) / product.price) * 100
+      ((product.value.price - product.value.discounted_price) / product.value.price) * 100
     );
   }
   return 0;
