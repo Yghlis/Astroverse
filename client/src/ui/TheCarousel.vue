@@ -60,7 +60,7 @@
   .carousel-container {
     position: relative;
     width: 100%;
-    height: 500px;
+    height: 450px;
     overflow: hidden;
     display: flex;
     align-items: center;

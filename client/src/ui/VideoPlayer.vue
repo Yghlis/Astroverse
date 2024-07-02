@@ -1,19 +1,7 @@
 <template>
     <div class="carousel">
       <div class="carousel-item">
-        <iframe
-          v-if="currentMedia.isYouTube"
-          :src="currentMedia.url"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        ></iframe>
-        <video
-          v-else-if="currentMedia.isVideo"
-          :src="currentMedia.url"
-          controls
-        ></video>
-        <img v-else :src="currentMedia.url" alt="carousel media" />
+        <img  :src="currentMedia.url" alt="carousel media" />
       </div>
       <button class="call-to-action" v-if="currentMedia.link" @click="goToLink">Voir le produit</button>
       <div class="controls">
@@ -75,8 +63,8 @@
   <style lang="scss" scoped>
   .carousel {
     position: relative;
-    width: 80%;
-    height: 600px;
+    width: 100%;
+    height: 700px;
     overflow: hidden;
     display: flex;
     justify-content: center;
@@ -106,17 +94,20 @@
   
   .controls {
     position: absolute;
-    width: 100%;
+    width: 95%;
     display: flex;
     justify-content: space-between;
     button {
-      background-color: #fff;
-      padding: 10px;
+      background-color: transparent;
+      border: none;
+      border-radius: 100%;
+      padding: 25px;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
       transition: all 0.3s ease;
+      color: grey;
       &:nth-child(1) {
         transform: rotate(180deg);
         &:hover {
@@ -124,7 +115,8 @@
         }
       }
       &:hover {
-        background-color: #ddd;
+        background-color: #f2a45a;
+        color: black;
         transform: scale(1.1);
       }
     }
@@ -132,34 +124,36 @@
   
   .call-to-action {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 10px;
-    background-color: #fff;
+    bottom: 20px;
+    right: 30px;
+    padding: 10px 20px;
+    background-color: #f2a45a;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
     border-radius: 5px;
     &:hover {
-      background-color: #ddd;
+      background-color: #d68b44;
     }
   }
   
   .indicators {
     position: absolute;
     bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 30px;
     display: flex;
     gap: 5px;
     .dot {
-      width: 10px;
-      height: 10px;
-      background-color: #fff;
+      width: 20px;
+      height: 20px;
+      background-color: rgb(126, 126, 126);
       border-radius: 50%;
       cursor: pointer;
       transition: all 0.3s ease;
       &.active {
-        background-color: #333;
+        background-color: #f2a45a;
       }
       &:hover {
         transform: scale(1.2);

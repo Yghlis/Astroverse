@@ -42,17 +42,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
   h2 {
     font-size: 2.5rem;
     font-weight: 700;
     text-align: center;
     font-family: "Nippo", sans-serif;
+    margin-top: 0;
   }
   .univers-card-container {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
     gap: 20px;

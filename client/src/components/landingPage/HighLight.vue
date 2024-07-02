@@ -96,12 +96,13 @@ const figurines = reactive([
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   h2 {
     font-size: 2.5rem;
     font-weight: 700;
     text-align: center;
     font-family: "Nippo", sans-serif;
+    margin-bottom: 0;
   }
   .products {
     width: 100%;
