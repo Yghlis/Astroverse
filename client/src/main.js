@@ -7,6 +7,7 @@ import './style.css';
 import './assets/global.css';
 import { usePersistedState } from './composables/usePersistedState';
 import { useCartStore } from './stores/cartStore';
+import { useShopStore, setupStoreWatchers } from './stores/useShopStore';
 
 const app = createApp(App);
 
@@ -25,6 +26,9 @@ app.use(pinia);
 
 const cartStore = useCartStore();
 usePersistedState(cartStore, 'cartStore'); // Utiliser usePersistedState pour sauvegarder le panier dans localStorage
+
+const shopStore = useShopStore();
+setupStoreWatchers(shopStore); // Appeler la fonction pour regarder les changements du filtre
 
 // Utiliser le router et monter l'application
 app.use(router).mount('#app');

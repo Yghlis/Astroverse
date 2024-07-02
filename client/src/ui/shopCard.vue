@@ -85,12 +85,13 @@ const addToCart = () => {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
   position: relative;
   cursor: pointer;
   height: 350px;
+  border: 1px solid transparent;
   &:hover {
     border: 1px solid #f2a45a;
   }
@@ -121,7 +122,7 @@ const addToCart = () => {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
     padding: 10px;
     p {
       font-size: 17px;
@@ -167,6 +168,7 @@ const addToCart = () => {
       }
     }
     button {
+      align-self: center;
       width: 80%;
       height: 50px;
       background-color: #f2a45a;

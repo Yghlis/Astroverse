@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import TheFiltre from "../components/shop/TheFiltre.vue";
 import ProductList from "../components/shop/ProductList.vue";
 import SearchBar from "../ui/SearchBar.vue";
@@ -47,7 +47,7 @@ const filterOptions = computed(() => {
   for (const key in shopStore.filters.checkboxes) {
     options.push({
       id: idCounter++,
-      optionName: key, 
+      optionName: key,
       optionType: "checkbox",
       optionValues: shopStore.filters.checkboxes[key].map((value) => ({
         value: value,
@@ -60,7 +60,7 @@ const filterOptions = computed(() => {
   for (const key in shopStore.filters.ranges) {
     options.push({
       id: idCounter++,
-      optionName: key, 
+      optionName: key,
       optionType: "range",
       rangeMin: shopStore.filters.ranges[key].min,
       rangeMax: shopStore.filters.ranges[key].max,
@@ -81,6 +81,10 @@ const filterOptions = computed(() => {
 onMounted(async () => {
   await shopStore.fetchProducts();
   await shopStore.fetchFilterOptions();
+});
+
+onBeforeUnmount(() => {
+  shopStore.resetState();
 });
 </script>
 
