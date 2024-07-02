@@ -21,6 +21,7 @@
         <component class="container" :is="Component" />
       </transition>
     </router-view>
+    <TheFooter />
   </div>
 </template>
 
@@ -28,6 +29,7 @@
 import { ref, onMounted } from 'vue';
 import HelloWorld from "./components/HelloWorld.vue";
 import Header from "./components/Header.vue";
+import TheFooter from './components/TheFooter.vue';
 
 const isLoggedIn = ref(false);
 const firstName = ref('');
