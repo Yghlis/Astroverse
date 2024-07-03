@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app">
     <a href="https://vitejs.dev" target="_blank">
       <img src="/vite.svg" class="logo" alt="Vite logo" />
     </a>
@@ -53,8 +53,16 @@ const logout = () => {
 </script>
 
 <style lang="scss" scoped>
-.container {
-  margin-top: 100px;
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  .container {
+    margin-top: 100px;
+    flex: 1;
+  }
 }
 .fade-enter-active,
 .fade-leave-active {

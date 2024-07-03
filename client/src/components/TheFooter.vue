@@ -1,6 +1,16 @@
 <template>
   <footer class="footer">
-    <p v-if="flashMessage" class="flash-message" :class="{ 'active': flashMessage, 'success': flashMessageType === 'success', 'error': flashMessageType === 'error' }">{{ flashMessage }}</p>
+    <p
+      v-if="flashMessage"
+      class="flash-message"
+      :class="{
+        active: flashMessage,
+        success: flashMessageType === 'success',
+        error: flashMessageType === 'error',
+      }"
+    >
+      {{ flashMessage }}
+    </p>
     <div class="footer-content">
       <div class="newsletter">
         <h2 class="newsletter-title">Subscribe to our Newsletter</h2>
@@ -30,14 +40,15 @@
 
 <script setup>
 import { ref } from "vue";
-import useFlashMessageStore from '@stores/useFlashMessageStore';
+import useFlashMessageStore from "@stores/useFlashMessageStore";
 
-const { flashMessage, flashMessageType, setFlashMessage } = useFlashMessageStore();
+const { flashMessage, flashMessageType, setFlashMessage } =
+  useFlashMessageStore();
 
 const subscribe = () => {
   // Simuler un appel API
   setTimeout(() => {
-    setFlashMessage('Merci pour votre abonnement !');
+    setFlashMessage("Merci pour votre abonnement !");
   }, 500);
 };
 </script>
@@ -62,15 +73,12 @@ const subscribe = () => {
   color: #a94442;
 }
 
-
-
 .footer {
   background-color: #333;
   color: #fff;
   padding: 20px 0;
   text-align: center;
   margin-top: 100px;
-
   &-content {
     max-width: 1200px;
     margin: 0 auto;

@@ -12,7 +12,9 @@
       </li>
     </transition-group>
     <p>Total: {{ cartTotal }}€</p>
-    <button class="call-to-action">Passer votre Commande</button>
+    <RouterLink @click="toggle" to="/cart-checkout" class="call-to-action"
+      >Passer votre Commande</RouterLink
+    >
   </div>
 </template>
 
@@ -35,6 +37,17 @@ const getImageUrl = (absolutePath) => {
 const removeItem = (itemId) => {
   cartStore.removeItemFromCart(itemId);
 };
+
+
+// Définir les événements
+const emit = defineEmits("update:hideCartSideBar");
+
+// Fonction pour émettre l'événement
+const toggle = () => {
+    emit("update:hideCartSideBar", false);
+};
+
+
 </script>
 
 <style scoped>
@@ -111,6 +124,7 @@ li {
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-decoration: none;
   &:hover {
     background-color: #55af00;
   }
