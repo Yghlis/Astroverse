@@ -10,6 +10,9 @@
     <RouterLink to="/shop" :class="{ active: $route.path === '/shop' }"
       >Shop</RouterLink
     >
+    <!-- <RouterLink to="/cart-checkout" :class="{ active: $route.path === '/cart-checkout' }"
+      >checkout</RouterLink
+    > -->
     <RouterLink to="/form">About us</RouterLink>
     <RouterLink to="/admin" :class="{ active: $route.path === '/admin' }"
       >Admin</RouterLink
@@ -17,12 +20,7 @@
   </nav>
 </template>
 
-<script setup>
-
-
-
-
-</script>
+<script setup></script>
 
 <style lang="scss" scoped>
 nav {

@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { watch } from "vue";
 
 export const useShopStore = defineStore("shop", {
   state: () => ({
@@ -89,7 +90,74 @@ export const useShopStore = defineStore("shop", {
     },
 
     applyFilters() {
-      // Implémentez la logique de filtrage ici en utilisant this.selectedFilters
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const filters = this.selectedFilters;
+
+      // Construction de l'URL avec les paramètres de filtre
+      const params = new URLSearchParams();
+
+      if (filters.characters.length > 0) {
+        params.append('characters', filters.characters.join(','));
+      }
+      if (filters.universes.length > 0) {
+        params.append('universes', filters.universes.join(','));
+      }
+      if (filters.ratings.length > 0) {
+        params.append('ratings', filters.ratings.join(','));
+      }
+      if (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) {
+        params.append('priceRange', `${filters.priceRange.min}-${filters.priceRange.max}`);
+      }
+      if (filters.promotion) {
+        params.append('promotion', 'true');
+      }
+
+      const url = `${apiUrl}/products?${params.toString()}`;
+
+      console.log(url); // Pour tester l'URL construite
+
+    },
+
+    resetState() {
+      this.$reset();
+      this.fetchProducts();
+      this.fetchFilterOptions();
+    },
+
+    $reset() {
+      this.products = [];
+      this.loading = false;
+      this.error = null;
+      this.filters = {
+        checkboxes: {
+          characters: [],
+          universes: [],
+          ratings: [1, 2, 3, 4, 5],
+        },
+        ranges: {
+          price: { min: 0, max: 0 },
+        },
+        promotion: false,
+      };
+      this.selectedFilters = {
+        characters: [],
+        universes: [],
+        ratings: [],
+        priceRange: { min: 0, max: 0 },
+        promotion: false,
+      };
     },
   },
 });
+
+
+// Fonction pour regarder les changements dans selectedFilters
+export function setupStoreWatchers(store) {
+  watch(
+    () => store.selectedFilters,
+    (newValue, oldValue) => {
+      store.applyFilters();
+    },
+    { deep: true }
+  );
+}

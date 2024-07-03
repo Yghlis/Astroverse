@@ -23,7 +23,7 @@
       @update:hideCartSideBar="toggleCart"
     >
       <UserDisplay v-if="userClicked"></UserDisplay>
-      <ShoppingCart v-if="cartClicked"></ShoppingCart>
+      <ShoppingCart v-if="cartClicked" @update:hideCartSideBar="toggleCart"></ShoppingCart>
     </SideBar>
   </header>
 </template>

@@ -7,40 +7,44 @@
     @click="navigateToDetail"
   >
     <span class="material-symbols-outlined favorite"> favorite </span>
-    <img :src="imageSrc" alt="figurine image" />
+    <img :src="getImageUrl(product.image_preview)" alt="figurine image" />
     <div class="information">
-      <p class="title">{{ title }}</p>
+      <p class="title">{{ product.title }}</p>
       <div class="rating">
         <span v-for="(star, index) in 5" :key="index" class="star">
-          {{ index < rating ? "★" : "☆" }}
+          {{ index < product.rating ? "★" : "☆" }}
         </span>
         <!-- <p>({{ numberOfRatings }})</p> -->
       </div>
       <div class="price">
-        <span>{{ price }} €</span>
+        <span :class="{ promotion: product.is_promotion }">
+            {{
+              product.is_promotion ? product.discounted_price : product.price
+            }}
+            €
+          </span>
+          <div v-if="product.is_promotion" class="promo-data">
+            <span class="promo">- {{ discountPercentage }}%</span>
+          <span class="price-original"> {{ product.price }} € </span>
+        </div>
       </div>
       <transition name="fade-slide">
-        <button v-if="showBtn">Add to cart</button>
+        <button v-if="showBtn" @click.stop="addToCart">Add to cart</button>
       </transition>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { animate } from "motion";
 import { useRouter } from "vue-router";
+import { useCartStore } from "../stores/cartStore";
+import { useProductStore } from "../stores/useProductStore";
 
 const props = defineProps({
-  id: String,
-  imageSrc: String,
-  title: String,
-  rating: Number,
-  numberOfRatings: Number,
-  price: Number,
+  product: Object,
 });
-
-const imageSrcTwo = ref(props.imageSrc);
 
 const showBtn = ref(false);
 const selecteurCard = ref(null);
@@ -66,7 +70,30 @@ const handleMouseLeave = () => {
 };
 
 const navigateToDetail = () => {
-  router.push(`/item/${props.id}`);
+  router.push(`/item/${props.product.id}`);
+};
+
+const getImageUrl = (absolutePath) => {
+  // Extraire la partie relative du chemin absolu
+  const relativePath = absolutePath.split("/uploads/")[1];
+  const apiUrl = import.meta.env.VITE_API_URL;
+  return `${apiUrl}/uploads/${relativePath}`;
+};
+
+const discountPercentage = computed(() => {
+  if (props.product && props.product.is_promotion && props.product.discounted_price) {
+    return Math.round(
+      ((props.product.price - props.product.discounted_price) / props.product.price) * 100
+    );
+  }
+  return 0;
+});
+
+//STORE PANIER ICI
+const cartStore = useCartStore();
+
+const addToCart = () => {
+  cartStore.addItemToCart(props.product);
 };
 </script>
 
@@ -76,12 +103,13 @@ const navigateToDetail = () => {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
   position: relative;
   cursor: pointer;
   height: 350px;
+  border: 1px solid transparent;
   &:hover {
     border: 1px solid #f2a45a;
   }
@@ -112,7 +140,7 @@ const navigateToDetail = () => {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
     padding: 10px;
     p {
       font-size: 17px;
@@ -151,13 +179,40 @@ const navigateToDetail = () => {
       display: flex;
       justify-content: flex-start;
       align-items: center;
-      margin: 10px 0 0 0;
+      margin: 5px 0 0 0;
       span {
         font-size: 20px;
         font-weight: 700;
+        border-radius: 5px;
+        background-color: black;
+            color: #ffffff;
+            padding: 5px 10px;
+        &.promotion {
+            background-color: #ff0000;
+            color: #ffffff;
+          }
+      }
+      .promo-data {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+        margin-left: 5px;
+        .promo {
+          background-color: #36c229;
+          color: #ffffff;
+          padding: 5px 10px;
+        }
+        .price-original {
+          text-decoration: line-through;
+          padding: 0;
+          color: black;
+          background-color: transparent;
+        }
       }
     }
     button {
+      align-self: center;
       width: 80%;
       height: 50px;
       background-color: #f2a45a;

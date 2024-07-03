@@ -2,12 +2,12 @@
   <TheLoader v-if="loading" :loading="loading"> </TheLoader>
   <div v-else-if="error">{{ error }}</div>
   <div v-else-if="product" class="item-container">
-    <ZoomImg v-model:isFullscreen="zoomIn" :imageSrc="activeImage" />
+    <ZoomImg v-model:isFullscreen="zoomIn" :imageSrc="getImageUrl(activeImage)" />
     <div class="left">
       <transition name="fade" mode="out-in">
         <img
           @click="zoomInImg"
-          :src="activeImage"
+          :src="getImageUrl(activeImage)"
           alt="image de produit"
           :key="activeImage"
         />
@@ -16,7 +16,7 @@
         <img
           v-for="(image, index) in product.image_gallery"
           :key="index"
-          :src="image"
+          :src="getImageUrl(image)"
           alt="image de produit"
           @click="activeImage = image"
           :class="{ active: activeImage === image }"
@@ -25,6 +25,13 @@
     </div>
     <div class="right">
       <div class="right-content">
+        <span
+          @click="handleNotification"
+          class="material-symbols-outlined notification"
+          :class="{ active: notification }"
+        >
+          notifications_active
+        </span>
         <h2>{{ product.title }}</h2>
         <div class="rating">
           <span v-for="(star, index) in 5" :key="index" class="star">
@@ -52,9 +59,11 @@
         <div class="details">
           <h3>Caractéristiques:</h3>
           <div class="content">
-            <span v-for="(value, key) in product.details" :key="key"
-              >{{ capitalizeFirstLetter(key) }}: {{ value }}</span
+            <span>Marque: {{ product.brand}}</span
             >
+            <span v-for="(value, key) in parsedDetails" :key="key"
+              >{{ capitalizeFirstLetter(key) }}: {{ value }}</span
+            > 
           </div>
         </div>
         <div class="tags">
@@ -79,12 +88,20 @@ const route = useRoute();
 const zoomIn = ref(false);
 const productStore = useProductStore();
 const activeImage = ref("null");
-
-
-
+const notification = ref(false);
 const product = computed(() => productStore.product);
 const loading = computed(() => productStore.loading);
 const error = computed(() => productStore.error);
+const parsedDetails = computed(() => {
+  try {
+    return product.value && product.value.details
+      ? JSON.parse(product.value.details)
+      : {};
+  } catch (e) {
+    console.error("Invalid JSON:", e);
+    return {};
+  }
+});
 
 onMounted(async () => {
   const productId = route.params.id;
@@ -101,13 +118,24 @@ const capitalizeFirstLetter = (string) => {
 };
 
 const discountPercentage = computed(() => {
-  if (product.is_promotion && product.discounted_price) {
+  if (product.value && product.value.is_promotion && product.value.discounted_price) {
     return Math.round(
-      ((product.price - product.discounted_price) / product.price) * 100
+      ((product.value.price - product.value.discounted_price) / product.value.price) * 100
     );
   }
   return 0;
 });
+
+const handleNotification = () => {
+  notification.value = !notification.value;
+};
+
+const getImageUrl = (absolutePath) => {
+  // Extraire la partie relative du chemin absolu
+  const relativePath = absolutePath.split("/uploads/")[1];
+  const apiUrl = import.meta.env.VITE_API_URL;
+  return `${apiUrl}/uploads/${relativePath}`;
+};
 
 //STORE PANIER ICI
 const cartStore = useCartStore();
@@ -115,47 +143,6 @@ const addToCart = () => {
   cartStore.addItemToCart(product.value);
 };
 
-[
-  {
-    character: {
-      id: "20ec1b14-bc04-4ea7-89f0-eb44779ff62b",
-      name: "Luffy",
-    },
-    universe: {
-      id: "10143696-3bc2-4130-b1d8-8f27f87e3de8",
-      name: "One Piece",
-    },
-    _id: "667162bae7e971dab5608843",
-    id: "e4d9a560-11aa-4889-8428-c2aaef9212f7",
-    title: "ONE PIECE - FIGURINE LUFFY - GEAR 5 - KING OF ARTIST - BANPRESTO",
-    brand: "Banpresto",
-    price: 35.99,
-    discounted_price: null,
-    is_promotion: false,
-    description: "Figurine de Luffy en Gear 5 de la série One Piece.",
-    stock: 100,
-    number_of_purchases: 120,
-    number_of_favorites: 0,
-    rating: 5,
-    image_preview:
-      "../../assets/images/figurines/one-piece-figurine-luffy-gear-5-king-of-artist-banpresto.jpg",
-    image_gallery: [
-      "../../assets/images/figurines/luffy-gallery1.jpg",
-      "../../assets/images/figurines/luffy-gallery2.jpg",
-    ],
-    reference: "OP-LUFFY-GEAR5",
-    details: {
-      height: "20cm",
-      material: "PVC",
-    },
-    tags: ["figurine", "One Piece", "Luffy"],
-    availability_status: "En stock",
-    views_count: 0,
-    created_at: "2024-06-18T10:34:34.678Z",
-    updated_at: "2024-06-18T10:34:34.678Z",
-    __v: 0,
-  },
-];
 </script>
 
 <style lang="scss" scoped>
@@ -174,6 +161,7 @@ const addToCart = () => {
     align-items: center;
     img {
       width: 80%;
+      min-height: 450px;
       object-fit: cover;
       border-radius: 5px;
       cursor: zoom-in;
@@ -190,6 +178,7 @@ const addToCart = () => {
       img {
         width: 150px;
         height: 150px;
+        min-height: initial;
         object-fit: cover;
         border-radius: 5px;
         cursor: pointer;
@@ -227,6 +216,24 @@ const addToCart = () => {
         font-size: 20px;
         margin: 0;
         font-weight: bold;
+      }
+      .notification {
+        font-size: 30px;
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        margin: 0;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.3s ease;
+        &:hover {
+          transform: scale(1.2);
+        }
+        &.active {
+          color: #ffd700;
+          font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
+        }
       }
       .rating {
         width: 100%;

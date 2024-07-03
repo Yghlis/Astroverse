@@ -49,7 +49,6 @@
         </div>
       </Transition>
     </div>
-    {{ selectedFilters }}
   </div>
 </template>
 
@@ -87,15 +86,35 @@ const props = defineProps({
   },
 });
 
-
 // Stockage des valeurs initiales de priceRange
 const initialPriceRange = reactive({ min: 0, max: 0 });
+const isInitialized = ref(false);
+
+const updateInitialPriceRange = () => {
+  if (props.selectedFilters.priceRange) {
+    initialPriceRange.min = parseFloat(props.selectedFilters.priceRange.min);
+    initialPriceRange.max = parseFloat(props.selectedFilters.priceRange.max);
+  }
+};
 
 onMounted(() => {
-  initialPriceRange.min = parseFloat(props.selectedFilters.priceRange.min);
-  initialPriceRange.max = parseFloat(props.selectedFilters.priceRange.max);
-  updateNombreDeFilter(); // Mettre à jour le compteur initial
+  updateInitialPriceRange();
+  updateNombreDeFilter(); 
 });
+
+//watcher pour initialPriceRange
+watch(
+  () => props.selectedFilters.priceRange,
+  () => {
+    if (!isInitialized.value) {
+      updateInitialPriceRange();
+      updateNombreDeFilter(); 
+      isInitialized.value = true;
+    }
+  }
+);
+
+
 
 // ################################################################# Filter Logic #################################################################
 
@@ -106,8 +125,6 @@ const updateNombreDeFilter = () => {
   count += props.selectedFilters.universes.length;
   count += props.selectedFilters.ratings.length;
 
-  // Vérifie si priceRange a été modifié par rapport à la valeur par défaut { min: 0, max: 0 }
-  // ou par rapport aux valeurs initiales
   if (
     props.selectedFilters.priceRange.min !== initialPriceRange.min ||
     props.selectedFilters.priceRange.max !== initialPriceRange.max
@@ -121,6 +138,7 @@ const updateNombreDeFilter = () => {
 
   NombreDeFilter.value = count;
 };
+
 
 // Watchers pour surveiller les modifications des filtres
 watch(() => props.selectedFilters.characters, updateNombreDeFilter, {
@@ -149,7 +167,7 @@ const resetFilters = () => {
   props.selectedFilters.characters = [];
   props.selectedFilters.universes = [];
   props.selectedFilters.ratings = [];
-  props.selectedFilters.priceRange = { min: 0, max: 0 };
+  props.selectedFilters.priceRange = initialPriceRange;
   props.selectedFilters.is_promotion = false;
 
   updateNombreDeFilter();

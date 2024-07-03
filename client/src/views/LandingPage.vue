@@ -1,15 +1,15 @@
 <template>
   <div class="container-landing">
     <VideoPlayer :mediaItems="mediaItems"></VideoPlayer>
-    <TopLanding></TopLanding>
     <HighLight></HighLight>
+    <TheSearch></TheSearch>
     <UniversDisplay></UniversDisplay>
   </div>
 </template>
 
 <script setup>
 import VideoPlayer from "../ui/VideoPlayer.vue";
-import TopLanding from "../components/landingPage/TopLanding.vue";
+import TheSearch from "../components/landingPage/TheSearch.vue";
 import HighLight from "../components/landingPage/HighLight.vue";
 import UniversDisplay from "../components/landingPage/UniversDisplay.vue";
 import { reactive } from "vue";

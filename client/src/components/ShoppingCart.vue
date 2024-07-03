@@ -3,7 +3,7 @@
     <h2>Mon Panier</h2>
     <transition-group name="list" tag="ul">
       <li v-for="item in cartItems" :key="item.id">
-        <img :src="item.image_gallery[0]" alt="item image" />
+        <img :src="getImageUrl(item.image_gallery[0])" alt="item image" />
         {{ item.title }}
         <div class="right">
           <span> {{ item.quantity }} x {{ item.price }}€ </span>
@@ -12,7 +12,9 @@
       </li>
     </transition-group>
     <p>Total: {{ cartTotal }}€</p>
-    <button class="call-to-action">Passer votre Commande</button>
+    <RouterLink @click="toggle" to="/cart-checkout" class="call-to-action"
+      >Passer votre Commande</RouterLink
+    >
   </div>
 </template>
 
@@ -25,9 +27,27 @@ const cartStore = useCartStore();
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
 
+const getImageUrl = (absolutePath) => {
+  // Extraire la partie relative du chemin absolu
+  const relativePath = absolutePath.split("/uploads/")[1];
+  const apiUrl = import.meta.env.VITE_API_URL;
+  return `${apiUrl}/uploads/${relativePath}`;
+};
+
 const removeItem = (itemId) => {
   cartStore.removeItemFromCart(itemId);
 };
+
+
+// Définir les événements
+const emit = defineEmits("update:hideCartSideBar");
+
+// Fonction pour émettre l'événement
+const toggle = () => {
+    emit("update:hideCartSideBar", false);
+};
+
+
 </script>
 
 <style scoped>
@@ -104,6 +124,7 @@ li {
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-decoration: none;
   &:hover {
     background-color: #55af00;
   }
