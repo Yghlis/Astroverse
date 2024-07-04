@@ -77,6 +77,7 @@ const props = defineProps({
   rangeMin: Number,
   rangeMax: Number,
   resetEvent: Boolean,
+  selectedValues: [Array, Object],
 });
 
 const selectedCheckboxes = ref([]);
@@ -149,6 +150,21 @@ watch(
     emitRangeChange();
   }
 );
+
+// Ajoutez ce watcher pour initialiser les valeurs sélectionnées
+watch(
+  () => props.selectedValues,
+  (newVal) => {
+    if (props.optionType === 'checkbox') {
+      selectedCheckboxes.value = newVal || [];
+    } else if (props.optionType === 'range') {
+      selectedMin.value = newVal?.min || props.rangeMin;
+      selectedMax.value = newVal?.max || props.rangeMax;
+    }
+  },
+  { immediate: true }
+);
+
 
 const resetFilters = () => {
   selectedCheckboxes.value = [];

@@ -42,6 +42,7 @@
             @update:range="handleRangeUpdate"
             :reset-event="resetEvent"
             :rating="option.rating"
+            :selected-values="props.selectedFilters[option.optionName]" 
           />
           <button class="reset" @click="resetFilters">
             Réinitialiser les filtres
@@ -59,11 +60,9 @@ import {
   reactive,
   onMounted,
   onUnmounted,
-  watch,
-  watchEffect,
-  nextTick,
-  computed,
+  watch
 } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useShopStore } from "../../stores/useShopStore";
 
 const nombreDeProduit = ref(0);
@@ -86,6 +85,80 @@ const props = defineProps({
   },
 });
 
+//###################################################### URL Gestion ########################################################
+
+const route = useRoute();
+const router = useRouter();
+
+const initializeFiltersFromURL = () => {
+  const query = route.query;
+
+  if (query.characters) {
+    props.selectedFilters.characters = query.characters.split(',').map(decodeURIComponent);
+  }
+  if (query.universes) {
+    props.selectedFilters.universes = query.universes.split(',').map(decodeURIComponent);
+  }
+  if (query.ratings) {
+    props.selectedFilters.ratings = query.ratings.split(',').map(Number);
+  }
+  if (query.priceRange) {
+    const [min, max] = query.priceRange.split('-').map(Number);
+    props.selectedFilters.priceRange = { min, max };
+  }
+  if (query.promotion) {
+    props.selectedFilters.promotion = query.promotion === 'true';
+  }
+};
+
+const updateURLFromFilters = () => {
+  const filters = props.selectedFilters;
+  const params = new URLSearchParams();
+
+  if (filters.characters.length > 0) {
+    params.set('characters', filters.characters.map(encodeURIComponent).join(','));
+  } else {
+    params.delete('characters');
+  }
+
+  if (filters.universes.length > 0) {
+    params.set('universes', filters.universes.map(encodeURIComponent).join(','));
+  } else {
+    params.delete('universes');
+  }
+
+  if (filters.ratings.length > 0) {
+    params.set('ratings', filters.ratings.join(','));
+  } else {
+    params.delete('ratings');
+  }
+
+  if (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) {
+    params.set('priceRange', `${filters.priceRange.min}-${filters.priceRange.max}`);
+  } else {
+    params.delete('priceRange');
+  }
+
+  if (filters.promotion) {
+    params.set('promotion', 'true');
+  } else {
+    params.delete('promotion');
+  }
+
+   // Convertir URLSearchParams en objet
+   const query = {};
+  params.forEach((value, key) => {
+    query[key] = value;
+  });
+
+  router.push({ query });
+};
+
+
+
+
+
+
 // Stockage des valeurs initiales de priceRange
 const initialPriceRange = reactive({ min: 0, max: 0 });
 const isInitialized = ref(false);
@@ -99,7 +172,9 @@ const updateInitialPriceRange = () => {
 
 onMounted(() => {
   updateInitialPriceRange();
+  initializeFiltersFromURL(); // url gestion
   updateNombreDeFilter(); 
+  
 });
 
 //watcher pour initialPriceRange
@@ -113,6 +188,26 @@ watch(
     }
   }
 );
+
+// Watchers pour surveiller les modifications des filtres et mettre à jour l'URL
+watch(
+  () => props.selectedFilters,
+  () => {
+    updateURLFromFilters();
+  },
+  { deep: true }
+);
+
+// Watcher pour surveiller les modifications de l'URL et mettre à jour les filtres
+watch(
+  () => route.query,
+  () => {
+    initializeFiltersFromURL();
+  },
+  { deep: true }
+);
+
+
 
 
 

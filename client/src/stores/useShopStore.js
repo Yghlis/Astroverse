@@ -92,30 +92,43 @@ export const useShopStore = defineStore("shop", {
     applyFilters() {
       const apiUrl = import.meta.env.VITE_API_URL;
       const filters = this.selectedFilters;
-
+    
       // Construction de l'URL avec les paramètres de filtre
       const params = new URLSearchParams();
-
+    
       if (filters.characters.length > 0) {
-        params.append('characters', filters.characters.join(','));
+        params.set('characters', filters.characters.join(','));
+      } else {
+        params.delete('characters');
       }
+    
       if (filters.universes.length > 0) {
-        params.append('universes', filters.universes.join(','));
+        params.set('universes', filters.universes.join(','));
+      } else {
+        params.delete('universes');
       }
+    
       if (filters.ratings.length > 0) {
-        params.append('ratings', filters.ratings.join(','));
+        params.set('ratings', filters.ratings.join(','));
+      } else {
+        params.delete('ratings');
       }
+    
       if (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) {
-        params.append('priceRange', `${filters.priceRange.min}-${filters.priceRange.max}`);
+        params.set('priceRange', `${filters.priceRange.min}-${filters.priceRange.max}`);
+      } else {
+        params.delete('priceRange');
       }
+    
       if (filters.promotion) {
-        params.append('promotion', 'true');
+        params.set('promotion', 'true');
+      } else {
+        params.delete('promotion');
       }
-
+    
       const url = `${apiUrl}/products?${params.toString()}`;
-
+    
       console.log(url); // Pour tester l'URL construite
-
     },
 
     resetState() {
