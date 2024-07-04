@@ -258,11 +258,7 @@ const characters = computed(() => {
 });
 
 const tagsInput = ref('');
-const detailsData = reactive({
-  dimensions: '',
-  weight: '',
-  materials: ''
-});
+const detailsData = productFormStore.detailsData;
 
 const updateTags = () => {
   formData.value.tags = tagsInput.value.split(',').map(tag => tag.trim());
@@ -369,6 +365,7 @@ onMounted(async () => {
   }
 });
 </script>
+
 
 
 <style scoped>

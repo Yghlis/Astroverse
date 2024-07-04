@@ -1,5 +1,5 @@
 <template>
-  <div>
+  
     <Header />
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
@@ -11,6 +11,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import HelloWorld from "./components/HelloWorld.vue";
 import Header from "./components/Header.vue";
 
 const isLoggedIn = ref(false);

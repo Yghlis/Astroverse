@@ -314,7 +314,6 @@ const openModal = (type, row) => {
   }
 };
 
-
 const closeModal = () => {
   showModal.value = false;
 };

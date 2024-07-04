@@ -103,6 +103,7 @@
               <label for="tags">Tags</label>
               <input id="tags" v-model="tagsInput" type="text" @change="updateTags" />
               <span>{{ errors.tags }}</span>
+
             </div>
 
             <!-- Formulaire pour les univers -->
@@ -369,7 +370,6 @@ onMounted(async () => {
   }
 });
 </script>
-
 
 <style scoped>
 .modal-mask {

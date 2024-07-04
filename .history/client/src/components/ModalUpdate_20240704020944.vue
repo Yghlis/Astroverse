@@ -370,7 +370,6 @@ onMounted(async () => {
 });
 </script>
 
-
 <style scoped>
 .modal-mask {
   position: fixed;

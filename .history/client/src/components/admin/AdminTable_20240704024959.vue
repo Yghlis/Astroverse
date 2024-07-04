@@ -256,11 +256,7 @@ const exportCSV = () => {
           return row[column].name || '';
         }
         if (column === 'universe' && row[column]) {
-          const universeId = row[column].id || row[column];
-          const universe = universes.value.find(u => u.id === universeId);
-          const universeName = universe ? universe.name : 'Unknown Universe';
-          console.log(`Universe name for row ${row.id}: ${universeName}`);
-          return universeName;
+          return row[column].name || '';
         }
         return row[column];
       }).join(',')
@@ -273,9 +269,6 @@ const exportCSV = () => {
   link.download = 'export.csv';
   link.click();
 };
-
-
-
 
 
 const renderCell = (row, column) => {
@@ -313,7 +306,6 @@ const openModal = (type, row) => {
     showModal.value = true;
   }
 };
-
 
 const closeModal = () => {
   showModal.value = false;

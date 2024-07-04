@@ -101,8 +101,10 @@
               <span>{{ errors.details?.materials }}</span>
 
               <label for="tags">Tags</label>
-              <input id="tags" v-model="tagsInput" type="text" @change="updateTags" />
-              <span>{{ errors.tags }}</span>
+<input id="tags" v-model="tagsInput" type="text" @change="updateTags" />
+<span>{{ errors.tags }}</span>
+
+
             </div>
 
             <!-- Formulaire pour les univers -->
@@ -141,6 +143,7 @@
               <span>{{ errors.universe }}</span>
             </div>
 
+           <!-- Formulaire pour les utilisateurs -->
             <div v-if="currentDataType === 'users' && modalType === 'edit'">
               <label for="first_name">Prénom</label>
               <input id="first_name" v-model="formData.first_name" type="text" />
@@ -245,17 +248,9 @@ const isSubmitting = computed(() => {
   if (props.currentDataType === 'users') return userFormStore.isSubmitting;
 });
 
-const universes = computed(() => {
-  return productFormStore.universes;
-});
-
-const characterUniverses = computed(() => {
-  return characterFormStore.universes;
-});
-
-const characters = computed(() => {
-  return productFormStore.characters;
-});
+const universes = computed(() => productFormStore.universes);
+const characterUniverses = computed(() => characterFormStore.universes);
+const characters = computed(() => productFormStore.characters);
 
 const tagsInput = ref('');
 const detailsData = reactive({
@@ -283,7 +278,7 @@ const capitalizeEmail = () => {
 };
 
 const onSubmit = async () => {
-  console.log('Form data before submit:', formData.value); // Debug log
+  console.log('Form data before submit:', formData.value);
   formData.value.details = {
     dimensions: detailsData.dimensions,
     weight: detailsData.weight,
@@ -318,25 +313,32 @@ watch(() => props.currentDataType, async (newType) => {
 watch(() => props.selectedRow, (newRow) => {
   console.log('selectedRow:', newRow);
   if (props.currentDataType === 'characters' && newRow) {
+    console.log('Setting form data for character:', newRow);
     characterFormStore.setFormData({
       ...newRow,
       universe: newRow.universe?.id || newRow.universe
     });
   } else if (props.currentDataType === 'universes' && newRow) {
+    console.log('Setting form data for universe:', newRow);
     universeFormStore.setFormData(newRow);
   } else if (props.currentDataType === 'products' && newRow) {
+    console.log('Setting form data for product:', newRow);
     productFormStore.setFormData({
       ...newRow,
       character: newRow.character?.id || newRow.character,
       universe: newRow.universe?.id || newRow.universe
     });
+
     tagsInput.value = formData.value.tags;
+    console.log('Tags input value:', tagsInput.value);
+
     if (newRow.details) {
       detailsData.dimensions = newRow.details.dimensions || '';
       detailsData.weight = newRow.details.weight || '';
       detailsData.materials = newRow.details.materials || '';
     }
   } else if (props.currentDataType === 'users' && newRow) {
+    console.log('Setting form data for user:', newRow);
     userFormStore.setFormData({
       user_id: newRow.user_id,
       first_name: newRow.first_name,
@@ -353,7 +355,7 @@ watch(() => props.selectedRow, (newRow) => {
       roles: newRow.roles || []
     });
   }
-}, { immediate: true });
+});
 
 onMounted(async () => {
   if (props.currentDataType === 'characters') {
@@ -369,7 +371,6 @@ onMounted(async () => {
   }
 });
 </script>
-
 
 <style scoped>
 .modal-mask {

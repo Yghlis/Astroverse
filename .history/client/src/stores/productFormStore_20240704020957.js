@@ -54,7 +54,7 @@ export const useProductFormStore = defineStore('productForm', () => {
     stock: z.number().int().nonnegative('Le stock doit être un entier positif'),
     character: z.string().nonempty('Le personnage est requis'),
     universe: z.string().nonempty('L\'univers est requis'),
-    reference: z.string().optional(),
+    reference: z.string().nonempty('La référence est requise'),
     details: z.object({
       dimensions: z.string().nonempty('Les dimensions sont requises'),
       weight: z.string().nonempty('Le poids est requis'),
@@ -64,11 +64,6 @@ export const useProductFormStore = defineStore('productForm', () => {
   });
 
   const formData = reactive({ ...initialData });
-  const detailsData = reactive({
-    dimensions: '',
-    weight: '',
-    materials: ''
-  });
   const errors = reactive({});
   const isSubmitting = ref(false);
   const httpError = ref(null);
@@ -83,18 +78,6 @@ export const useProductFormStore = defineStore('productForm', () => {
     const parsedTags = Array.isArray(data.tags) ? data.tags.join(', ').replace(/[\[\]"]/g, '') : '';
     console.log('Parsed tags:', parsedTags);
   
-    // Parse details JSON if it's a string
-    let parsedDetails = { dimensions: '', weight: '', materials: '' };
-    if (typeof data.details === 'string') {
-      try {
-        parsedDetails = JSON.parse(data.details);
-      } catch (error) {
-        console.error('Error parsing details:', error);
-      }
-    } else if (typeof data.details === 'object') {
-      parsedDetails = data.details;
-    }
-  
     Object.assign(formData, {
       ...data,
       price: data.price != null ? data.price.toString() : '0',
@@ -102,20 +85,13 @@ export const useProductFormStore = defineStore('productForm', () => {
       character: data.character != null ? (data.character.id || data.character) : '',
       universe: data.universe != null ? (data.universe.id || data.universe) : '',
       tags: parsedTags, // Utiliser parsedTags ici
-      details: parsedDetails, // Utiliser les détails analysés ici
+      details: data.details || { dimensions: '', weight: '', materials: '' },
       image_preview_url: data.image_preview ? ensureAbsoluteUrl(data.image_preview) : '',
       image_gallery_urls: data.image_gallery ? data.image_gallery.map(ensureAbsoluteUrl) : ['', '', '', '']
     });
   
-    detailsData.dimensions = parsedDetails.dimensions || '';
-    detailsData.weight = parsedDetails.weight || '';
-    detailsData.materials = parsedDetails.materials || '';
-  
-    console.log('Form data after setting:', JSON.stringify(formData, null, 2));
+    console.log('Form data after setting:', formData);
   }
-  
-  
-  
 
   async function fetchCharacters() {
     const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
@@ -363,7 +339,6 @@ export const useProductFormStore = defineStore('productForm', () => {
 
   return {
     formData,
-    detailsData,
     errors,
     isSubmitting,
     httpError,

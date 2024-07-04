@@ -249,22 +249,8 @@ const toggleSelectAll = () => {
 
 const exportCSV = () => {
   const csvContent = [
-    props.columns.join(','),  // Les en-têtes de colonnes
-    ...props.data.map(row => 
-      props.columns.map(column => {
-        if (column === 'character' && row[column]) {
-          return row[column].name || '';
-        }
-        if (column === 'universe' && row[column]) {
-          const universeId = row[column].id || row[column];
-          const universe = universes.value.find(u => u.id === universeId);
-          const universeName = universe ? universe.name : 'Unknown Universe';
-          console.log(`Universe name for row ${row.id}: ${universeName}`);
-          return universeName;
-        }
-        return row[column];
-      }).join(',')
-    )
+    props.columns.join(','),
+    ...props.data.map(row => props.columns.map(column => row[column]).join(','))
   ].join('\n');
   
   const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -273,10 +259,6 @@ const exportCSV = () => {
   link.download = 'export.csv';
   link.click();
 };
-
-
-
-
 
 const renderCell = (row, column) => {
   if (column === 'character' && row[column]) {
@@ -313,7 +295,6 @@ const openModal = (type, row) => {
     showModal.value = true;
   }
 };
-
 
 const closeModal = () => {
   showModal.value = false;

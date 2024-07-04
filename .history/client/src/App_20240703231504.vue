@@ -1,5 +1,20 @@
 <template>
   <div>
+    <a href="https://vitejs.dev" target="_blank">
+      <img src="/vite.svg" class="logo" alt="Vite logo" />
+    </a>
+    <a href="https://vuejs.org/" target="_blank">
+      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
+    </a>
+    <div v-if="isLoggedIn">
+      <p>Bienvenue, {{ firstName }} {{ lastName }}</p>
+      <button @click="logout">Déconnexion</button>
+      <HelloWorld msg="Vite + Vue" />
+    </div>
+    <div v-else>
+      <LoginForm />
+      <RegisterForm />
+    </div>
     <Header />
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
@@ -11,6 +26,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import HelloWorld from "./components/HelloWorld.vue";
 import Header from "./components/Header.vue";
 
 const isLoggedIn = ref(false);

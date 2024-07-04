@@ -253,12 +253,12 @@ const exportCSV = () => {
     ...props.data.map(row => 
       props.columns.map(column => {
         if (column === 'character' && row[column]) {
-          return row[column].name || '';
+          const characterName = row[column].name || '';
+          console.log(`Character name for row ${row.id}: ${characterName}`);
+          return characterName;
         }
         if (column === 'universe' && row[column]) {
-          const universeId = row[column].id || row[column];
-          const universe = universes.value.find(u => u.id === universeId);
-          const universeName = universe ? universe.name : 'Unknown Universe';
+          const universeName = row[column].name || '';
           console.log(`Universe name for row ${row.id}: ${universeName}`);
           return universeName;
         }
@@ -273,7 +273,6 @@ const exportCSV = () => {
   link.download = 'export.csv';
   link.click();
 };
-
 
 
 
@@ -313,7 +312,6 @@ const openModal = (type, row) => {
     showModal.value = true;
   }
 };
-
 
 const closeModal = () => {
   showModal.value = false;

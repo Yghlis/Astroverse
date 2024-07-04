@@ -101,8 +101,10 @@
               <span>{{ errors.details?.materials }}</span>
 
               <label for="tags">Tags</label>
-              <input id="tags" v-model="tagsInput" type="text" @change="updateTags" />
-              <span>{{ errors.tags }}</span>
+<input id="tags" v-model="tagsInput" type="text" @change="updateTags" />
+<span>{{ errors.tags }}</span>
+
+
             </div>
 
             <!-- Formulaire pour les univers -->
@@ -318,25 +320,33 @@ watch(() => props.currentDataType, async (newType) => {
 watch(() => props.selectedRow, (newRow) => {
   console.log('selectedRow:', newRow);
   if (props.currentDataType === 'characters' && newRow) {
+    console.log('Setting form data for character:', newRow); // Debug log
     characterFormStore.setFormData({
       ...newRow,
       universe: newRow.universe?.id || newRow.universe
     });
   } else if (props.currentDataType === 'universes' && newRow) {
+    console.log('Setting form data for universe:', newRow); // Debug log
     universeFormStore.setFormData(newRow);
   } else if (props.currentDataType === 'products' && newRow) {
+    console.log('Setting form data for product:', newRow); // Debug log
     productFormStore.setFormData({
       ...newRow,
       character: newRow.character?.id || newRow.character,
       universe: newRow.universe?.id || newRow.universe
     });
+
+    // Mettre à jour les tags dans le champ input
     tagsInput.value = formData.value.tags;
+    console.log('Tags input value:', tagsInput.value); // Log the tags input value
+
     if (newRow.details) {
       detailsData.dimensions = newRow.details.dimensions || '';
       detailsData.weight = newRow.details.weight || '';
       detailsData.materials = newRow.details.materials || '';
     }
   } else if (props.currentDataType === 'users' && newRow) {
+    console.log('Setting form data for user:', newRow); // Debug log
     userFormStore.setFormData({
       user_id: newRow.user_id,
       first_name: newRow.first_name,
@@ -353,7 +363,7 @@ watch(() => props.selectedRow, (newRow) => {
       roles: newRow.roles || []
     });
   }
-}, { immediate: true });
+});
 
 onMounted(async () => {
   if (props.currentDataType === 'characters') {

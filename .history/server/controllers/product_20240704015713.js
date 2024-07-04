@@ -257,15 +257,6 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ error: 'Produit non trouvé' });
     }
 
-    // Check if reference is unique
-    if (reference !== product.reference) {
-      const existingProduct = await Product.findOne({ where: { reference }, transaction });
-      if (existingProduct) {
-        await transaction.rollback();
-        return res.status(409).json({ error: 'Reference already exists' });
-      }
-    }
-
     const oldImagePreview = product.image_preview;
     const oldImageGallery = [...product.image_gallery];
 
@@ -373,7 +364,6 @@ export const updateProduct = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 
 export const deleteProduct = async (req, res) => {

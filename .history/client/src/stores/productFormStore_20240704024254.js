@@ -83,16 +83,14 @@ export const useProductFormStore = defineStore('productForm', () => {
     const parsedTags = Array.isArray(data.tags) ? data.tags.join(', ').replace(/[\[\]"]/g, '') : '';
     console.log('Parsed tags:', parsedTags);
   
-    // Parse details JSON if it's a string
-    let parsedDetails = { dimensions: '', weight: '', materials: '' };
-    if (typeof data.details === 'string') {
+    // Analyser les détails
+    let details = { dimensions: '', weight: '', materials: '' };
+    if (data.details) {
       try {
-        parsedDetails = JSON.parse(data.details);
-      } catch (error) {
-        console.error('Error parsing details:', error);
+        details = JSON.parse(data.details);
+      } catch (e) {
+        console.error('Failed to parse details:', e);
       }
-    } else if (typeof data.details === 'object') {
-      parsedDetails = data.details;
     }
   
     Object.assign(formData, {
@@ -102,18 +100,16 @@ export const useProductFormStore = defineStore('productForm', () => {
       character: data.character != null ? (data.character.id || data.character) : '',
       universe: data.universe != null ? (data.universe.id || data.universe) : '',
       tags: parsedTags, // Utiliser parsedTags ici
-      details: parsedDetails, // Utiliser les détails analysés ici
       image_preview_url: data.image_preview ? ensureAbsoluteUrl(data.image_preview) : '',
       image_gallery_urls: data.image_gallery ? data.image_gallery.map(ensureAbsoluteUrl) : ['', '', '', '']
     });
   
-    detailsData.dimensions = parsedDetails.dimensions || '';
-    detailsData.weight = parsedDetails.weight || '';
-    detailsData.materials = parsedDetails.materials || '';
+    detailsData.dimensions = details.dimensions || '';
+    detailsData.weight = details.weight || '';
+    detailsData.materials = details.materials || '';
   
     console.log('Form data after setting:', JSON.stringify(formData, null, 2));
   }
-  
   
   
 

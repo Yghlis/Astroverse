@@ -101,8 +101,10 @@
               <span>{{ errors.details?.materials }}</span>
 
               <label for="tags">Tags</label>
-              <input id="tags" v-model="tagsInput" type="text" @change="updateTags" />
-              <span>{{ errors.tags }}</span>
+<input id="tags" v-model="tagsInput" type="text" @change="updateTags" />
+<span>{{ errors.tags }}</span>
+
+
             </div>
 
             <!-- Formulaire pour les univers -->

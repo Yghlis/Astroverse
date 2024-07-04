@@ -45,16 +45,6 @@ export const addProduct = async (req, res) => {
       views_count
     } = req.body;
 
-    // Validate required fields
-    validateProductFields({ title, price, character, universe, reference });
-
-    // Check if reference is unique
-    const existingProduct = await Product.findOne({ where: { reference }, transaction });
-    if (existingProduct) {
-      await transaction.rollback();
-      return res.status(409).json({ error: 'Reference already exists' });
-    }
-
     const image_preview = req.files && req.files['image_preview'] ? req.files['image_preview'][0].path : null;
     const image_gallery = Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
 
@@ -257,15 +247,6 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ error: 'Produit non trouvé' });
     }
 
-    // Check if reference is unique
-    if (reference !== product.reference) {
-      const existingProduct = await Product.findOne({ where: { reference }, transaction });
-      if (existingProduct) {
-        await transaction.rollback();
-        return res.status(409).json({ error: 'Reference already exists' });
-      }
-    }
-
     const oldImagePreview = product.image_preview;
     const oldImageGallery = [...product.image_gallery];
 
@@ -373,7 +354,6 @@ export const updateProduct = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 
 export const deleteProduct = async (req, res) => {

@@ -83,18 +83,6 @@ export const useProductFormStore = defineStore('productForm', () => {
     const parsedTags = Array.isArray(data.tags) ? data.tags.join(', ').replace(/[\[\]"]/g, '') : '';
     console.log('Parsed tags:', parsedTags);
   
-    // Parse details JSON if it's a string
-    let parsedDetails = { dimensions: '', weight: '', materials: '' };
-    if (typeof data.details === 'string') {
-      try {
-        parsedDetails = JSON.parse(data.details);
-      } catch (error) {
-        console.error('Error parsing details:', error);
-      }
-    } else if (typeof data.details === 'object') {
-      parsedDetails = data.details;
-    }
-  
     Object.assign(formData, {
       ...data,
       price: data.price != null ? data.price.toString() : '0',
@@ -102,19 +90,24 @@ export const useProductFormStore = defineStore('productForm', () => {
       character: data.character != null ? (data.character.id || data.character) : '',
       universe: data.universe != null ? (data.universe.id || data.universe) : '',
       tags: parsedTags, // Utiliser parsedTags ici
-      details: parsedDetails, // Utiliser les détails analysés ici
+      details: data.details || { dimensions: '', weight: '', materials: '' },
       image_preview_url: data.image_preview ? ensureAbsoluteUrl(data.image_preview) : '',
       image_gallery_urls: data.image_gallery ? data.image_gallery.map(ensureAbsoluteUrl) : ['', '', '', '']
     });
   
-    detailsData.dimensions = parsedDetails.dimensions || '';
-    detailsData.weight = parsedDetails.weight || '';
-    detailsData.materials = parsedDetails.materials || '';
+    if (data.details) {
+      detailsData.dimensions = data.details.dimensions || '';
+      detailsData.weight = data.details.weight || '';
+      detailsData.materials = data.details.materials || '';
+    } else {
+      // Assurez-vous que les détails sont vidés si non fournis
+      detailsData.dimensions = '';
+      detailsData.weight = '';
+      detailsData.materials = '';
+    }
   
     console.log('Form data after setting:', JSON.stringify(formData, null, 2));
   }
-  
-  
   
 
   async function fetchCharacters() {
