@@ -31,8 +31,7 @@ async function sendVerificationEmail(user, req) {
     } catch (error) {
         console.error("Failed to send verification email", error);
     }
-}
-async function sendNotificationEmail(email) {
+}async function sendNotificationEmail(email) {
     const mailOptions = {
         from: process.env.EMAIL_USERNAME,
         to: email,

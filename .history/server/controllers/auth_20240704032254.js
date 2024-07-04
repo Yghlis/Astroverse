@@ -32,24 +32,6 @@ async function sendVerificationEmail(user, req) {
         console.error("Failed to send verification email", error);
     }
 }
-async function sendNotificationEmail(email) {
-    const mailOptions = {
-        from: process.env.EMAIL_USERNAME,
-        to: email,
-        subject: 'Tentatives de connexion infructueuses',
-        text: 'Votre compte a été verrouillé après trois tentatives de connexion infructueuses. Veuillez essayer de nouveau après deux heures.'
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log('Notification email sent successfully');
-    } catch (error) {
-        console.error('Error sending notification email:', error);
-    }
-}
-
-const MAX_LOGIN_ATTEMPTS = 3;
-const LOCK_TIME = 5 * 60 * 1000; 
 
 const verifyEmail = async (req, res) => {
     const { token } = req.query;
