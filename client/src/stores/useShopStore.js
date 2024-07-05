@@ -33,7 +33,7 @@ export const useShopStore = defineStore("shop", {
       this.loading = true;
       let apiUrl = url || import.meta.env.VITE_API_URL + "/products";
       if (search) {
-        // apiUrl += `?search=${search}`;
+        // apiUrl += `?search=${search}`;             // ENLEVER LE COMMENTAIRE POUR ACTIVER LA RECHERCHE
         console.log(apiUrl + `?search=${search}`);
         this.selectedFilters = {
           characters: [],
@@ -136,7 +136,7 @@ export const useShopStore = defineStore("shop", {
       console.log(url); // Pour tester l'URL construite
 
       // Appel à fetchProducts avec l'URL filtrée
-      //this.fetchProducts(null,url);
+      //this.fetchProducts(null,url);  // ENLEVER LE COMMENTAIRE POUR ACTIVER LA RECHERCHE
     },
 
     resetState() {
