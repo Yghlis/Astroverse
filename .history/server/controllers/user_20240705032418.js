@@ -15,10 +15,10 @@ export const getUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   const { id } = req.params;
-  const authenticatedUserId = req.user.userId;  // Assurez-vous d'utiliser la bonne clé pour l'ID utilisateur
+  const authenticatedUserId = req.user.id;
 
-  // Vérifiez le rôle admin
-  if (id !== authenticatedUserId && req.user.role !== 'ROLE_ADMIN') {
+  // Vérification que req.user.roles est un tableau avant d'utiliser includes
+  if (id !== authenticatedUserId && (!req.user.roles || !req.user.roles.includes('ROLE_ADMIN'))) {
     return res.status(403).json({ error: 'Accès interdit' });
   }
 
@@ -32,7 +32,6 @@ export const getUserById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 /* Récupérer un utilisateur par ID
 export const getUserById = async (req, res) => {

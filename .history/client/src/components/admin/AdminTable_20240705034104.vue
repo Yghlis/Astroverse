@@ -156,7 +156,7 @@ const confirmDelete = (row) => {
 };
 
 const deleteRow = async () => {
-  const userId = rowToDelete.value.id || rowToDelete.value.user_id; // Try id first, then user_id
+  const userId = rowToDelete.value.id;
   console.log(`Deleting user with ID: ${userId}`);
   const url = `http://localhost:8000/${props.currentDataType}/${userId}`;
   try {

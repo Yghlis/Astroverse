@@ -21,26 +21,26 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="row in paginatedData" :key="row.id">
-          <td>
-            <input type="checkbox" :value="row.id" v-model="selectedRows" />
-          </td>
-          <td v-for="column in columns" :key="column">
-            <div v-if="['color1', 'color2', 'colorText'].includes(column)" class="color-cell">
-              <span :style="{ backgroundColor: row[column], display: 'inline-block', width: '20px', height: '20px', marginRight: '10px' }"></span>
-              {{ renderCell(row, column) }}
-            </div>
-            <div v-else>
-              {{ renderCell(row, column) }}
-            </div>
-          </td>
-          <td>
-            <button @click="openModal('view', row)">Consulter</button>
-            <button @click="openModal('edit', row)">Modifier</button>
-            <button @click="confirmDelete(row)">Supprimer</button>
-          </td>
-        </tr>
-      </tbody>
+  <tr v-for="row in paginatedData" :key="row.id">
+    <td>
+      <input type="checkbox" :value="row.id" v-model="selectedRows" />
+    </td>
+    <td v-for="column in columns" :key="column">
+      <div v-if="['color1', 'color2', 'colorText'].includes(column)" class="color-cell">
+        <span :style="{ backgroundColor: row[column], display: 'inline-block', width: '20px', height: '20px', marginRight: '10px' }"></span>
+        {{ renderCell(row, column) }}
+      </div>
+      <div v-else>
+        {{ renderCell(row, column) }}
+      </div>
+    </td>
+    <td>
+      <button @click="openModal('view', row)">Consulter</button>
+      <button @click="openModal('edit', row)">Modifier</button>
+      <button @click="confirmDelete(row)">Supprimer</button>
+    </td>
+  </tr>
+</tbody>
     </table>
     <Pagination :current-page="currentPage" :total-pages="totalPages" @change-page="changePage" />
     <ConfirmModal v-if="showConfirmModal" @confirm="deleteRow" @cancel="cancelDelete" />
@@ -52,10 +52,11 @@
     </div>
 
     <Modal v-if="showModal" @close="closeModal" :currentDataType="currentDataType" :modalType="modalType" :selectedRow="selectedRow" :width="'90%'" :height="'auto'">
-      <template #header>
-        <h3>{{ modalType === 'edit' ? 'Modifier' : 'Consulter' }}</h3>
-      </template>
-    </Modal>
+  <template #header>
+    <h3>{{ modalType === 'edit' ? 'Modifier' : 'Consulter' }}</h3>
+  </template>
+</Modal>
+
 
     <ModalCreate v-if="showCreateModal" @close="closeCreateModal" :currentDataType="currentDataType" :width="'90%'" :height="'auto'">
       <template #header>
@@ -70,6 +71,8 @@
     </ModalConsult>
   </div>
 </template>
+
+
 
 <script setup>
 import { ref, computed, onMounted, defineProps, defineEmits } from 'vue';
@@ -156,7 +159,7 @@ const confirmDelete = (row) => {
 };
 
 const deleteRow = async () => {
-  const userId = rowToDelete.value.id || rowToDelete.value.user_id; // Try id first, then user_id
+  const userId = rowToDelete.value.id;
   console.log(`Deleting user with ID: ${userId}`);
   const url = `http://localhost:8000/${props.currentDataType}/${userId}`;
   try {
@@ -274,13 +277,17 @@ const exportCSV = () => {
   link.click();
 };
 
+
+
+
+
 const renderCell = (row, column) => {
   if (column === 'character' && row[column]) {
     return row[column].name;
   }
   if (column === 'universe' && row[column]) {
     console.log(`Rendering universe for row ${row.id}:`, row[column]);
-    const universeId = row[column].id || row[column];
+    const universeId = row[column].id || row[column]; // Ajustement ici
     const universe = universes.value.find(u => u.id === universeId);
     if (universe) {
       return universe.name;
@@ -291,6 +298,7 @@ const renderCell = (row, column) => {
   }
   return row[column];
 };
+
 
 const openModal = (type, row) => {
   modalType.value = type;
@@ -309,6 +317,7 @@ const openModal = (type, row) => {
   }
 };
 
+
 const closeModal = () => {
   showModal.value = false;
 };
@@ -325,6 +334,58 @@ const closeConsultModal = () => {
   showConsultModal.value = false;
 };
 </script>
+
+<style scoped>
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1em;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+th span {
+  margin-left: 0.5em;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+.flash-message {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  transition: opacity 0.3s ease;
+}
+.flash-message.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+.flash-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.flash-message.active {
+  opacity: 1;
+}
+.flash-message:not(.active) {
+  opacity: 0;
+}
+</style>
+
+
 
 <style scoped>
 .table-controls {

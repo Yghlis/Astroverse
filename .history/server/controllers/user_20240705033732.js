@@ -154,11 +154,11 @@ export const updateUser = async (req, res) => {
 
 // Supprimer un utilisateur
 export const deleteUser = async (req, res) => {
-  const { id } = req.params;
+  const { user_id } = req.params;  // Utilisez user_id ici
 
   const transaction = await sequelize.transaction();
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findByPk(user_id);  // Utilisez user_id ici
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -171,3 +171,4 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
