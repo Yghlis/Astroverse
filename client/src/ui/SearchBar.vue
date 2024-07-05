@@ -12,11 +12,11 @@
         close
       </span>
     </transition>
+    <div class="close" @click="resetSearchText"></div>
     <input
       type="text"
       ref="searchInput"
       v-model="searchText"
-      @input="emitSearch"
       placeholder="Rechercher une figurine ..."
       @focus="handleFocus"
       @blur="handleBlur"
@@ -25,19 +25,53 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { animate } from "motion";
+import { useShopStore } from "../stores/useShopStore";
+import { useRouter, useRoute } from 'vue-router';
 
+onMounted(() => {
+  if (route.query.search) {
+    searchText.value = route.query.search;
+    handleSearch(route.query.search);
+  }
+});
+
+
+
+const router = useRouter();
+const route = useRoute();
 const searchText = ref("");
 const icon = ref("search");
 const searchInput = ref(null);
+const shopStore = useShopStore();
 
-//data
-const emit = defineEmits(["update:search"]);
-
-const emitSearch = () => {
-  emit("update:search", searchText.value);
+const handleSearch = async (text) => {
+  shopStore.setSearch(text);
+  if (text) {
+    router.push({ query: { search: text } });
+  } else {
+    router.push({ query: {} });
+  }
+  await shopStore.fetchProducts(text);
 };
+
+
+
+watch(searchText, (newSearch) => {
+  handleSearch(newSearch);
+});
+
+
+
+watch(route, (newRoute) => {
+  if (newRoute.query.search !== searchText.value) {
+    searchText.value = newRoute.query.search || "";
+  }
+});
+
+
+
 
 //Animation
 const handleFocus = () => {
@@ -51,7 +85,6 @@ const handleBlur = () => {
 };
 
 
-
 const changeIcon = () => {
   if (icon.value === "search") {
     icon.value = "close";
@@ -59,6 +92,11 @@ const changeIcon = () => {
     icon.value = "search";
   }
 };
+
+const resetSearchText = () => {
+  searchText.value = "";
+};
+
 </script>
 
 <style lang="scss" scoped>
@@ -74,6 +112,15 @@ const changeIcon = () => {
     cursor: pointer;
     left: 10px;
     font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
+  }
+
+  .close {
+    position: absolute;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    left: 10px;
   }
 
   input {

@@ -42,7 +42,7 @@
             @update:range="handleRangeUpdate"
             :reset-event="resetEvent"
             :rating="option.rating"
-            :selected-values="props.selectedFilters[option.optionName]" 
+            :selected-values="props.selectedFilters[option.optionName]"
           />
           <button class="reset" @click="resetFilters">
             Réinitialiser les filtres
@@ -55,13 +55,7 @@
 
 <script setup>
 import FilterOption from "./FilterOption.vue";
-import {
-  ref,
-  reactive,
-  onMounted,
-  onUnmounted,
-  watch
-} from "vue";
+import { ref, reactive, onMounted, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useShopStore } from "../../stores/useShopStore";
 
@@ -83,6 +77,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  search: {
+    type: String,
+    required: true,
+  },
 });
 
 //###################################################### URL Gestion ########################################################
@@ -94,20 +92,24 @@ const initializeFiltersFromURL = () => {
   const query = route.query;
 
   if (query.characters) {
-    props.selectedFilters.characters = query.characters.split(',').map(decodeURIComponent);
+    props.selectedFilters.characters = query.characters
+      .split(",")
+      .map(decodeURIComponent);
   }
   if (query.universes) {
-    props.selectedFilters.universes = query.universes.split(',').map(decodeURIComponent);
+    props.selectedFilters.universes = query.universes
+      .split(",")
+      .map(decodeURIComponent);
   }
   if (query.ratings) {
-    props.selectedFilters.ratings = query.ratings.split(',').map(Number);
+    props.selectedFilters.ratings = query.ratings.split(",").map(Number);
   }
   if (query.priceRange) {
-    const [min, max] = query.priceRange.split('-').map(Number);
+    const [min, max] = query.priceRange.split("-").map(Number);
     props.selectedFilters.priceRange = { min, max };
   }
   if (query.promotion) {
-    props.selectedFilters.promotion = query.promotion === 'true';
+    props.selectedFilters.promotion = query.promotion === "true";
   }
 };
 
@@ -116,48 +118,52 @@ const updateURLFromFilters = () => {
   const params = new URLSearchParams();
 
   if (filters.characters.length > 0) {
-    params.set('characters', filters.characters.map(encodeURIComponent).join(','));
+    params.set(
+      "characters",
+      filters.characters.map(encodeURIComponent).join(",")
+    );
   } else {
-    params.delete('characters');
+    params.delete("characters");
   }
 
   if (filters.universes.length > 0) {
-    params.set('universes', filters.universes.map(encodeURIComponent).join(','));
+    params.set(
+      "universes",
+      filters.universes.map(encodeURIComponent).join(",")
+    );
   } else {
-    params.delete('universes');
+    params.delete("universes");
   }
 
   if (filters.ratings.length > 0) {
-    params.set('ratings', filters.ratings.join(','));
+    params.set("ratings", filters.ratings.join(","));
   } else {
-    params.delete('ratings');
+    params.delete("ratings");
   }
 
   if (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) {
-    params.set('priceRange', `${filters.priceRange.min}-${filters.priceRange.max}`);
+    params.set(
+      "priceRange",
+      `${filters.priceRange.min}-${filters.priceRange.max}`
+    );
   } else {
-    params.delete('priceRange');
+    params.delete("priceRange");
   }
 
   if (filters.promotion) {
-    params.set('promotion', 'true');
+    params.set("promotion", "true");
   } else {
-    params.delete('promotion');
+    params.delete("promotion");
   }
 
-   // Convertir URLSearchParams en objet
-   const query = {};
+  // Convertir URLSearchParams en objet
+  const query = {};
   params.forEach((value, key) => {
     query[key] = value;
   });
 
   router.push({ query });
 };
-
-
-
-
-
 
 // Stockage des valeurs initiales de priceRange
 const initialPriceRange = reactive({ min: 0, max: 0 });
@@ -172,9 +178,10 @@ const updateInitialPriceRange = () => {
 
 onMounted(() => {
   updateInitialPriceRange();
-  initializeFiltersFromURL(); // url gestion
-  updateNombreDeFilter(); 
-  
+  if (props.search == "") {
+    initializeFiltersFromURL(); // url gestion
+    updateNombreDeFilter();
+  }
 });
 
 //watcher pour initialPriceRange
@@ -183,7 +190,7 @@ watch(
   () => {
     if (!isInitialized.value) {
       updateInitialPriceRange();
-      updateNombreDeFilter(); 
+      updateNombreDeFilter();
       isInitialized.value = true;
     }
   }
@@ -193,7 +200,9 @@ watch(
 watch(
   () => props.selectedFilters,
   () => {
-    updateURLFromFilters();
+    if (props.search == "") {
+      updateURLFromFilters();
+    }
   },
   { deep: true }
 );
@@ -207,10 +216,6 @@ watch(
   { deep: true }
 );
 
-
-
-
-
 // ################################################################# Filter Logic #################################################################
 
 const updateNombreDeFilter = () => {
@@ -221,11 +226,12 @@ const updateNombreDeFilter = () => {
   count += props.selectedFilters.ratings.length;
 
   if (
-    props.selectedFilters.priceRange.min !== initialPriceRange.min ||
-    props.selectedFilters.priceRange.max !== initialPriceRange.max
-  ) {
-    count += 1;
-  }
+  (props.selectedFilters.priceRange.min !== initialPriceRange.min ||
+    props.selectedFilters.priceRange.max !== initialPriceRange.max) &&
+  (initialPriceRange.min !== 0 || initialPriceRange.max !== 0)
+) {
+  count++; 
+}
 
   if (props.selectedFilters.promotion) {
     count += 1;
@@ -233,7 +239,6 @@ const updateNombreDeFilter = () => {
 
   NombreDeFilter.value = count;
 };
-
 
 // Watchers pour surveiller les modifications des filtres
 watch(() => props.selectedFilters.characters, updateNombreDeFilter, {
@@ -263,7 +268,7 @@ const resetFilters = () => {
   props.selectedFilters.universes = [];
   props.selectedFilters.ratings = [];
   props.selectedFilters.priceRange = initialPriceRange;
-  props.selectedFilters.is_promotion = false;
+  props.selectedFilters.promotion = false;
 
   updateNombreDeFilter();
 

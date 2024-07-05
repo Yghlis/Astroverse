@@ -24,22 +24,34 @@ export const useShopStore = defineStore("shop", {
       priceRange: { min: 0, max: 0 },
       promotion: false,
     },
+    search: "",
   }),
 
   actions: {
-    async fetchProducts() {
+    async fetchProducts(search = null, url = null) {
+      console.log("fetchProducts called with search:", search);
       this.loading = true;
-      const apiUrl = import.meta.env.VITE_API_URL;
+      let apiUrl = url || import.meta.env.VITE_API_URL + "/products";
+      if (search) {
+        // apiUrl += `?search=${search}`;
+        console.log(apiUrl + `?search=${search}`);
+        this.selectedFilters = {
+          characters: [],
+          universes: [],
+          ratings: [],
+          priceRange: { min: 0, max: 0 },
+          promotion: false,
+        };
+      }
       this.error = null;
       try {
-        const response = await fetch(`${apiUrl}/products`);
+        const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
         this.products = data;
         this.updatePriceRange(data);
-        this.applyFilters();
       } catch (error) {
         this.error = "Failed to fetch products";
       } finally {
@@ -92,43 +104,39 @@ export const useShopStore = defineStore("shop", {
     applyFilters() {
       const apiUrl = import.meta.env.VITE_API_URL;
       const filters = this.selectedFilters;
-    
+
       // Construction de l'URL avec les paramètres de filtre
       const params = new URLSearchParams();
-    
+
       if (filters.characters.length > 0) {
-        params.set('characters', filters.characters.join(','));
-      } else {
-        params.delete('characters');
+        params.set("characters", filters.characters.join(","));
       }
-    
+
       if (filters.universes.length > 0) {
-        params.set('universes', filters.universes.join(','));
-      } else {
-        params.delete('universes');
+        params.set("universes", filters.universes.join(","));
       }
-    
+
       if (filters.ratings.length > 0) {
-        params.set('ratings', filters.ratings.join(','));
-      } else {
-        params.delete('ratings');
+        params.set("ratings", filters.ratings.join(","));
       }
-    
+
       if (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) {
-        params.set('priceRange', `${filters.priceRange.min}-${filters.priceRange.max}`);
-      } else {
-        params.delete('priceRange');
+        params.set(
+          "priceRange",
+          `${filters.priceRange.min}-${filters.priceRange.max}`
+        );
       }
-    
+
       if (filters.promotion) {
-        params.set('promotion', 'true');
-      } else {
-        params.delete('promotion');
+        params.set("promotion", "true");
       }
-    
+
       const url = `${apiUrl}/products?${params.toString()}`;
-    
+
       console.log(url); // Pour tester l'URL construite
+
+      // Appel à fetchProducts avec l'URL filtrée
+      //this.fetchProducts(null,url);
     },
 
     resetState() {
@@ -160,16 +168,20 @@ export const useShopStore = defineStore("shop", {
         promotion: false,
       };
     },
+    setSearch(search) {
+      this.search = search;
+    },
   },
 });
-
 
 // Fonction pour regarder les changements dans selectedFilters
 export function setupStoreWatchers(store) {
   watch(
     () => store.selectedFilters,
     (newValue, oldValue) => {
-      store.applyFilters();
+      if (store.search == "") {
+        store.applyFilters();
+      }
     },
     { deep: true }
   );

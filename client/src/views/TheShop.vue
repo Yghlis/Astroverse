@@ -1,7 +1,7 @@
 <template>
   <div class="container-shop">
     <div class="banner"></div>
-    <SearchBar :searchText="searchText" @update:search="handleSearch" />
+    <SearchBar />
     <!-- <h1>{{ searchText }}</h1> -->
     <div class="sub_container">
       <TheLoader v-if="loading" :loading="loading"> </TheLoader>
@@ -10,6 +10,7 @@
         v-show="!loading && !error"
         :filter-options="filterOptions"
         :selected-filters="selectedFilters"
+        :search="search"
       />
       <product-list v-show="!loading && !error" :products="products" />
     </div>
@@ -24,11 +25,6 @@ import SearchBar from "../ui/SearchBar.vue";
 import { useShopStore } from "../stores/useShopStore";
 import TheLoader from "../ui/TheLoader.vue";
 
-const searchText = ref("");
-
-const handleSearch = (text) => {
-  searchText.value = text;
-};
 
 //################################################# API CALL #################################################
 
@@ -38,6 +34,8 @@ const products = computed(() => shopStore.products);
 const loading = computed(() => shopStore.loading);
 const error = computed(() => shopStore.error);
 const selectedFilters = computed(() => shopStore.selectedFilters);
+const search = computed(() => shopStore.search);
+
 
 const filterOptions = computed(() => {
   const options = [];

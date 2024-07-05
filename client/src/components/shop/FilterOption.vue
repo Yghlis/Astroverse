@@ -77,7 +77,7 @@ const props = defineProps({
   rangeMin: Number,
   rangeMax: Number,
   resetEvent: Boolean,
-  selectedValues: [Array, Object],
+  selectedValues: [Array, Object, Boolean],
 });
 
 const selectedCheckboxes = ref([]);
