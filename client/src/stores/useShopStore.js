@@ -28,21 +28,13 @@ export const useShopStore = defineStore("shop", {
   }),
 
   actions: {
-    async fetchProducts(search = null, url = null) {
-      console.log("fetchProducts called with search:", search);
+    async fetchProducts(url = null) {
+      console.log("fetchProducts called with URL:", url);
       this.loading = true;
-      let apiUrl = url || import.meta.env.VITE_API_URL + "/products";
-      if (search) {
-        // apiUrl += `?search=${search}`;             // ENLEVER LE COMMENTAIRE POUR ACTIVER LA RECHERCHE
-        console.log(apiUrl + `?search=${search}`);
-        this.selectedFilters = {
-          characters: [],
-          universes: [],
-          ratings: [],
-          priceRange: { min: 0, max: 0 },
-          promotion: false,
-        };
-      }
+      //let apiUrl = url || import.meta.env.VITE_API_URL + "/products";
+      let apiUrl =  import.meta.env.VITE_API_URL + "/products";
+      console.log("Final API URL:", apiUrl);
+
       this.error = null;
       try {
         const response = await fetch(apiUrl);
@@ -102,11 +94,13 @@ export const useShopStore = defineStore("shop", {
     },
 
     applyFilters() {
-      const apiUrl = import.meta.env.VITE_API_URL;
+      const apiUrl = import.meta.env.VITE_API_URL + "/products";
       const filters = this.selectedFilters;
-
-      // Construction de l'URL avec les paramètres de filtre
       const params = new URLSearchParams();
+
+      if (this.search) {
+        params.set("title", this.search);
+      }
 
       if (filters.characters.length > 0) {
         params.set("characters", filters.characters.join(","));
@@ -131,12 +125,12 @@ export const useShopStore = defineStore("shop", {
         params.set("promotion", "true");
       }
 
-      const url = `${apiUrl}/products?${params.toString()}`;
+      const url = `${apiUrl}?${params.toString()}`;
 
-      console.log(url); // Pour tester l'URL construite
+      console.log("Filter URL:", url);
 
       // Appel à fetchProducts avec l'URL filtrée
-      //this.fetchProducts(null,url);  // ENLEVER LE COMMENTAIRE POUR ACTIVER LA RECHERCHE
+      this.fetchProducts(url);
     },
 
     resetState() {
@@ -167,7 +161,9 @@ export const useShopStore = defineStore("shop", {
         priceRange: { min: 0, max: 0 },
         promotion: false,
       };
+      this.search = "";
     },
+    
     setSearch(search) {
       this.search = search;
     },
@@ -179,9 +175,7 @@ export function setupStoreWatchers(store) {
   watch(
     () => store.selectedFilters,
     (newValue, oldValue) => {
-      if (store.search == "") {
-        store.applyFilters();
-      }
+      store.applyFilters();
     },
     { deep: true }
   );

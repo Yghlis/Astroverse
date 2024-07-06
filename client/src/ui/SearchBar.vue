@@ -30,12 +30,7 @@ import { animate } from "motion";
 import { useShopStore } from "../stores/useShopStore";
 import { useRouter, useRoute } from 'vue-router';
 
-onMounted(() => {
-  if (route.query.search) {
-    searchText.value = route.query.search;
-    handleSearch(route.query.search);
-  }
-});
+
 
 
 
@@ -48,13 +43,18 @@ const shopStore = useShopStore();
 
 const handleSearch = async (text) => {
   shopStore.setSearch(text);
-  if (text) {
-    router.push({ query: { search: text } });
-  } else {
-    router.push({ query: {} });
-  }
-  await shopStore.fetchProducts(text);
+  const query = { ...route.query, title: text || undefined };
+  router.push({ query });
+  await shopStore.fetchProducts(route.fullPath);
 };
+
+
+onMounted(() => {
+  if (route.query.title) {
+    searchText.value = route.query.title;
+    handleSearch(route.query.title);
+  }
+});
 
 
 
@@ -65,11 +65,10 @@ watch(searchText, (newSearch) => {
 
 
 watch(route, (newRoute) => {
-  if (newRoute.query.search !== searchText.value) {
-    searchText.value = newRoute.query.search || "";
+  if (newRoute.query.title !== searchText.value) {
+    searchText.value = newRoute.query.title || "";
   }
 });
-
 
 
 

@@ -115,22 +115,16 @@ const initializeFiltersFromURL = () => {
 
 const updateURLFromFilters = () => {
   const filters = props.selectedFilters;
-  const params = new URLSearchParams();
+  const params = new URLSearchParams(route.query);
 
   if (filters.characters.length > 0) {
-    params.set(
-      "characters",
-      filters.characters.map(encodeURIComponent).join(",")
-    );
+    params.set("characters", filters.characters.map(encodeURIComponent).join(","));
   } else {
     params.delete("characters");
   }
 
   if (filters.universes.length > 0) {
-    params.set(
-      "universes",
-      filters.universes.map(encodeURIComponent).join(",")
-    );
+    params.set("universes", filters.universes.map(encodeURIComponent).join(","));
   } else {
     params.delete("universes");
   }
@@ -142,10 +136,7 @@ const updateURLFromFilters = () => {
   }
 
   if (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) {
-    params.set(
-      "priceRange",
-      `${filters.priceRange.min}-${filters.priceRange.max}`
-    );
+    params.set("priceRange", `${filters.priceRange.min}-${filters.priceRange.max}`);
   } else {
     params.delete("priceRange");
   }
@@ -156,14 +147,16 @@ const updateURLFromFilters = () => {
     params.delete("promotion");
   }
 
-  // Convertir URLSearchParams en objet
-  const query = {};
-  params.forEach((value, key) => {
-    query[key] = value;
-  });
+  // If title is present, keep it and add filters
+  if (route.query.title) {
+    params.set("title", route.query.title);
+  } else {
+    params.delete("title");
+  }
 
-  router.push({ query });
+  router.push({ query: Object.fromEntries(params.entries()) });
 };
+
 
 // Stockage des valeurs initiales de priceRange
 const initialPriceRange = reactive({ min: 0, max: 0 });
@@ -178,10 +171,8 @@ const updateInitialPriceRange = () => {
 
 onMounted(() => {
   updateInitialPriceRange();
-  if (props.search == "") {
-    initializeFiltersFromURL(); // url gestion
-    updateNombreDeFilter();
-  }
+  initializeFiltersFromURL(); // url gestion
+  updateNombreDeFilter();
 });
 
 //watcher pour initialPriceRange
@@ -200,9 +191,7 @@ watch(
 watch(
   () => props.selectedFilters,
   () => {
-    if (props.search == "") {
-      updateURLFromFilters();
-    }
+    updateURLFromFilters();
   },
   { deep: true }
 );
@@ -226,12 +215,12 @@ const updateNombreDeFilter = () => {
   count += props.selectedFilters.ratings.length;
 
   if (
-  (props.selectedFilters.priceRange.min !== initialPriceRange.min ||
-    props.selectedFilters.priceRange.max !== initialPriceRange.max) &&
-  (initialPriceRange.min !== 0 || initialPriceRange.max !== 0)
-) {
-  count++; 
-}
+    (props.selectedFilters.priceRange.min !== initialPriceRange.min ||
+      props.selectedFilters.priceRange.max !== initialPriceRange.max) &&
+    (initialPriceRange.min !== 0 || initialPriceRange.max !== 0)
+  ) {
+    count++;
+  }
 
   if (props.selectedFilters.promotion) {
     count += 1;
