@@ -1,14 +1,5 @@
 <template>
-  <div class="app">
-    <div v-if="isLoggedIn">
-      <p>Bienvenue, {{ firstName }} {{ lastName }}</p>
-      <button @click="logout">Déconnexion</button>
-      <HelloWorld msg="Vite + Vue" />
-    </div>
-    <div v-else>
-      <LoginForm />
-      <RegisterForm />
-    </div>
+  <div>
     <Header />
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
@@ -20,8 +11,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import { ref, onMounted } from 'vue';
 import Header from "./components/Header.vue";
 import TheFooter from "./components/TheFooter.vue";
 
