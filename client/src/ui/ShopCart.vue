@@ -5,7 +5,7 @@
         {{ item.title }}
         <div class="right">
           <span> {{ item.quantity }} x {{ item.price }}€ </span>
-          <button v-if="mode=='cart'" @click="removeItem(item.id)">Supprimer</button>
+          <button @click="removeItem(item.id)">Supprimer</button>
         </div>
       </li>
     </transition-group>
@@ -17,7 +17,6 @@
   const props = defineProps({
     cartItems: Array,
     removeItem: Function,
-    mode: String
   });
 
   const getImageUrl = (absolutePath) => {

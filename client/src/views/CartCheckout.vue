@@ -18,17 +18,19 @@
           <label for="saveAddress"
             >Sauvegarder l'adresse pour de futurs achats</label
           >
+          <label for="saveAddress"
+            >si l'adress de facturation = adress livraison</label
+          >
         </div>
         <div class="articles">
           <h3>Mes Articles</h3>
           <ShopCart
             :cartItems="cartItems"
             :removeItem="removeItem"
-            mode="checkout"
           />
           <span>Total: {{ cartTotal }}€</span>
         </div>
-        <button type="submit">Confirmer</button>
+        <button type="submit">Passer au paiement</button>
       </form>
     </div>
   </div>
@@ -130,6 +132,7 @@ const handleSubmit = () => {
         background-color: #41c902;
         color: #fff;
         border: none;
+        width: 200px;
         border-radius: 4px;
         cursor: pointer;
         font-size: 16px;
