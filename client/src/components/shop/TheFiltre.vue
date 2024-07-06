@@ -83,7 +83,7 @@ const props = defineProps({
   },
 });
 
-//###################################################### URL Gestion ########################################################
+// ###################################################### URL Gestion ########################################################
 
 const route = useRoute();
 const router = useRouter();
@@ -106,7 +106,9 @@ const initializeFiltersFromURL = () => {
   }
   if (query.priceRange) {
     const [min, max] = query.priceRange.split("-").map(Number);
-    props.selectedFilters.priceRange = { min, max };
+    if (!isNaN(min) && !isNaN(max)) {
+      props.selectedFilters.priceRange = { min, max };
+    }
   }
   if (query.promotion) {
     props.selectedFilters.promotion = query.promotion === "true";
@@ -157,7 +159,6 @@ const updateURLFromFilters = () => {
   router.push({ query: Object.fromEntries(params.entries()) });
 };
 
-
 // Stockage des valeurs initiales de priceRange
 const initialPriceRange = reactive({ min: 0, max: 0 });
 const isInitialized = ref(false);
@@ -171,11 +172,11 @@ const updateInitialPriceRange = () => {
 
 onMounted(() => {
   updateInitialPriceRange();
-  initializeFiltersFromURL(); // url gestion
+  initializeFiltersFromURL(); // URL gestion
   updateNombreDeFilter();
 });
 
-//watcher pour initialPriceRange
+// Watcher pour initialPriceRange
 watch(
   () => props.selectedFilters.priceRange,
   () => {
@@ -309,6 +310,7 @@ watch(screenWidth, (newWidth) => {
   }
 });
 </script>
+
 
 <style lang="scss" scoped>
 .overlay {

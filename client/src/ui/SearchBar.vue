@@ -45,7 +45,6 @@ const handleSearch = async (text) => {
   shopStore.setSearch(text);
   const query = { ...route.query, title: text || undefined };
   router.push({ query });
-  await shopStore.fetchProducts(route.fullPath);
 };
 
 

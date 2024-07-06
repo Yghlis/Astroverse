@@ -25,14 +25,19 @@ export const useShopStore = defineStore("shop", {
       promotion: false,
     },
     search: "",
+    fetching: false,  // Ajout de l'indicateur fetching
   }),
 
   actions: {
     async fetchProducts(url = null) {
+      if (this.fetching) {
+        return; // Ne lance pas une nouvelle requête si une autre est en cours
+      }
+
       console.log("fetchProducts called with URL:", url);
       this.loading = true;
-      //let apiUrl = url || import.meta.env.VITE_API_URL + "/products";
-      let apiUrl =  import.meta.env.VITE_API_URL + "/products";
+      this.fetching = true; // Marque le début de la requête
+      const apiUrl = url || import.meta.env.VITE_API_URL + "/products";
       console.log("Final API URL:", apiUrl);
 
       this.error = null;
@@ -48,11 +53,17 @@ export const useShopStore = defineStore("shop", {
         this.error = "Failed to fetch products";
       } finally {
         this.loading = false;
+        this.fetching = false; // Marque la fin de la requête
       }
     },
 
     async fetchFilterOptions() {
+      if (this.fetching) {
+        return; // Ne lance pas une nouvelle requête si une autre est en cours
+      }
+
       this.loading = true;
+      this.fetching = true; // Marque le début de la requête
       const apiUrl = import.meta.env.VITE_API_URL;
       this.error = null;
       try {
@@ -78,6 +89,7 @@ export const useShopStore = defineStore("shop", {
         this.error = "Failed to fetch filter options";
       } finally {
         this.loading = false;
+        this.fetching = false; // Marque la fin de la requête
       }
     },
 
@@ -119,10 +131,14 @@ export const useShopStore = defineStore("shop", {
           "priceRange",
           `${filters.priceRange.min}-${filters.priceRange.max}`
         );
+      } else {
+        params.delete("priceRange");
       }
 
       if (filters.promotion) {
         params.set("promotion", "true");
+      } else {
+        params.delete("promotion");
       }
 
       const url = `${apiUrl}?${params.toString()}`;
@@ -170,13 +186,20 @@ export const useShopStore = defineStore("shop", {
   },
 });
 
-// Fonction pour regarder les changements dans selectedFilters
+// Fonction pour regarder les changements dans selectedFilters et search
 export function setupStoreWatchers(store) {
   watch(
     () => store.selectedFilters,
-    (newValue, oldValue) => {
+    () => {
       store.applyFilters();
     },
     { deep: true }
+  );
+
+  watch(
+    () => store.search,
+    () => {
+      store.applyFilters();
+    }
   );
 }
