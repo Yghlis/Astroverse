@@ -78,7 +78,7 @@ const subscribe = () => {
   color: #fff;
   padding: 20px 0;
   text-align: center;
-  margin-top: 100px;
+  margin-top: auto;
   &-content {
     max-width: 1200px;
     margin: 0 auto;

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app">
     <Header />
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
@@ -38,10 +38,10 @@ const logout = () => {
 
 <style lang="scss" scoped>
 .app {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  min-height: 100vh;
   .container {
     margin-top: 100px;
     flex: 1;
