@@ -40,7 +40,7 @@
               v-model="selectedMin"
               :min="rangeMin"
               :max="rangeMax"
-              @input="emitRangeChange"
+              @change="emitRangeChange"
             />
             <span>{{ selectedMin }} €</span>
           </div>
@@ -52,7 +52,7 @@
               v-model="selectedMax"
               :min="rangeMin"
               :max="rangeMax"
-              @input="emitRangeChange"
+              @change="emitRangeChange"
             />
             <span>{{ selectedMax }} €</span>
           </div>
@@ -137,7 +137,9 @@ watch(
     if (newVal > selectedMax.value) {
       selectedMax.value = newVal;
     }
-    emitRangeChange();
+    if (newVal == props.rangeMin) {
+      emitRangeChange();
+    }
   }
 );
 
@@ -147,7 +149,9 @@ watch(
     if (newVal < selectedMin.value) {
       selectedMin.value = newVal;
     }
-    emitRangeChange();
+    if (newVal == props.rangeMax) {
+      emitRangeChange();
+    }
   }
 );
 

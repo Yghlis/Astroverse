@@ -120,13 +120,19 @@ const updateURLFromFilters = () => {
   const params = new URLSearchParams(route.query);
 
   if (filters.characters.length > 0) {
-    params.set("characters", filters.characters.map(encodeURIComponent).join(","));
+    params.set(
+      "characters",
+      filters.characters.map(encodeURIComponent).join(",")
+    );
   } else {
     params.delete("characters");
   }
 
   if (filters.universes.length > 0) {
-    params.set("universes", filters.universes.map(encodeURIComponent).join(","));
+    params.set(
+      "universes",
+      filters.universes.map(encodeURIComponent).join(",")
+    );
   } else {
     params.delete("universes");
   }
@@ -137,8 +143,15 @@ const updateURLFromFilters = () => {
     params.delete("ratings");
   }
 
-  if (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) {
-    params.set("priceRange", `${filters.priceRange.min}-${filters.priceRange.max}`);
+  if (
+    (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) &&
+    (filters.priceRange.min !== initialPriceRange.min ||
+      filters.priceRange.max !== initialPriceRange.max)
+  ) {
+    params.set(
+      "priceRange",
+      `${filters.priceRange.min}-${filters.priceRange.max}`
+    );
   } else {
     params.delete("priceRange");
   }
@@ -310,7 +323,6 @@ watch(screenWidth, (newWidth) => {
   }
 });
 </script>
-
 
 <style lang="scss" scoped>
 .overlay {

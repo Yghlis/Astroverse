@@ -25,15 +25,10 @@ export const useShopStore = defineStore("shop", {
       promotion: false,
     },
     search: "",
-    fetching: false,  // Ajout de l'indicateur fetching
   }),
 
   actions: {
     async fetchProducts(url = null) {
-      if (this.fetching) {
-        return; // Ne lance pas une nouvelle requête si une autre est en cours
-      }
-
       console.log("fetchProducts called with URL:", url);
       this.loading = true;
       this.fetching = true; // Marque le début de la requête
@@ -48,22 +43,18 @@ export const useShopStore = defineStore("shop", {
         }
         const data = await response.json();
         this.products = data;
-        this.updatePriceRange(data);
+        if (!url) {
+          this.updatePriceRange(data);
+        }
       } catch (error) {
         this.error = "Failed to fetch products";
       } finally {
         this.loading = false;
-        this.fetching = false; // Marque la fin de la requête
       }
     },
 
     async fetchFilterOptions() {
-      if (this.fetching) {
-        return; // Ne lance pas une nouvelle requête si une autre est en cours
-      }
-
       this.loading = true;
-      this.fetching = true; // Marque le début de la requête
       const apiUrl = import.meta.env.VITE_API_URL;
       this.error = null;
       try {
@@ -89,16 +80,15 @@ export const useShopStore = defineStore("shop", {
         this.error = "Failed to fetch filter options";
       } finally {
         this.loading = false;
-        this.fetching = false; // Marque la fin de la requête
       }
     },
 
     updatePriceRange(products) {
-      const prices = products.map((product) => product.price);
+      const prices = products.map((product) =>
+        product.is_promotion ? product.discounted_price : product.price
+      );
       this.filters.ranges.price.min = Math.min(...prices);
       this.filters.ranges.price.max = Math.max(...prices);
-      this.selectedFilters.priceRange.min = this.filters.ranges.price.min;
-      this.selectedFilters.priceRange.max = this.filters.ranges.price.max;
     },
 
     updateSelectedFilters(selectedFilters) {
@@ -126,15 +116,14 @@ export const useShopStore = defineStore("shop", {
         params.set("ratings", filters.ratings.join(","));
       }
 
-      if (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) {
-        params.set(
-          "priceRange",
-          `${filters.priceRange.min}-${filters.priceRange.max}`
-        );
+      const { min: selectedMin, max: selectedMax } = filters.priceRange;
+      const { min: defaultMin, max: defaultMax } = this.filters.ranges.price;
+
+      if (selectedMin !== defaultMin || selectedMax !== defaultMax) {
+        params.set("priceRange", `${selectedMin}-${selectedMax}`);
       } else {
         params.delete("priceRange");
       }
-
       if (filters.promotion) {
         params.set("promotion", "true");
       } else {
@@ -179,7 +168,7 @@ export const useShopStore = defineStore("shop", {
       };
       this.search = "";
     },
-    
+
     setSearch(search) {
       this.search = search;
     },
