@@ -13,7 +13,7 @@ export const useProductStore = defineStore("product", {
       const apiUrl = import.meta.env.VITE_API_URL;
       this.error = null;
       try {
-        const response = await fetch(`${apiUrl}/products/${id}?source=client`);
+        const response = await fetch(`${apiUrl}/products/${id}`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -28,3 +28,4 @@ export const useProductStore = defineStore("product", {
     },
   },
 });
+

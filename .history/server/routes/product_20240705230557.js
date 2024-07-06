@@ -17,6 +17,7 @@ const logMulterResult = (req, res, next) => {
 router.post('/', authenticateToken, requireRole('ROLE_ADMIN'), upload.fields([{ name: 'image_preview', maxCount: 1 }, { name: 'image_gallery', maxCount: 4 }]), addProduct);
 
 // Route pour récupérer tous les produits avec filtres (accessible à tous)
+// Route pour récupérer tous les produits avec filtres (accessible à tous)
 router.get('/', async (req, res) => {
   const { title, characters, universes, ratings, priceRange } = req.query || {};
 

@@ -145,11 +145,6 @@ export const addProduct = async (req, res) => {
 export const getProducts = async (filters) => {
   const query = {};
 
-  if (filters.title) {
-    const regex = new RegExp(`^${filters.title}`, 'i'); // i pour insensible à la casse
-    query.title = { $regex: regex };
-  }
-
   if (filters.characters && filters.characters.length > 0) {
     console.log("Applying character filter:", filters.characters);
     query['character.name'] = { $in: filters.characters };

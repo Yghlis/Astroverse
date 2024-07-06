@@ -145,11 +145,6 @@ export const addProduct = async (req, res) => {
 export const getProducts = async (filters) => {
   const query = {};
 
-  if (filters.title) {
-    const regex = new RegExp(`^${filters.title}`, 'i'); // i pour insensible à la casse
-    query.title = { $regex: regex };
-  }
-
   if (filters.characters && filters.characters.length > 0) {
     console.log("Applying character filter:", filters.characters);
     query['character.name'] = { $in: filters.characters };
@@ -191,16 +186,12 @@ export const getProducts = async (filters) => {
   }
 };
 
-export const searchProductsByTitle = async (title) => {
-  try {
-    const regex = new RegExp(`^${title}`, 'i'); // i pour insensible à la casse
-    const products = await ProductMongo.find({ title: { $regex: regex } });
-    return products;
-  } catch (error) {
-    console.error("Error searching products by title:", error);
-    throw error;
-  }
-};
+
+
+
+
+
+
 
 export const getProductById = async (req, res) => {
   const { id } = req.params;
@@ -398,6 +389,8 @@ export const updateProduct = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 
 export const deleteProduct = async (req, res) => {
   const transaction = await sequelize.transaction();

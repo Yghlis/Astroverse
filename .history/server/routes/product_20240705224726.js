@@ -18,7 +18,7 @@ router.post('/', authenticateToken, requireRole('ROLE_ADMIN'), upload.fields([{ 
 
 // Route pour récupérer tous les produits avec filtres (accessible à tous)
 router.get('/', async (req, res) => {
-  const { title, characters, universes, ratings, priceRange } = req.query || {};
+  const { characters, universes, ratings, priceRange } = req.query || {};
 
   const characterArray = characters ? characters.split(',') : [];
   const universeArray = universes ? universes.split(',') : [];
@@ -26,7 +26,6 @@ router.get('/', async (req, res) => {
   const [minPrice, maxPrice] = priceRange ? priceRange.split('-').map(Number) : [0, Infinity];
 
   const filters = {
-    title,
     characters: characterArray,
     universes: universeArray,
     ratings: ratingArray,
@@ -43,7 +42,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // Route pour rechercher des produits par titre (accessible à tous)
 router.get('/search', async (req, res) => {

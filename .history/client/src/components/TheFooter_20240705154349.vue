@@ -40,7 +40,7 @@
 
 <script setup>
 import { ref } from "vue";
-import useFlashMessageStore from "@composables/useFlashMessageStore";
+import useFlashMessageStore from "@stores/useFlashMessageStore";
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();

@@ -1,5 +1,5 @@
 import express from 'express';
-import { addProduct, getProducts, getProductById, updateProduct, deleteProduct, searchProductsByTitle } from '../controllers/product.js';
+import { addProduct, getProducts, getProductById, updateProduct, deleteProduct } from '../controllers/product.js';
 import upload from '../middleware/multer.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 
@@ -18,7 +18,7 @@ router.post('/', authenticateToken, requireRole('ROLE_ADMIN'), upload.fields([{ 
 
 // Route pour récupérer tous les produits avec filtres (accessible à tous)
 router.get('/', async (req, res) => {
-  const { title, characters, universes, ratings, priceRange } = req.query || {};
+  const { characters, universes, ratings, priceRange } = req.query || {};
 
   const characterArray = characters ? characters.split(',') : [];
   const universeArray = universes ? universes.split(',') : [];
@@ -26,7 +26,6 @@ router.get('/', async (req, res) => {
   const [minPrice, maxPrice] = priceRange ? priceRange.split('-').map(Number) : [0, Infinity];
 
   const filters = {
-    title,
     characters: characterArray,
     universes: universeArray,
     ratings: ratingArray,
@@ -40,24 +39,6 @@ router.get('/', async (req, res) => {
     res.json(products);
   } catch (error) {
     console.error("Error fetching products:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-
-// Route pour rechercher des produits par titre (accessible à tous)
-router.get('/search', async (req, res) => {
-  const { title } = req.query;
-
-  if (!title) {
-    return res.status(400).json({ error: 'Title query parameter is required' });
-  }
-
-  try {
-    const products = await searchProductsByTitle(title);
-    res.json(products);
-  } catch (error) {
-    console.error("Error searching products by title:", error);
     res.status(500).json({ error: error.message });
   }
 });
