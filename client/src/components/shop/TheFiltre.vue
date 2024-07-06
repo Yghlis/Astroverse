@@ -42,6 +42,7 @@
             @update:range="handleRangeUpdate"
             :reset-event="resetEvent"
             :rating="option.rating"
+            :selected-values="props.selectedFilters[option.optionName]"
           />
           <button class="reset" @click="resetFilters">
             Réinitialiser les filtres
@@ -54,16 +55,8 @@
 
 <script setup>
 import FilterOption from "./FilterOption.vue";
-import {
-  ref,
-  reactive,
-  onMounted,
-  onUnmounted,
-  watch,
-  watchEffect,
-  nextTick,
-  computed,
-} from "vue";
+import { ref, reactive, onMounted, onUnmounted, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useShopStore } from "../../stores/useShopStore";
 
 const nombreDeProduit = ref(0);
@@ -84,7 +77,100 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  search: {
+    type: String,
+    required: true,
+  },
 });
+
+// ###################################################### URL Gestion ########################################################
+
+const route = useRoute();
+const router = useRouter();
+
+const initializeFiltersFromURL = () => {
+  const query = route.query;
+
+  if (query.characters) {
+    props.selectedFilters.characters = query.characters
+      .split(",")
+      .map(decodeURIComponent);
+  }
+  if (query.universes) {
+    props.selectedFilters.universes = query.universes
+      .split(",")
+      .map(decodeURIComponent);
+  }
+  if (query.ratings) {
+    props.selectedFilters.ratings = query.ratings.split(",").map(Number);
+  }
+  if (query.priceRange) {
+    const [min, max] = query.priceRange.split("-").map(Number);
+    if (!isNaN(min) && !isNaN(max)) {
+      props.selectedFilters.priceRange = { min, max };
+    }
+  }
+  if (query.promotion) {
+    props.selectedFilters.promotion = query.promotion === "true";
+  }
+};
+
+const updateURLFromFilters = () => {
+  const filters = props.selectedFilters;
+  const params = new URLSearchParams(route.query);
+
+  if (filters.characters.length > 0) {
+    params.set(
+      "characters",
+      filters.characters.map(encodeURIComponent).join(",")
+    );
+  } else {
+    params.delete("characters");
+  }
+
+  if (filters.universes.length > 0) {
+    params.set(
+      "universes",
+      filters.universes.map(encodeURIComponent).join(",")
+    );
+  } else {
+    params.delete("universes");
+  }
+
+  if (filters.ratings.length > 0) {
+    params.set("ratings", filters.ratings.join(","));
+  } else {
+    params.delete("ratings");
+  }
+
+  if (
+    (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) &&
+    (filters.priceRange.min !== initialPriceRange.min ||
+      filters.priceRange.max !== initialPriceRange.max)
+  ) {
+    params.set(
+      "priceRange",
+      `${filters.priceRange.min}-${filters.priceRange.max}`
+    );
+  } else {
+    params.delete("priceRange");
+  }
+
+  if (filters.promotion) {
+    params.set("promotion", "true");
+  } else {
+    params.delete("promotion");
+  }
+
+  // If title is present, keep it and add filters
+  if (route.query.title) {
+    params.set("title", route.query.title);
+  } else {
+    params.delete("title");
+  }
+
+  router.push({ query: Object.fromEntries(params.entries()) });
+};
 
 // Stockage des valeurs initiales de priceRange
 const initialPriceRange = reactive({ min: 0, max: 0 });
@@ -99,22 +185,39 @@ const updateInitialPriceRange = () => {
 
 onMounted(() => {
   updateInitialPriceRange();
-  updateNombreDeFilter(); 
+  initializeFiltersFromURL(); // URL gestion
+  updateNombreDeFilter();
 });
 
-//watcher pour initialPriceRange
+// Watcher pour initialPriceRange
 watch(
   () => props.selectedFilters.priceRange,
   () => {
     if (!isInitialized.value) {
       updateInitialPriceRange();
-      updateNombreDeFilter(); 
+      updateNombreDeFilter();
       isInitialized.value = true;
     }
   }
 );
 
+// Watchers pour surveiller les modifications des filtres et mettre à jour l'URL
+watch(
+  () => props.selectedFilters,
+  () => {
+    updateURLFromFilters();
+  },
+  { deep: true }
+);
 
+// Watcher pour surveiller les modifications de l'URL et mettre à jour les filtres
+watch(
+  () => route.query,
+  () => {
+    initializeFiltersFromURL();
+  },
+  { deep: true }
+);
 
 // ################################################################# Filter Logic #################################################################
 
@@ -126,10 +229,11 @@ const updateNombreDeFilter = () => {
   count += props.selectedFilters.ratings.length;
 
   if (
-    props.selectedFilters.priceRange.min !== initialPriceRange.min ||
-    props.selectedFilters.priceRange.max !== initialPriceRange.max
+    (props.selectedFilters.priceRange.min !== initialPriceRange.min ||
+      props.selectedFilters.priceRange.max !== initialPriceRange.max) &&
+    (initialPriceRange.min !== 0 || initialPriceRange.max !== 0)
   ) {
-    count += 1;
+    count++;
   }
 
   if (props.selectedFilters.promotion) {
@@ -138,7 +242,6 @@ const updateNombreDeFilter = () => {
 
   NombreDeFilter.value = count;
 };
-
 
 // Watchers pour surveiller les modifications des filtres
 watch(() => props.selectedFilters.characters, updateNombreDeFilter, {
@@ -168,7 +271,7 @@ const resetFilters = () => {
   props.selectedFilters.universes = [];
   props.selectedFilters.ratings = [];
   props.selectedFilters.priceRange = initialPriceRange;
-  props.selectedFilters.is_promotion = false;
+  props.selectedFilters.promotion = false;
 
   updateNombreDeFilter();
 

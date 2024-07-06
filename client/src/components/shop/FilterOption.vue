@@ -40,7 +40,7 @@
               v-model="selectedMin"
               :min="rangeMin"
               :max="rangeMax"
-              @input="emitRangeChange"
+              @change="emitRangeChange"
             />
             <span>{{ selectedMin }} €</span>
           </div>
@@ -52,7 +52,7 @@
               v-model="selectedMax"
               :min="rangeMin"
               :max="rangeMax"
-              @input="emitRangeChange"
+              @change="emitRangeChange"
             />
             <span>{{ selectedMax }} €</span>
           </div>
@@ -77,6 +77,7 @@ const props = defineProps({
   rangeMin: Number,
   rangeMax: Number,
   resetEvent: Boolean,
+  selectedValues: [Array, Object, Boolean],
 });
 
 const selectedCheckboxes = ref([]);
@@ -136,7 +137,9 @@ watch(
     if (newVal > selectedMax.value) {
       selectedMax.value = newVal;
     }
-    emitRangeChange();
+    if (newVal == props.rangeMin) {
+      emitRangeChange();
+    }
   }
 );
 
@@ -146,9 +149,26 @@ watch(
     if (newVal < selectedMin.value) {
       selectedMin.value = newVal;
     }
-    emitRangeChange();
+    if (newVal == props.rangeMax) {
+      emitRangeChange();
+    }
   }
 );
+
+// Ajoutez ce watcher pour initialiser les valeurs sélectionnées
+watch(
+  () => props.selectedValues,
+  (newVal) => {
+    if (props.optionType === 'checkbox') {
+      selectedCheckboxes.value = newVal || [];
+    } else if (props.optionType === 'range') {
+      selectedMin.value = newVal?.min || props.rangeMin;
+      selectedMax.value = newVal?.max || props.rangeMax;
+    }
+  },
+  { immediate: true }
+);
+
 
 const resetFilters = () => {
   selectedCheckboxes.value = [];

@@ -24,22 +24,28 @@ export const useShopStore = defineStore("shop", {
       priceRange: { min: 0, max: 0 },
       promotion: false,
     },
+    search: "",
   }),
 
   actions: {
-    async fetchProducts() {
+    async fetchProducts(url = null) {
+      console.log("fetchProducts called with URL:", url);
       this.loading = true;
-      const apiUrl = import.meta.env.VITE_API_URL;
+      this.fetching = true; // Marque le début de la requête
+      const apiUrl = url || import.meta.env.VITE_API_URL + "/products";
+      console.log("Final API URL:", apiUrl);
+
       this.error = null;
       try {
-        const response = await fetch(`${apiUrl}/products`);
+        const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
         this.products = data;
-        this.updatePriceRange(data);
-        this.applyFilters();
+        if (!url) {
+          this.updatePriceRange(data);
+        }
       } catch (error) {
         this.error = "Failed to fetch products";
       } finally {
@@ -78,11 +84,11 @@ export const useShopStore = defineStore("shop", {
     },
 
     updatePriceRange(products) {
-      const prices = products.map((product) => product.price);
+      const prices = products.map((product) =>
+        product.is_promotion ? product.discounted_price : product.price
+      );
       this.filters.ranges.price.min = Math.min(...prices);
       this.filters.ranges.price.max = Math.max(...prices);
-      this.selectedFilters.priceRange.min = this.filters.ranges.price.min;
-      this.selectedFilters.priceRange.max = this.filters.ranges.price.max;
     },
 
     updateSelectedFilters(selectedFilters) {
@@ -90,32 +96,46 @@ export const useShopStore = defineStore("shop", {
     },
 
     applyFilters() {
-      const apiUrl = import.meta.env.VITE_API_URL;
+      const apiUrl = import.meta.env.VITE_API_URL + "/products";
       const filters = this.selectedFilters;
-
-      // Construction de l'URL avec les paramètres de filtre
       const params = new URLSearchParams();
 
+      if (this.search) {
+        params.set("title", this.search);
+      }
+
       if (filters.characters.length > 0) {
-        params.append('characters', filters.characters.join(','));
+        params.set("characters", filters.characters.join(","));
       }
+
       if (filters.universes.length > 0) {
-        params.append('universes', filters.universes.join(','));
+        params.set("universes", filters.universes.join(","));
       }
+
       if (filters.ratings.length > 0) {
-        params.append('ratings', filters.ratings.join(','));
+        params.set("ratings", filters.ratings.join(","));
       }
-      if (filters.priceRange.min !== 0 || filters.priceRange.max !== 0) {
-        params.append('priceRange', `${filters.priceRange.min}-${filters.priceRange.max}`);
+
+      const { min: selectedMin, max: selectedMax } = filters.priceRange;
+      const { min: defaultMin, max: defaultMax } = this.filters.ranges.price;
+
+      if (selectedMin !== defaultMin || selectedMax !== defaultMax) {
+        params.set("priceRange", `${selectedMin}-${selectedMax}`);
+      } else {
+        params.delete("priceRange");
       }
       if (filters.promotion) {
-        params.append('promotion', 'true');
+        params.set("promotion", "true");
+      } else {
+        params.delete("promotion");
       }
 
-      const url = `${apiUrl}/products?${params.toString()}`;
+      const url = `${apiUrl}?${params.toString()}`;
 
-      console.log(url); // Pour tester l'URL construite
+      console.log("Filter URL:", url);
 
+      // Appel à fetchProducts avec l'URL filtrée
+      this.fetchProducts(url);
     },
 
     resetState() {
@@ -146,18 +166,29 @@ export const useShopStore = defineStore("shop", {
         priceRange: { min: 0, max: 0 },
         promotion: false,
       };
+      this.search = "";
+    },
+
+    setSearch(search) {
+      this.search = search;
     },
   },
 });
 
-
-// Fonction pour regarder les changements dans selectedFilters
+// Fonction pour regarder les changements dans selectedFilters et search
 export function setupStoreWatchers(store) {
   watch(
     () => store.selectedFilters,
-    (newValue, oldValue) => {
+    () => {
       store.applyFilters();
     },
     { deep: true }
+  );
+
+  watch(
+    () => store.search,
+    () => {
+      store.applyFilters();
+    }
   );
 }

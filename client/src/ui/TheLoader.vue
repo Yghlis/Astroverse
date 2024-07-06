@@ -19,11 +19,19 @@
     justify-content: center;
     align-items: center;
     height: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
   }
   
   .material-symbols-outlined {
     font-size: 48px;
     animation: spin 1s linear infinite;
+    background-color: white;
+    padding: 20px;
+    border-radius: 50%;
   }
   
   @keyframes spin {

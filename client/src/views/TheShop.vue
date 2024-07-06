@@ -1,17 +1,22 @@
 <template>
   <div class="container-shop">
     <div class="banner"></div>
-    <SearchBar :searchText="searchText" @update:search="handleSearch" />
+    <SearchBar />
     <!-- <h1>{{ searchText }}</h1> -->
     <div class="sub_container">
       <TheLoader v-if="loading" :loading="loading"> </TheLoader>
       <div v-if="error">{{ error }}</div>
-      <TheFiltre
-        v-show="!loading && !error"
-        :filter-options="filterOptions"
-        :selected-filters="selectedFilters"
-      />
-      <product-list v-show="!loading && !error" :products="products" />
+      <transition name="fade">
+        <TheFiltre
+          v-show="!loading && !error"
+          :filter-options="filterOptions"
+          :selected-filters="selectedFilters"
+          :search="search"
+        />
+      </transition>
+      <transition name="fade">
+        <product-list v-show="!loading && !error" :products="products" />
+      </transition>
     </div>
   </div>
 </template>
@@ -24,12 +29,6 @@ import SearchBar from "../ui/SearchBar.vue";
 import { useShopStore } from "../stores/useShopStore";
 import TheLoader from "../ui/TheLoader.vue";
 
-const searchText = ref("");
-
-const handleSearch = (text) => {
-  searchText.value = text;
-};
-
 //################################################# API CALL #################################################
 
 const shopStore = useShopStore();
@@ -38,6 +37,7 @@ const products = computed(() => shopStore.products);
 const loading = computed(() => shopStore.loading);
 const error = computed(() => shopStore.error);
 const selectedFilters = computed(() => shopStore.selectedFilters);
+const search = computed(() => shopStore.search);
 
 const filterOptions = computed(() => {
   const options = [];
@@ -108,5 +108,13 @@ onBeforeUnmount(() => {
     justify-content: space-between;
     align-items: flex-start;
   }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 1s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
 }
 </style>

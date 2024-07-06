@@ -100,3 +100,9 @@ export default {
 }
 </script>
 
+
+<style type="scss" scoped >
+div {
+  margin-top: 100px;
+} 
+</style>
