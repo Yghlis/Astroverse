@@ -3,7 +3,7 @@ import User from '../models/user.js';
 
 export async function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = authHeader && authHeader.split(' ')[1]; 
     if (token == null) {
         console.log('Token not present');
         return res.sendStatus(401); // Token non présent
@@ -16,9 +16,6 @@ export async function authenticateToken(req, res, next) {
         }
         console.log('User authenticated:', user);
         req.user = user;
-
-        // Ajout de logs pour vérifier le contenu de req.user
-        console.log('User object in request:', req.user);
 
         // Vérification des 60 jours pour le changement de mot de passe
         try {

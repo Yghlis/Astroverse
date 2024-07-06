@@ -35,7 +35,6 @@ app.use('/universes', universeRoutes);
 app.use('/characters', characterRoutes);
 app.use('/users', userRoutes); 
 app.use('/uploads', express.static('uploads'));
-app.use('/favorites', favoriteRoutes); 
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {

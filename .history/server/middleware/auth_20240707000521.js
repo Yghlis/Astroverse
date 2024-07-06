@@ -44,18 +44,3 @@ export async function authenticateToken(req, res, next) {
         }
     });
 }
-
-export function requireRole(role) {
-    return (req, res, next) => {
-        console.log('Checking role for user:', req.user);
-        if (!req.user || !req.user.role) {
-            console.log('Role not present on user object');
-            return res.status(403).json({ message: 'Accès refusé: Vous n\'avez pas les autorisations nécessaires.' });
-        }
-        if (req.user.role !== role) {
-            console.log('Access denied: insufficient permissions');
-            return res.status(403).json({ message: 'Accès refusé: Vous n\'avez pas les autorisations nécessaires.' });
-        }
-        next();
-    };
-}
