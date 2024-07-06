@@ -1,0 +1,24 @@
+{
+    "development": {
+      "username": "postgres",
+      "password": "example",
+      "database": "astroverse",
+      "host": "postgres",
+      "dialect": "postgres"
+    },
+    "test": {
+      "username": "postgres",
+      "password": "example",
+      "database": "astroverse_test",
+      "host": "postgres",
+      "dialect": "postgres"
+    },
+    "production": {
+      "username": "postgres",
+      "password": "example",
+      "database": "astroverse",
+      "host": "postgres",
+      "dialect": "postgres"
+    }
+  }
+  
