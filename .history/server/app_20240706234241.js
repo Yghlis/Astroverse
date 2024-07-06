@@ -13,7 +13,7 @@ import productRoutes from './routes/product.js';
 import universeRoutes from './routes/universe.js';
 import characterRoutes from './routes/character.js';
 import userRoutes from './routes/user.js'; 
-import favoriteRoutes from './routes/favorites.js'; 
+import favoriteRoutes from './routes/favorites.js'; /
 
 dotenv.config();
 
@@ -35,7 +35,6 @@ app.use('/universes', universeRoutes);
 app.use('/characters', characterRoutes);
 app.use('/users', userRoutes); 
 app.use('/uploads', express.static('uploads'));
-app.use('/favorites', favoriteRoutes); 
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {
