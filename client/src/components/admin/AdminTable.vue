@@ -578,15 +578,25 @@ const closeConsultModal = () => {
     margin: 20px 0;
     font-size: 16px;
     text-align: left;
-    border: 1px solid #dee2e6;
+    border: 1px solid #e5e8ed;
+    border-radius: 5px;
     thead {
-      background-color: #f8f9fa;
+      background-color: #f9fafc;
+      border-radius: 5px;
       th {
-        padding: 12px 15px;
-        border-bottom: 2px solid #dee2e6;
+        padding: 13px 15px;
+        color: #697387;
+        border-bottom: 2px solid #e5e8ed;
         cursor: pointer;
         &:first-child {
           width: 50px;
+        }
+        input {
+          cursor: pointer;
+          color: #e5e8ed;
+          border-radius: 5px;
+          height: 20px;
+          width: 20px;
         }
       }
     }
