@@ -80,7 +80,9 @@
             :getItemPrice="getItemPrice"
             :removeItem="removeItem"
           />
-          <span>Total: {{ cartTotal }}€</span>
+          <span>Total: {{ cartTotal }}€ /HT</span>
+          <span>TVA 20%</span>
+          <span>Total: {{ cartTotal * 1.2 }}€ /TTC</span>
         </div>
         <button @click="handleSubmit">Passer au paiement</button>
       </form>
@@ -173,9 +175,12 @@ const handleSubmit = () => {
   console.log("Adresse de livraison complète:", fullAddress);
   console.log("Sauvegarder l'adresse:", saveAddressForLater.value);
   console.log("Adresse de facturation:", addressForPayment);
+  console.log("panier:", cartItems.value);
+  console.log("TotalPrice avec tax:", cartTotal.value * 1.2);
+  console.log("User From localStorage", localStorage.getItem("userId"));
+
   // Ajoutez ici la logique pour traiter l'adresse de livraison et la sauvegarde de l'adresse
 };
-
 </script>
 
 <style scoped lang="scss">
