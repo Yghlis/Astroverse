@@ -26,18 +26,11 @@
     <div class="right">
       <div class="right-content">
         <span
-          @click="toggleNotification"
+          @click="handleNotification"
           class="material-symbols-outlined notification"
           :class="{ active: notification }"
         >
           notifications_active
-        </span>
-        <span
-          @click="toggleFavorite"
-          class="material-symbols-outlined favorite"
-          :class="{ active: isFavorite }"
-        >
-          favorite
         </span>
         <h2>{{ product.title }}</h2>
         <div class="rating">
@@ -47,7 +40,10 @@
         </div>
         <div class="call-to-action">
           <span class="price" :class="{ promotion: product.is_promotion }">
-            {{ product.is_promotion ? product.discounted_price : product.price }} €
+            {{
+              product.is_promotion ? product.discounted_price : product.price
+            }}
+            €
           </span>
           <button @click="addToCart">Ajouter au panier</button>
         </div>
@@ -63,12 +59,17 @@
         <div class="details">
           <h3>Caractéristiques:</h3>
           <div class="content">
-            <span>Marque: {{ product.brand }}</span>
-            <span v-for="(value, key) in parsedDetails" :key="key">{{ capitalizeFirstLetter(key) }}: {{ value }}</span>
+            <span>Marque: {{ product.brand}}</span
+            >
+            <span v-for="(value, key) in parsedDetails" :key="key"
+              >{{ capitalizeFirstLetter(key) }}: {{ value }}</span
+            > 
           </div>
         </div>
         <div class="tags">
-          <span v-for="value in product.tags">{{ value }}</span>
+          <span v-for="value in product.tags">
+            {{ value }}
+          </span>
         </div>
       </div>
     </div>
@@ -76,11 +77,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useCartStore } from "../stores/cartStore";
 import { useProductStore } from "../stores/useProductStore";
-
 import ZoomImg from "../ui/ZoomImg.vue";
 import TheLoader from "../ui/TheLoader.vue";
 
@@ -92,10 +92,11 @@ const notification = ref(false);
 const product = computed(() => productStore.product);
 const loading = computed(() => productStore.loading);
 const error = computed(() => productStore.error);
-const isFavorite = computed(() => productStore.isFavorite);
 const parsedDetails = computed(() => {
   try {
-    return product.value && product.value.details ? JSON.parse(product.value.details) : {};
+    return product.value && product.value.details
+      ? JSON.parse(product.value.details)
+      : {};
   } catch (e) {
     console.error("Invalid JSON:", e);
     return {};
@@ -105,6 +106,7 @@ const parsedDetails = computed(() => {
 onMounted(async () => {
   const productId = route.params.id;
   await productStore.fetchProduct(productId);
+
   activeImage.value = product.value.image_gallery[0];
 });
 
@@ -117,54 +119,42 @@ const capitalizeFirstLetter = (string) => {
 
 const discountPercentage = computed(() => {
   if (product.value && product.value.is_promotion && product.value.discounted_price) {
-    return Math.round(((product.value.price - product.value.discounted_price) / product.value.price) * 100);
+    return Math.round(
+      ((product.value.price - product.value.discounted_price) / product.value.price) * 100
+    );
   }
   return 0;
 });
 
-const toggleNotification = async () => {
+const handleNotification = () => {
   notification.value = !notification.value;
-  const userId = localStorage.getItem("userId"); 
-  const productId = route.params.id;
-  console.log("User ID:", userId); 
-  console.log("Product ID:", productId); 
-
-  if (notification.value) {
-    await productStore.followProduct(userId, productId);
-  } else {
-    await productStore.unfollowProduct(userId, productId);
-  }
-};
-
-const toggleFavorite = async () => {
-  const productId = route.params.id;
-  if (isFavorite.value) {
-    await productStore.removeFavorite(productId);
-  } else {
-    await productStore.addFavorite(productId);
-  }
 };
 
 const getImageUrl = (absolutePath) => {
+  // Extraire la partie relative du chemin absolu
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
   return `${apiUrl}/uploads/${relativePath}`;
 };
 
+//STORE PANIER ICI
 const cartStore = useCartStore();
 const addToCart = () => {
   cartStore.addItemToCart(product.value);
 };
+
 </script>
 
 <style lang="scss" scoped>
 .item-container {
   width: 100%;
+  //background-color: blue;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   flex-wrap: wrap;
   .left {
+    // background-color: #f2a45a;
     width: 700px;
     display: flex;
     flex-direction: column;
@@ -201,28 +191,6 @@ const addToCart = () => {
       }
     }
   }
-  .favorite {
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    right: 100px;
-    color: #bebebe;
-    transition: all 0.3s ease;
-    &:hover {
-      color: red;
-      transform: scale(1.2);
-      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
-    }
-    &:active {
-      transform: scale(1.2);
-      color: red;
-      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
-    }
-    &.active {
-      color: red;
-      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
-    }
-  }
   .right {
     width: 30%;
     min-width: 390px;
@@ -231,6 +199,7 @@ const addToCart = () => {
     .right-content {
       width: 30%;
       min-width: 390px;
+      min-height: 547px;
       max-height: 70vh;
       overflow-y: auto;
       position: absolute;
@@ -241,7 +210,8 @@ const addToCart = () => {
       align-items: flex-start;
       padding: 20px;
       border: 1px solid #e2e2e2;
-      box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
+        rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
       h2 {
         font-size: 20px;
         margin: 0;

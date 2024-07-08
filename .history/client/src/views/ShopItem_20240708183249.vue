@@ -126,8 +126,8 @@ const toggleNotification = async () => {
   notification.value = !notification.value;
   const userId = localStorage.getItem("userId"); 
   const productId = route.params.id;
-  console.log("User ID:", userId); 
-  console.log("Product ID:", productId); 
+  console.log("User ID:", userId); // Log userId
+  console.log("Product ID:", productId); // Log productId
 
   if (notification.value) {
     await productStore.followProduct(userId, productId);

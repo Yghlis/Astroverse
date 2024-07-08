@@ -32,13 +32,6 @@
         >
           notifications_active
         </span>
-        <span
-          @click="toggleFavorite"
-          class="material-symbols-outlined favorite"
-          :class="{ active: isFavorite }"
-        >
-          favorite
-        </span>
         <h2>{{ product.title }}</h2>
         <div class="rating">
           <span v-for="(star, index) in 5" :key="index" class="star">
@@ -92,7 +85,6 @@ const notification = ref(false);
 const product = computed(() => productStore.product);
 const loading = computed(() => productStore.loading);
 const error = computed(() => productStore.error);
-const isFavorite = computed(() => productStore.isFavorite);
 const parsedDetails = computed(() => {
   try {
     return product.value && product.value.details ? JSON.parse(product.value.details) : {};
@@ -123,25 +115,16 @@ const discountPercentage = computed(() => {
 });
 
 const toggleNotification = async () => {
+    console.log("User ID:", userId); // Log userId
+  console.log("Product ID:", productId); // Log productId
   notification.value = !notification.value;
-  const userId = localStorage.getItem("userId"); 
+  const userId = localStorage.getItem("userId"); // Assuming the user ID is stored in local storage
   const productId = route.params.id;
-  console.log("User ID:", userId); 
-  console.log("Product ID:", productId); 
 
   if (notification.value) {
     await productStore.followProduct(userId, productId);
   } else {
     await productStore.unfollowProduct(userId, productId);
-  }
-};
-
-const toggleFavorite = async () => {
-  const productId = route.params.id;
-  if (isFavorite.value) {
-    await productStore.removeFavorite(productId);
-  } else {
-    await productStore.addFavorite(productId);
   }
 };
 
@@ -199,28 +182,6 @@ const addToCart = () => {
           border: 1px solid #f2a45a;
         }
       }
-    }
-  }
-  .favorite {
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    right: 100px;
-    color: #bebebe;
-    transition: all 0.3s ease;
-    &:hover {
-      color: red;
-      transform: scale(1.2);
-      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
-    }
-    &:active {
-      transform: scale(1.2);
-      color: red;
-      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
-    }
-    &.active {
-      color: red;
-      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
     }
   }
   .right {

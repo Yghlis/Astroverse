@@ -1,5 +1,5 @@
 import express from 'express';
-import { followProduct, followUniverse, unfollowProduct, unfollowUniverse, getFollowedProducts } from '../controllers/follow.js';
+import { followProduct, followUniverse, unfollowProduct, unfollowUniverse } from '../controllers/follow.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();

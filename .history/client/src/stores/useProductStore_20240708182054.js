@@ -6,7 +6,7 @@ export const useProductStore = defineStore("product", {
     product: null,
     loading: false,
     error: null,
-    isFavorite: false,
+    isFavorite: false, // Ajouter l'état pour le favori
   }),
 
   actions: {
@@ -21,10 +21,9 @@ export const useProductStore = defineStore("product", {
         }
         const data = await response.json();
         this.product = data;
-        console.log(data);
-
-        // Check if the product is favorite
+        // Vérifier si le produit est déjà en favori
         await this.checkIfFavorite(id);
+        console.log(data);
       } catch (error) {
         this.error = "Failed to fetch product";
       } finally {
@@ -159,18 +158,27 @@ export const useProductStore = defineStore("product", {
       const token = localStorage.getItem("jwt");
       if (!token) {
         console.error("Token not present");
+        this.isFavorite = false;
         return;
       }
       try {
         const response = await fetch(`${apiUrl}/favorites`, {
+          method: "GET",
           headers: {
+            "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
           },
         });
-        const favorites = await response.json();
-        this.isFavorite = favorites.some(fav => fav.productId === productId);
+        const data = await response.json();
+        if (response.ok) {
+          this.isFavorite = data.some((favorite) => favorite.productId === productId);
+        } else {
+          console.error("Error checking favorites:", data);
+          this.isFavorite = false;
+        }
       } catch (error) {
         console.error("Fetch error:", error.message);
+        this.isFavorite = false;
       }
     },
   },
