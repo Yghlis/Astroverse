@@ -3,8 +3,10 @@
     <h2>Mon Panier</h2>
     <ShopCart
       :cartItems="cartItems"
+      :incrementItemQuantity="incrementItemQuantity"
+      :decrementItemQuantity="decrementItemQuantity"
+      :getItemPrice="getItemPrice"
       :removeItem="removeItem"
-      mode="cart"
     />
     <p>Total: {{ cartTotal }}€</p>
     <RouterLink @click="toggle" to="/cart-checkout" class="call-to-action"
@@ -22,7 +24,15 @@ const cartStore = useCartStore();
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
-
+const incrementItemQuantity = (itemId) => {
+  cartStore.incrementItemQuantity(itemId);
+};
+const decrementItemQuantity = (itemId) => {
+  cartStore.decrementItemQuantity(itemId);
+};
+const getItemPrice = (item) => {
+  return cartStore.getItemPrice(item);
+};
 
 const removeItem = (itemId) => {
   cartStore.removeItemFromCart(itemId);
@@ -37,7 +47,7 @@ const toggle = () => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 h2 {
   text-align: center;
   font-size: 2rem;

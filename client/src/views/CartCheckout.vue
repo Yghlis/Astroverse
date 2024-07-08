@@ -2,7 +2,7 @@
   <div class="checkout">
     <div class="checkout-content">
       <h2>Finalisation de la commande</h2>
-      <form @submit.prevent="handleSubmit">
+      <form @submit.prevent="">
         <div class="address-section">
           <label for="address">Adresse de livraison</label>
           <input
@@ -73,10 +73,16 @@
         </div>
         <div class="articles">
           <h3>Mes Articles</h3>
-          <ShopCart :cartItems="cartItems" :removeItem="removeItem" />
+          <ShopCart
+            :cartItems="cartItems"
+            :incrementItemQuantity="incrementItemQuantity"
+            :decrementItemQuantity="decrementItemQuantity"
+            :getItemPrice="getItemPrice"
+            :removeItem="removeItem"
+          />
           <span>Total: {{ cartTotal }}€</span>
         </div>
-        <button type="submit">Passer au paiement</button>
+        <button @click="handleSubmit">Passer au paiement</button>
       </form>
     </div>
   </div>
@@ -92,6 +98,19 @@ const cartStore = useCartStore();
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
+const incrementItemQuantity = (itemId) => {
+  cartStore.incrementItemQuantity(itemId);
+};
+const decrementItemQuantity = (itemId) => {
+  cartStore.decrementItemQuantity(itemId);
+};
+const getItemPrice = (item) => {
+  return cartStore.getItemPrice(item);
+};
+
+const removeItem = (itemId) => {
+  cartStore.removeItemFromCart(itemId);
+};
 
 const address = ref("");
 const fullAddress = reactive({});
@@ -135,7 +154,9 @@ const handleInput = () => {
 
 const selectSuggestion = (suggestion) => {
   address.value = suggestion.formatted;
-  Object.assign(fullAddress, suggestion, { saveForLater: saveAddressForLater.value });
+  Object.assign(fullAddress, suggestion, {
+    saveForLater: saveAddressForLater.value,
+  });
   suggestions.value = [];
 };
 
@@ -154,6 +175,7 @@ const handleSubmit = () => {
   console.log("Adresse de facturation:", addressForPayment);
   // Ajoutez ici la logique pour traiter l'adresse de livraison et la sauvegarde de l'adresse
 };
+
 </script>
 
 <style scoped lang="scss">
