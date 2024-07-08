@@ -9,6 +9,7 @@ import Product from './models/Product.js';
 import Universe from './models/Universe.js';
 import User from './models/user.js'; 
 import Character from './models/Character.js';
+import Follow from './models/Follow.js'; // Importez le modèle Follow
 import productRoutes from './routes/product.js';
 import universeRoutes from './routes/universe.js';
 import characterRoutes from './routes/character.js';
@@ -16,6 +17,7 @@ import userRoutes from './routes/user.js';
 import favoriteRoutes from './routes/favorites.js'; 
 import newsletterRoutes from './routes/newsletter.js';
 import geocodeRoutes from './routes/geocode.js';
+import followRoutes from './routes/follow.js';
 
 dotenv.config();
 
@@ -40,7 +42,7 @@ app.use('/geocode', geocodeRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/favorites', favoriteRoutes);
 app.use('/newsletter', newsletterRoutes); 
- 
+app.use('/follow', followRoutes);
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {
@@ -57,15 +59,22 @@ mongoose.connect(process.env.DB_URI)
     console.error('Error connecting to MongoDB', err);
   });
 
+// Définir les associations après l'importation des modèles
+User.hasMany(Follow, { foreignKey: 'userId' });
+Follow.belongsTo(User, { foreignKey: 'userId' });
+
+Product.hasMany(Follow, { foreignKey: 'productId' });
+Follow.belongsTo(Product, { foreignKey: 'productId' });
+
+Universe.hasMany(Follow, { foreignKey: 'universeId' });
+Follow.belongsTo(Universe, { foreignKey: 'universeId' });
+
 // Connexion à PostgreSQL et synchronisation des modèles
 sequelize.authenticate()
   .then(() => {
     console.log('Connected to PostgreSQL');
 
-    return Universe.sync({ alter: true })
-      .then(() => Character.sync({ alter: true }))
-      .then(() => Product.sync({ alter: true }))
-      .then(() => User.sync({ alter: true }));
+    return sequelize.sync({ alter: true }); // Synchroniser tous les modèles avec la base de données
   })
   .then(() => {
     app.listen(port, () => {
