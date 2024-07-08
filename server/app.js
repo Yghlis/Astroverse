@@ -13,6 +13,7 @@ import productRoutes from './routes/product.js';
 import universeRoutes from './routes/universe.js';
 import characterRoutes from './routes/character.js';
 import userRoutes from './routes/user.js'; 
+import geocodeRoutes from './routes/geocode.js';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use('/products', productRoutes);
 app.use('/universes', universeRoutes);
 app.use('/characters', characterRoutes);
 app.use('/users', userRoutes); 
+app.use('/geocode', geocodeRoutes);
 app.use('/uploads', express.static('uploads'));
 
 // Middleware de gestion des erreurs

@@ -9,7 +9,7 @@
             v-model="address"
             type="text"
             id="address"
-            placeholder="API LA POSTE ICI"
+            placeholder="Entrez votre adresse"
             required
           />
         </div>
@@ -37,22 +37,32 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useCartStore } from "../stores/cartStore";
-import ShopCart from "../ui/ShopCart.vue";
+import { ref, computed } from 'vue';
+import { useCartStore } from '../stores/cartStore';
+import ShopCart from '../ui/ShopCart.vue';
+import axios from 'axios';
 
 const cartStore = useCartStore();
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
 
-const address = ref("");
+const address = ref('');
 const saveAddress = ref(false);
 
-const handleSubmit = () => {
-  console.log("Adresse de livraison:", address.value);
-  console.log("Sauvegarder l'adresse:", saveAddress.value);
-  // Ajoutez ici la logique pour traiter l'adresse de livraison et la sauvegarde de l'adresse
+const handleSubmit = async () => {
+  console.log('Adresse de livraison:', address.value);
+  console.log('Sauvegarder l\'adresse:', saveAddress.value);
+
+  try {
+    const response = await axios.get(`http://localhost:8000/geocode`, {
+      params: { address: address.value },
+    });
+    console.log('Geocoded data:', response.data);
+    // Process the geocoded data as needed
+  } catch (error) {
+    console.error('Error fetching geocoded data:', error);
+  }
 };
 </script>
 
@@ -88,7 +98,7 @@ const handleSubmit = () => {
           font-size: 20px;
         }
 
-        input[type="text"] {
+        input[type='text'] {
           padding: 10px;
           border: 1px solid #ccc;
           border-radius: 5px;
@@ -101,7 +111,7 @@ const handleSubmit = () => {
         align-items: center;
         gap: 10px;
 
-        input[type="checkbox"] {
+        input[type='checkbox'] {
           width: 20px;
           height: 20px;
         }
