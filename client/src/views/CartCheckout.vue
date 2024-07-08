@@ -7,27 +7,73 @@
           <label for="address">Adresse de livraison</label>
           <input
             v-model="address"
+            @input="handleInput"
             type="text"
             id="address"
             placeholder="Entrez votre adresse"
             required
           />
+          <ul v-if="suggestions.length">
+            <TheLoader v-if="loading" :loading="loading"></TheLoader>
+            <li
+              v-else
+              v-for="suggestion in suggestions"
+              :key="suggestion.place_id"
+              @click="selectSuggestion(suggestion)"
+            >
+              {{ suggestion.formatted }}
+            </li>
+          </ul>
         </div>
         <div class="save-address">
-          <input v-model="saveAddress" type="checkbox" id="saveAddress" />
-          <label for="saveAddress"
+          <input
+            v-model="saveAddressForLater"
+            type="checkbox"
+            id="saveAddressForLater"
+          />
+          <label for="saveAddressForLater"
             >Sauvegarder l'adresse pour de futurs achats</label
           >
-          <label for="saveAddress"
-            >si l'adress de facturation = adress livraison</label
+        </div>
+        <div class="save-address">
+          <input
+            v-model="sameAddressForPayment"
+            type="checkbox"
+            id="sameAddressForPayment"
+          />
+          <label for="sameAddressForPayment"
+            >si l'adresse de facturation = adresse de livraison</label
           >
+        </div>
+        <div v-if="!sameAddressForPayment" class="payment-address">
+          <label for="street">Rue</label>
+          <input
+            v-model="street"
+            type="text"
+            id="street"
+            placeholder="Entrez votre rue"
+            required
+          />
+          <label for="city">Ville</label>
+          <input
+            v-model="city"
+            type="text"
+            id="city"
+            placeholder="Entrez votre ville"
+            required
+          />
+          <label for="postal_code">Code Postal</label>
+          <input
+            v-model="postalCode"
+            type="number"
+            id="postal_code"
+            placeholder="Entrez votre code postal"
+            required
+          />
         </div>
         <div class="articles">
           <h3>Mes Articles</h3>
-          <ShopCart
-            :cartItems="cartItems"
-            :removeItem="removeItem"
-          />
+          <ShopCart :cartItems="cartItems" :removeItem="removeItem" />
           <span>Total: {{ cartTotal }}€</span>
         </div>
         <button type="submit">Passer au paiement</button>
@@ -37,32 +83,76 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useCartStore } from '../stores/cartStore';
-import ShopCart from '../ui/ShopCart.vue';
-import axios from 'axios';
+import { ref, computed, reactive } from "vue";
+import { useCartStore } from "../stores/cartStore";
+import ShopCart from "../ui/ShopCart.vue";
+import TheLoader from "../ui/TheLoader.vue";
 
 const cartStore = useCartStore();
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
 
-const address = ref('');
-const saveAddress = ref(false);
+const address = ref("");
+const fullAddress = reactive({});
+const saveAddressForLater = ref(false);
+const sameAddressForPayment = ref(true);
+const addressForPayment = reactive({});
+const city = ref("");
+const street = ref("");
+const postalCode = ref("");
+const suggestions = ref([]);
+const loading = ref(false);
+let debounceTimeout = null;
 
-const handleSubmit = async () => {
-  console.log('Adresse de livraison:', address.value);
-  console.log('Sauvegarder l\'adresse:', saveAddress.value);
-
+const fetchSuggestions = async (query) => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  loading.value = true;
   try {
-    const response = await axios.get(`http://localhost:8000/geocode`, {
-      params: { address: address.value },
-    });
-    console.log('Geocoded data:', response.data);
-    // Process the geocoded data as needed
+    const response = await fetch(
+      `${apiUrl}/geocode?address=${encodeURIComponent(query)}`
+    );
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    suggestions.value = data.results;
+    loading.value = false;
   } catch (error) {
-    console.error('Error fetching geocoded data:', error);
+    console.error("Error fetching geocoded data:", error);
+    loading.value = false;
   }
+};
+
+const handleInput = () => {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    if (address.value.trim()) {
+      fetchSuggestions(address.value);
+    }
+  }, 300);
+};
+
+const selectSuggestion = (suggestion) => {
+  address.value = suggestion.formatted;
+  Object.assign(fullAddress, suggestion, { saveForLater: saveAddressForLater.value });
+  suggestions.value = [];
+};
+
+const handleSubmit = () => {
+  if (sameAddressForPayment.value == true) {
+    Object.assign(addressForPayment, fullAddress);
+  } else {
+    addressForPayment.city = city.value;
+    addressForPayment.street = street.value;
+    addressForPayment.postal_code = postalCode.value;
+    addressForPayment.country = "France";
+  }
+  console.log("Adresse de livraison courte:", address.value);
+  console.log("Adresse de livraison complète:", fullAddress);
+  console.log("Sauvegarder l'adresse:", saveAddressForLater.value);
+  console.log("Adresse de facturation:", addressForPayment);
+  // Ajoutez ici la logique pour traiter l'adresse de livraison et la sauvegarde de l'adresse
 };
 </script>
 
@@ -98,22 +188,57 @@ const handleSubmit = async () => {
           font-size: 20px;
         }
 
-        input[type='text'] {
+        input[type="text"] {
           padding: 10px;
           border: 1px solid #ccc;
           border-radius: 5px;
           font-size: 16px;
         }
+
+        ul {
+          margin-top: 10px;
+          padding: 0;
+          list-style: none;
+
+          li {
+            background: #fff;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            cursor: pointer;
+          }
+        }
       }
 
       .save-address {
         display: flex;
+        justify-content: flex-start;
         align-items: center;
         gap: 10px;
 
-        input[type='checkbox'] {
+        input[type="checkbox"] {
           width: 20px;
           height: 20px;
+          cursor: pointer;
+        }
+      }
+
+      .payment-address {
+        display: flex;
+        flex-direction: column;
+
+        label {
+          margin: 5px 0;
+          font-weight: bold;
+          font-size: 16px;
+        }
+
+        input {
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 16px;
         }
       }
 
