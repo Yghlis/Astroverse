@@ -15,6 +15,7 @@ import characterRoutes from './routes/character.js';
 import userRoutes from './routes/user.js'; 
 import favoriteRoutes from './routes/favorites.js'; 
 import newsletterRoutes from './routes/newsletter.js';
+import geocodeRoutes from './routes/geocode.js';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use('/products', productRoutes);
 app.use('/universes', universeRoutes);
 app.use('/characters', characterRoutes);
 app.use('/users', userRoutes); 
+app.use('/geocode', geocodeRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/favorites', favoriteRoutes);
 app.use('/newsletter', newsletterRoutes); 
