@@ -198,7 +198,7 @@ const handleRowDeleted = (id) => {
 
   .admin-content {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     transition: all 0.3s ease;
     &.active {
       width: calc(100% - 250px);

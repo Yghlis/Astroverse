@@ -493,7 +493,7 @@ const closeConsultModal = () => {
   p {
     margin-top: 0px;
     margin-bottom: 20px;
-    font-size: 24px;
+    font-size: 26px;
     padding-left: 1px;
   }
   .table-controls {
