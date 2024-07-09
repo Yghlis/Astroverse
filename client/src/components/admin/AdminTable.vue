@@ -137,9 +137,6 @@
       :width="'90%'"
       :height="'auto'"
     >
-      <template #header>
-        <h3>Créer</h3>
-      </template>
     </ModalCreate>
 
     <ModalConsult
