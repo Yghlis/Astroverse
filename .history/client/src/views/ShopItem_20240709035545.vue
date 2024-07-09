@@ -80,7 +80,7 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useCartStore } from "../stores/cartStore";
 import { useProductStore } from "../stores/useProductStore";
-import useFlashMessageStore from '@composables/useFlashMessageStore';
+import useFlashMessageStore from '../composables/useFlashMessageStore';
 
 import ZoomImg from "../ui/ZoomImg.vue";
 import TheLoader from "../ui/TheLoader.vue";

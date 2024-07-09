@@ -80,7 +80,6 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useCartStore } from "../stores/cartStore";
 import { useProductStore } from "../stores/useProductStore";
-import useFlashMessageStore from '@composables/useFlashMessageStore';
 
 import ZoomImg from "../ui/ZoomImg.vue";
 import TheLoader from "../ui/TheLoader.vue";
@@ -102,8 +101,6 @@ const parsedDetails = computed(() => {
     return {};
   }
 });
-
-const { setFlashMessage } = useFlashMessageStore();
 
 onMounted(async () => {
   const productId = route.params.id;
@@ -155,21 +152,8 @@ const getImageUrl = (absolutePath) => {
 };
 
 const cartStore = useCartStore();
-const addToCart = async () => {
-  const existingItem = cartStore.cartItems.find(item => item.id === product.value.id);
-  const quantityInCart = existingItem ? existingItem.quantity : 0;
-  const totalQuantity = quantityInCart + 1;
-
-  // Fetch the product details to check the stock
-  const response = await fetch(`http://localhost:8000/products/${product.value.id}`);
-  const productDetails = await response.json();
-
-  if (productDetails.stock >= totalQuantity) {
-    cartStore.checkStockAndAddItem(product.value, 1); // Ajoute le produit avec une quantité de 1
-    setFlashMessage("Produit ajouté au panier avec succès", "success");
-  } else {
-    setFlashMessage(`Désolé, seulement ${productDetails.stock} articles en stock`, "error");
-  }
+const addToCart = () => {
+  cartStore.checkStockAndAddItem(product.value, 1); // Ajoute le produit avec une quantité de 1
 };
 </script>
 

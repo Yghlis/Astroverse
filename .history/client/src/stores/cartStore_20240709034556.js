@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import useFlashMessageStore from '../composables/useFlashMessageStore';
 
 export const useCartStore = defineStore('cart', {
   state: () => {
@@ -18,7 +17,6 @@ export const useCartStore = defineStore('cart', {
   },
   actions: {
     async checkStockAndAddItem(item, quantity) {
-      const { setFlashMessage } = useFlashMessageStore();
       try {
         console.log('Fetching product details for item:', item.id);
         const response = await fetch(`http://localhost:8000/products/${item.id}`);
@@ -34,17 +32,14 @@ export const useCartStore = defineStore('cart', {
         if (product.stock >= quantity) {
           this.addItemToCart(item, quantity);
           console.log('Product added to cart:', item);
-          setFlashMessage("Produit ajouté au panier avec succès", "success");
         } else {
-          setFlashMessage(`Désolé, seulement ${product.stock} articles en stock`, "error");
+          alert(`Sorry, only ${product.stock} items in stock`);
         }
       } catch (error) {
         console.error('Error fetching product details:', error);
-        setFlashMessage("Erreur lors de la récupération des détails du produit", "error");
       }
     },
     async incrementItemQuantity(itemId) {
-      const { setFlashMessage } = useFlashMessageStore();
       try {
         const itemToIncrement = this.cartItems.find(item => item.id === itemId);
         if (itemToIncrement) {
@@ -62,32 +57,26 @@ export const useCartStore = defineStore('cart', {
           if (product.stock >= itemToIncrement.quantity + 1) {
             itemToIncrement.quantity++;
             console.log('Item quantity incremented. Current cart items:', this.cartItems);
-            setFlashMessage("Quantité de produit incrémentée", "success");
           } else {
-            setFlashMessage(`Désolé, seulement ${product.stock} articles en stock`, "error");
+            alert(`Sorry, only ${product.stock} items in stock`);
           }
         }
       } catch (error) {
         console.error('Error fetching product details:', error);
-        setFlashMessage("Erreur lors de la récupération des détails du produit", "error");
       }
     },
     decrementItemQuantity(itemId) {
-      const { setFlashMessage } = useFlashMessageStore();
       const itemToDecrement = this.cartItems.find(item => item.id === itemId);
       if (itemToDecrement) {
         if (itemToDecrement.quantity > 1) {
           itemToDecrement.quantity--;
-          setFlashMessage("Quantité de produit décrémentée", "success");
         } else {
           this.cartItems = this.cartItems.filter(item => item.id !== itemId);
-          setFlashMessage("Produit retiré du panier", "success");
         }
       }
       console.log('Item quantity decremented. Current cart items:', this.cartItems);
     },
     addItemToCart(item, quantity) {
-      const { setFlashMessage } = useFlashMessageStore();
       const existingItem = this.cartItems.find(cartItem => cartItem.id === item.id);
       const price = this.getItemPrice(item);
       if (existingItem) {
@@ -96,19 +85,14 @@ export const useCartStore = defineStore('cart', {
         this.cartItems.push({ ...item, price: price, quantity: quantity });
       }
       console.log('Current cart items:', this.cartItems);
-      setFlashMessage("Produit ajouté au panier avec succès", "success");
     },
     removeItemFromCart(itemId) {
-      const { setFlashMessage } = useFlashMessageStore();
       this.cartItems = this.cartItems.filter(item => item.id !== itemId);
       console.log('Item removed from cart. Current cart items:', this.cartItems);
-      setFlashMessage("Produit retiré du panier", "success");
     },
     clearCart() {
-      const { setFlashMessage } = useFlashMessageStore();
       this.cartItems = [];
       console.log('Cart cleared. Current cart items:', this.cartItems);
-      setFlashMessage("Panier vidé", "success");
     },
     getItemPrice(item) {
       return item.is_promotion && item.discounted_price ? item.discounted_price : item.price;

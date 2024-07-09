@@ -9,9 +9,9 @@
       :removeItem="removeItem"
     />
     <p>Total: {{ cartTotal }}€</p>
-    <RouterLink @click="toggle" to="/cart-checkout" class="call-to-action">
-      Passer votre Commande
-    </RouterLink>
+    <RouterLink @click="toggle" to="/cart-checkout" class="call-to-action"
+      >Passer votre Commande</RouterLink
+    >
   </div>
 </template>
 
@@ -24,8 +24,8 @@ const cartStore = useCartStore();
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
-const incrementItemQuantity = async (itemId) => {
-  await cartStore.incrementItemQuantity(itemId);
+const incrementItemQuantity = (itemId) => {
+  cartStore.incrementItemQuantity(itemId);
 };
 const decrementItemQuantity = (itemId) => {
   cartStore.decrementItemQuantity(itemId);
@@ -45,9 +45,6 @@ const emit = defineEmits(["update:hideCartSideBar"]);
 const toggle = () => {
   emit("update:hideCartSideBar", false);
 };
-
-console.log('Cart items in ShoppingCart:', cartItems.value);
-console.log('Cart total:', cartTotal.value);
 </script>
 
 <style lang="scss" scoped>

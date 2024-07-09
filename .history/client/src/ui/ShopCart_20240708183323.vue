@@ -5,11 +5,14 @@
       {{ item.title }}
       <div class="right">
         <div class="quantity">
-          <button class="control" @click="decrementItemQuantity(item.id)">-</button>
-          <span>{{ item.quantity }}</span>
-          <button class="control" @click="incrementItemQuantity(item.id)">+</button>
+          <button class="control" @click="decrementItemQuantity(item.id)">
+            -</button
+          ><span>{{ item.quantity }}</span
+          ><button class="control" @click="incrementItemQuantity(item.id)">
+            +
+          </button>
         </div>
-        <span>{{ getItemPrice(item) * item.quantity }}€</span>
+        <span>{{ getItemPrice(item) * item.quantity }}€ </span>
         <button @click="removeItem(item.id)">Supprimer</button>
       </div>
     </li>
@@ -17,7 +20,7 @@
 </template>
 
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, computed } from "vue";
 
 const props = defineProps({
   cartItems: Array,
@@ -27,12 +30,7 @@ const props = defineProps({
   removeItem: Function,
 });
 
-console.log('Cart items in ShopCart:', props.cartItems);
-
 const getImageUrl = (absolutePath) => {
-  if (!absolutePath) {
-    return ''; // Handle cases where image_gallery is empty or undefined
-  }
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
   return `${apiUrl}/uploads/${relativePath}`;

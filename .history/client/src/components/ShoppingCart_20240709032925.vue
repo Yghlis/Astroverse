@@ -24,8 +24,8 @@ const cartStore = useCartStore();
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
-const incrementItemQuantity = async (itemId) => {
-  await cartStore.incrementItemQuantity(itemId);
+const incrementItemQuantity = (itemId) => {
+  cartStore.incrementItemQuantity(itemId);
 };
 const decrementItemQuantity = (itemId) => {
   cartStore.decrementItemQuantity(itemId);
