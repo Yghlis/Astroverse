@@ -486,7 +486,7 @@ onMounted(async () => {
   background-color: white;
   border-radius: 12px;
   overflow: hidden;
-  max-width: 90%;
+  max-width: 70%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, opacity 0.3s ease;
   opacity: 1;
@@ -510,6 +510,7 @@ onMounted(async () => {
   padding: 20px;
   max-height: 70vh;
   overflow-y: auto;
+  
 
   label {
     display: block;
@@ -594,6 +595,17 @@ onMounted(async () => {
       outline: 0;
       box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
+    &:disabled {
+      background-color: #c4c4c4;
+      cursor: not-allowed;
+    }
+  }
+
+  span {
+    color: #dc3545;
+    font-size: 0.9rem;
+    display: block;
+    margin-top: 5px;
   }
 
   .flash-message {
