@@ -56,25 +56,24 @@
           <td>
             <input type="checkbox" :value="row.id" v-model="selectedRows" />
           </td>
-          <td v-for="column in columns" :key="column">
-            <div
+          <td
+            v-for="column in columns"
+            :key="column"
+            :class="getClass(row[column], column)"
+          >
+            <span
               v-if="['color1', 'color2', 'colorText'].includes(column)"
               class="color-cell"
+              :style="{
+                backgroundColor: adjustColor(row[column], 30),
+                color: row[column],
+              }"
+              >{{ renderCell(row, column) }}</span
             >
-              <span
-                :style="{
-                  backgroundColor: row[column],
-                  display: 'inline-block',
-                  width: '20px',
-                  height: '20px',
-                  marginRight: '10px',
-                }"
-              ></span>
+
+            <span v-else>
               {{ renderCell(row, column) }}
-            </div>
-            <div v-else>
-              {{ renderCell(row, column) }}
-            </div>
+            </span>
           </td>
           <td>
             <button class="view" @click="openModal('view', row)">
@@ -107,8 +106,12 @@
     />
 
     <div class="table-controls">
-      <button @click="openCreateModal">Créer</button>
-      <button @click="confirmDeleteSelected" :disabled="!selectedRows.length">
+      <button class="create" @click="openCreateModal">Créer</button>
+      <button
+        class="delete"
+        @click="confirmDeleteSelected"
+        :disabled="!selectedRows.length"
+      >
         Supprimer sélection
       </button>
     </div>
@@ -449,6 +452,34 @@ const renderCell = (row, column) => {
   return row[column];
 };
 
+const adjustColor = (hex, percent) => {
+  hex = hex.replace(/^#/, "");
+
+  let r = parseInt(hex.substring(0, 2), 16);
+  let g = parseInt(hex.substring(2, 4), 16);
+  let b = parseInt(hex.substring(4, 6), 16);
+
+  r = Math.min(255, Math.round(r + ((255 - r) * percent) / 100));
+  g = Math.min(255, Math.round(g + ((255 - g) * percent) / 100));
+  b = Math.min(255, Math.round(b + ((255 - b) * percent) / 100));
+
+  return `rgba(${r}, ${g}, ${b}, 0.3)`;
+};
+
+const getClass = (cellValue, column) => {
+  console.log(`Getting class for ${column} with value: ${cellValue}`);
+  if (column == "price") {
+    return "high-price";
+  }
+  if (column == "discounted_price") {
+    return "low-price";
+  }
+  if (column == "colorText") {
+    return "bordered-cell";
+  }
+  return "";
+};
+
 const openModal = (type, row) => {
   modalType.value = type;
   selectedRow.value = row;
@@ -591,22 +622,12 @@ const closeConsultModal = () => {
         &:first-child {
           width: 50px;
         }
-        input {
-          cursor: pointer;
-          color: #e5e8ed;
-          border-radius: 5px;
-          height: 20px;
-          width: 20px;
-        }
       }
     }
 
     tbody {
       tr {
-        border-bottom: 1px solid #dee2e6;
-        &:nth-of-type(even) {
-          background-color: #f8f9fa;
-        }
+        border-bottom: 2px solid #e5e8ed;
         &:hover {
           background-color: #f1f3f5;
         }
@@ -618,15 +639,117 @@ const closeConsultModal = () => {
           width: 50px;
         }
 
+        &:nth-child(2) {
+          font-weight: bold;
+        }
+
         .color-cell {
-          display: flex;
-          align-items: center;
+          font-weight: bold;
+          font-size: 20px;
+          position: relative;
+          display: inline-block;
+          padding: 5px 7px;
+          border-radius: 7px;
+        }
+
+        &.bordered-cell {
+          span {
+            border: 1px solid #ced4da;
+          }
+        }
+
+        &.high-price {
+          span {
+            color: #38a279;
+            background-color: #e2f0ec;
+            font-weight: bold;
+            font-size: 20px;
+            position: relative;
+            display: inline-block;
+            padding: 5px 0;
+            border-radius: 7px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            max-width: 100px;
+            &::after {
+              content: "€";
+              font-size: 20px;
+              color: #38a279;
+            }
+          }
+        }
+
+        &.low-price {
+          span {
+            color: #cb554c;
+            background-color: #fdf2f1;
+            font-weight: bold;
+            font-size: 20px;
+            position: relative;
+            display: inline-block;
+            padding: 5px 0;
+            border-radius: 7px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            max-width: 100px;
+            &::after {
+              content: "€";
+              font-size: 20px;
+              color: #cb554c;
+            }
+          }
         }
       }
     }
 
     input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      background-color: white;
+      border: 2px solid #ccc;
+      border-radius: 7px;
+      position: relative;
       cursor: pointer;
+      transition: all 0.2s;
+
+      &:checked {
+        background-color: #2196f3;
+        border-color: #2196f3;
+
+        &::after {
+          content: "";
+          position: absolute;
+          left: 6px;
+          top: 2px;
+          width: 6px;
+          height: 12px;
+          border: solid white;
+          border-width: 0 3px 3px 0;
+          transform: rotate(45deg);
+          display: block;
+        }
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 2px;
+        width: 6px;
+        height: 12px;
+        border: solid transparent;
+        border-width: 0 3px 3px 0;
+        transform: rotate(45deg);
+        transition: all 0.2s;
+      }
     }
 
     button {
@@ -634,7 +757,7 @@ const closeConsultModal = () => {
       margin: 5px 5px 5px 0;
       border: none;
       border-radius: 4px;
-      font-size: 14px;
+      font-size: 16px;
       cursor: pointer;
       transition: background-color 0.3s ease;
 
