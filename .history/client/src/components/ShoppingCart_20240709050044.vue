@@ -52,13 +52,13 @@ const toggle = () => {
 
 // Vérification de l'authentification avant la redirection
 const proceedToCheckout = async (event) => {
-  event.preventDefault(); 
+  event.preventDefault(); // Empêche le comportement par défaut du lien
 
-  const token = localStorage.getItem('jwt'); 
+  const token = localStorage.getItem('jwt'); // Assurez-vous que le token est sous 'jwt'
   console.log('Token:', token);
   if (!token) {
     setFlashMessage('Vous devez être connecté pour passer votre commande', 'error');
-    router.push('/login'); 
+    router.push('/login'); // Redirigez vers la page de login si l'utilisateur n'est pas connecté
     return;
   }
 

@@ -40,7 +40,7 @@ export async function authenticateToken(req, res, next) {
             next();
         } catch (error) {
             console.log('Error checking password change date:', error);
-            return res.sendStatus(500); 
+            return res.sendStatus(500); // Erreur serveur
         }
     });
 }

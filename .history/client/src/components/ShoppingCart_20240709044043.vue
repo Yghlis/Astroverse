@@ -9,16 +9,16 @@
       :removeItem="removeItem"
     />
     <p>Total: {{ cartTotal }}€</p>
-    <button @click="proceedToCheckout" class="call-to-action">
+    <RouterLink @click.prevent="proceedToCheckout" class="call-to-action">
       Passer votre Commande
-    </button>
+    </RouterLink>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useCartStore } from '../stores/cartStore';
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import { useCartStore } from "../stores/cartStore";
 import useFlashMessageStore from '../composables/useFlashMessageStore';
 import ShopCart from '../ui/ShopCart.vue';
 
@@ -43,22 +43,19 @@ const removeItem = (itemId) => {
 };
 
 // Définir les événements
-const emit = defineEmits(['update:hideCartSideBar']);
+const emit = defineEmits(["update:hideCartSideBar"]);
 
 // Fonction pour émettre l'événement
 const toggle = () => {
-  emit('update:hideCartSideBar', false);
+  emit("update:hideCartSideBar", false);
 };
 
 // Vérification de l'authentification avant la redirection
-const proceedToCheckout = async (event) => {
-  event.preventDefault(); 
-
-  const token = localStorage.getItem('jwt'); 
-  console.log('Token:', token);
+const proceedToCheckout = async () => {
+  const token = localStorage.getItem('token');
   if (!token) {
-    setFlashMessage('Vous devez être connecté pour passer votre commande', 'error');
-    router.push('/login'); 
+    setFlashMessage("Vous devez être connecté pour passer votre commande", "error");
+    router.push('/login'); // Redirigez vers la page de login si l'utilisateur n'est pas connecté
     return;
   }
 
@@ -68,21 +65,17 @@ const proceedToCheckout = async (event) => {
         'Authorization': `Bearer ${token}`
       }
     });
-
-    console.log('Response status:', response.status);
-    const responseBody = await response.text();
-    console.log('Response body:', responseBody);
-
+    
     if (response.ok) {
-      toggle(); 
+      toggle(); // Cache le side-bar avant de rediriger
       router.push('/cart-checkout');
     } else {
-      setFlashMessage('Session expirée ou utilisateur invalide. Veuillez vous reconnecter.', 'error');
+      setFlashMessage("Session expirée ou utilisateur invalide. Veuillez vous reconnecter.", "error");
       router.push('/login');
     }
   } catch (error) {
     console.error('Error verifying token:', error);
-    setFlashMessage('Erreur lors de la vérification de votre session. Veuillez vous reconnecter.', 'error');
+    setFlashMessage("Erreur lors de la vérification de votre session. Veuillez vous reconnecter.", "error");
     router.push('/login');
   }
 };

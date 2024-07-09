@@ -12,7 +12,7 @@ export async function authenticateToken(req, res, next) {
     jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
         if (err) {
             console.log('Token invalid:', err);
-            return res.sendStatus(403); 
+            return res.sendStatus(403); // Token invalide
         }
         console.log('User authenticated:', user);
         req.user = user;
@@ -25,7 +25,7 @@ export async function authenticateToken(req, res, next) {
             const dbUser = await User.findByPk(user.userId); 
             if (!dbUser) {
                 console.log('User not found in database');
-                return res.sendStatus(404); 
+                return res.sendStatus(404); // Utilisateur non trouvé
             }
 
             const sixtyDaysAgo = new Date();
@@ -40,7 +40,7 @@ export async function authenticateToken(req, res, next) {
             next();
         } catch (error) {
             console.log('Error checking password change date:', error);
-            return res.sendStatus(500); 
+            return res.sendStatus(500); // Erreur serveur
         }
     });
 }

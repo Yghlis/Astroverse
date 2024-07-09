@@ -1,6 +1,5 @@
 import express from 'express';
 import authController from '../controllers/auth.js';
-import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -12,11 +11,8 @@ router.post('/forgot-password', authController.postForgotPassword);
 router.post('/reset-password', authController.postResetPassword);
 router.get('/reset-password/:token', authController.resetPasswordGet);
 router.post('/change-password', authController.postChangePassword);
-// auth.js (middleware)
 router.get('/verify-token', authenticateToken, (req, res) => {
-    console.log('Token verification passed for user:', req.user);
     res.sendStatus(200); // Token valide
   });
-  
 
 export default router;

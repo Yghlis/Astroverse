@@ -52,13 +52,13 @@ const toggle = () => {
 
 // Vérification de l'authentification avant la redirection
 const proceedToCheckout = async (event) => {
-  event.preventDefault(); 
+  event.preventDefault(); // Empêche le comportement par défaut du lien
 
-  const token = localStorage.getItem('jwt'); 
+  const token = localStorage.getItem('token');
   console.log('Token:', token);
   if (!token) {
     setFlashMessage('Vous devez être connecté pour passer votre commande', 'error');
-    router.push('/login'); 
+    router.push('/login'); // Redirigez vers la page de login si l'utilisateur n'est pas connecté
     return;
   }
 
@@ -70,13 +70,12 @@ const proceedToCheckout = async (event) => {
     });
 
     console.log('Response status:', response.status);
-    const responseBody = await response.text();
-    console.log('Response body:', responseBody);
-
     if (response.ok) {
-      toggle(); 
+      toggle(); // Cache le side-bar avant de rediriger
       router.push('/cart-checkout');
     } else {
+      const responseBody = await response.text();
+      console.log('Response body:', responseBody);
       setFlashMessage('Session expirée ou utilisateur invalide. Veuillez vous reconnecter.', 'error');
       router.push('/login');
     }

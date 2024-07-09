@@ -52,7 +52,7 @@ const toggle = () => {
 
 // Vérification de l'authentification avant la redirection
 const proceedToCheckout = async (event) => {
-  event.preventDefault(); 
+  event.preventDefault(); // Empêche le comportement par défaut du lien
 
   const token = localStorage.getItem('jwt'); 
   console.log('Token:', token);
