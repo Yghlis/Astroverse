@@ -3,7 +3,9 @@
     <div class="modal-wrapper">
       <div class="modal-container" :style="{ width: width, height: height }">
         <div class="modal-header">
-          <h3>Consultation {{
+          <h3>
+            Consultation
+            {{
               currentDataType === "products"
                 ? "du Produit"
                 : currentDataType === "characters"
@@ -11,7 +13,8 @@
                 : currentDataType === "universes"
                 ? "de l'Univers"
                 : "de l'Utilisateur"
-            }}</h3>
+            }}
+          </h3>
         </div>
         <div class="modal-body">
           <div v-if="item">
@@ -111,9 +114,9 @@
           </div>
         </div>
         <div class="modal-footer">
-            <button class="modal-default-button" @click="$emit('close')">
-              Fermer
-            </button>
+          <button class="modal-default-button" @click="$emit('close')">
+            Fermer
+          </button>
         </div>
       </div>
     </div>
@@ -210,6 +213,7 @@ onMounted(async () => {
   transition: transform 0.3s ease, opacity 0.3s ease;
   opacity: 1;
   transform: translateY(0);
+  animation: modalFadeIn 0.3s ease-out;
 }
 
 .modal-header {
@@ -324,7 +328,6 @@ onMounted(async () => {
     }
   }
 
-
   .flash-message {
     padding: 10px;
     border-radius: 5px;
@@ -392,6 +395,17 @@ onMounted(async () => {
     &:hover {
       background-color: #5a6268;
     }
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 </style>

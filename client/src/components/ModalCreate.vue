@@ -491,6 +491,7 @@ onMounted(async () => {
   transition: transform 0.3s ease, opacity 0.3s ease;
   opacity: 1;
   transform: translateY(0);
+  animation: modalFadeIn 0.3s ease-out;
 }
 
 .modal-header {
@@ -677,5 +678,16 @@ onMounted(async () => {
     }
   }
 }
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 </style>
-../composables/useFlashMessageStore
+
