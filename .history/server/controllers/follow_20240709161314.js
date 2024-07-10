@@ -31,20 +31,7 @@ const sendEmail = async (to, subject, html) => {
 };
 
 // Suivre un produit
-export const followProduct = async (req, res) => {
-  const { userId } = req.body;
-  const { productId } = req.params;
-  try {
-    const existingFollow = await Follow.findOne({ where: { userId, productId } });
-    if (existingFollow) {
-      return res.status(409).json({ error: 'User already follows this product' });
-    }
-    const follow = await Follow.create({ userId, productId });
-    res.status(201).json(follow);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+
 
 // Suivre un univers
 export const followUniverse = async (req, res) => {
@@ -62,21 +49,7 @@ export const followUniverse = async (req, res) => {
   }
 };
 
-// Arrêter de suivre un produit
-export const unfollowProduct = async (req, res) => {
-  const { userId } = req.body;
-  const { productId } = req.params;
-  try {
-    const follow = await Follow.destroy({ where: { userId, productId } });
-    if (follow) {
-      res.status(200).json({ message: 'Unfollowed successfully' });
-    } else {
-      res.status(404).json({ error: 'Follow record not found' });
-    }
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
+
 
 // Arrêter de suivre un univers
 export const unfollowUniverse = async (req, res) => {
@@ -151,23 +124,3 @@ export const notifyNewProductInUniverse = async (product) => {
 };
 
 // Récupérer les produits suivis par un utilisateur
-export const getFollowedProducts = async (req, res) => {
-  const userId = req.user.userId;
-
-  try {
-    const followedProducts = await Follow.findAll({
-      where: { userId },
-      include: [
-        {
-          model: Product,
-          attributes: ['id', 'title', 'brand', 'price', 'discounted_price', 'is_promotion', 'description', 'stock', 'image_preview'],
-        },
-      ],
-    });
-
-    res.status(200).json(followedProducts);
-  } catch (error) {
-    console.error('Error fetching followed products:', error);
-    res.status(500).json({ error: 'An error occurred while fetching followed products' });
-  }
-};
