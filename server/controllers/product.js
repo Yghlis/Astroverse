@@ -4,9 +4,10 @@ import Product from '../models/Product.js';
 import ProductMongo from '../models/ProductMongo.js';
 import Universe from '../models/Universe.js';
 import Character from '../models/Character.js';
+import Follow from '../models/Follow.js';
 import sequelize from '../config/database.js';
 import { validate as validateUUID } from 'uuid';
-import { notifyProductChange, notifyNewProductInUniverse } from './follow.js'; // Import des fonctions de notification
+
 
 const isUUIDValid = (id) => {
   return validateUUID(id);
@@ -19,6 +20,84 @@ const deleteUnusedFiles = (oldFiles, newFiles) => {
     }
   });
 };
+
+//suivre un produit
+export const followProduct = async (req, res) => {
+  const { userId } = req.body;
+  const { productId } = req.params;
+
+  if (userId !== req.user.userId) {
+    return res.status(403).end();
+  }
+
+  try {
+    const existingFollow = await Follow.findOne({ where: { userId, productId } });
+    if (existingFollow) {
+      return res.status(409).end();
+    }
+
+    const follow = await Follow.create({ userId, productId });
+    res.status(201).json(follow);
+  } catch {
+    res.status(400).end();
+  }
+};
+
+// Arrêter de suivre un produit
+export const unfollowProduct = async (req, res) => {
+  const { userId } = req.body;
+  const { productId } = req.params;
+
+  if (userId !== req.user.userId) {
+    return res.status(403).json({ error: 'Unauthorized to unfollow product for another user' });
+  }
+
+  // Validation des entrées
+  if (!userId || !productId) {
+    return res.status(400).json({ error: 'Missing userId or productId' });
+  }
+
+  try {
+    const follow = await Follow.destroy({ where: { userId, productId } });
+    if (follow) {
+      return res.status(200).json({ message: 'Unfollowed product successfully' });
+    } else {
+      return res.status(404).json({ error: 'Follow relationship not found' });
+    }
+  } catch (error) {
+    console.error("Error unfollowing product:", error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
+export const getFollowedProducts = async (req, res) => {
+  const userId = req.user.userId;
+  if (userId !== req.params.userId) {
+    return res.status(403).json({ error: 'Forbidden: You do not have permission to access this resource' });
+  }
+
+  try {
+    const followedProducts = await Follow.findAll({
+      where: { userId },
+      include: [
+        {
+          model: Product,
+          attributes: [
+            'id', 'title', 'brand', 'price', 'discounted_price',
+            'is_promotion', 'description', 'image_preview'
+          ],
+        },
+      ],
+    });
+
+    res.status(200).json(followedProducts);
+  } catch (error) {
+    console.error("Error fetching followed products:", error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 
 export const addProduct = async (req, res) => {
   const transaction = await sequelize.transaction();
@@ -142,7 +221,23 @@ export const addProduct = async (req, res) => {
     res.status(201).json(product);
   } catch (error) {
     await transaction.rollback();
-    res.status(500).json({ error: error.message });
+    console.error("Error adding product:", error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Notification lors de la création d'un nouveau produit dans un univers suivi
+export const notifyNewProductInUniverse = async (product) => {
+  try {
+    const universe = await Universe.findByPk(product.universe); // Récupérer l'univers
+    const followers = await Follow.findAll({ where: { universeId: product.universe }, include: [User] });
+    for (const follow of followers) {
+      const user = follow.User;
+      const emailContent = `Un nouveau produit ${product.title} a été ajouté dans l'univers ${universe.name} que vous suivez.`;
+      await sendEmail(user.email, 'Nouveau produit dans un univers suivi', emailContent);
+    }
+  } catch (error) {
+    console.error('Error in notifyNewProductInUniverse:', error);
   }
 };
 
@@ -183,32 +278,18 @@ export const getProducts = async (filters) => {
     query.is_promotion = true;
   }
 
-  console.log("Constructed query:", JSON.stringify(query, null, 2));
-
   try {
     const products = await ProductMongo.find(query);
-    console.log("Fetched products:", products);
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);
-    throw new Error(error.message);
-  }
-};
-
-export const searchProductsByTitle = async (title) => {
-  try {
-    const regex = new RegExp(`^${title}`, 'i'); // i pour insensible à la casse
-    const products = await ProductMongo.find({ title: { $regex: regex } });
-    return products;
-  } catch (error) {
-    console.error("Error searching products by title:", error);
-    throw error;
+    throw new Error('An error occurred while fetching products.');
   }
 };
 
 export const getProductById = async (req, res) => {
   const { id } = req.params;
-  const { source } = req.query; // Récupérer le paramètre source
+  const { source } = req.query; 
 
   if (!id || !isUUIDValid(id)) {
     return res.status(400).json({ error: 'ID du produit invalide' });
@@ -232,9 +313,10 @@ export const getProductById = async (req, res) => {
       }
     }
 
-    res.json(product);
+    res.status(200).json(product);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching product by ID:", error);
+    res.status(500).end();
   }
 };
 
@@ -249,9 +331,6 @@ const validateProductFields = (fields) => {
 export const updateProduct = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    console.log("updateProduct appelé avec req.body:", req.body);
-    console.log("updateProduct appelé avec req.files:", req.files);
-
     const { id } = req.params;
     if (!id || !isUUIDValid(id)) {
       return res.status(400).json({ error: 'ID du produit invalide' });
@@ -298,11 +377,11 @@ export const updateProduct = async (req, res) => {
     const oldImagePreview = product.image_preview;
     const oldImageGallery = [...product.image_gallery];
 
-    const image_preview = req.files && req.files['image_preview'] 
-      ? `${req.protocol}://${req.get('host')}/uploads/${req.files['image_preview'][0].filename}` 
+    const image_preview = req.files && req.files['image_preview']
+      ? `${req.protocol}://${req.get('host')}/uploads/${req.files['image_preview'][0].filename}`
       : product.image_preview;
 
-    let image_gallery = [...product.image_gallery]; 
+    let image_gallery = [...product.image_gallery];
 
     if (req.files && req.files['image_gallery']) {
       req.files['image_gallery'].forEach((file, index) => {
@@ -405,7 +484,48 @@ export const updateProduct = async (req, res) => {
   } catch (error) {
     await transaction.rollback();
     console.error("Transaction error:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).end();
+  }
+};
+
+// Notification lors du changement de stock ou de promotion
+export const notifyProductChange = async (product, previousStock, previousIsPromotion) => {
+  try {
+    const followers = await Follow.findAll({ where: { productId: product.id }, include: [User] });
+    console.log(`Found ${followers.length} followers for product ${product.title} with ID ${product.id}`);
+    
+    for (const follow of followers) {
+      const user = follow.User;
+      console.log(`Checking conditions for user ${user.email}`);
+      
+      const currentStock = product.stock;
+      const currentPromotion = product.is_promotion;
+      
+      console.log(`Previous stock: ${previousStock}, Current stock: ${currentStock}`);
+      console.log(`Previous promotion: ${previousIsPromotion}, Current promotion: ${currentPromotion}`);
+      
+      if (currentStock === 0 && previousStock > 0) {
+        console.log(`Notifying ${user.email} that product ${product.title} is out of stock`);
+        const emailContent = `Le produit ${product.title} est en rupture de stock.`;
+        await sendEmail(user.email, 'Produit en rupture de stock', emailContent);
+      } else if (previousStock === 0 && currentStock > 0) {
+        console.log(`Notifying ${user.email} that product ${product.title} is back in stock`);
+        const emailContent = `Le produit ${product.title} est de nouveau en stock.`;
+        await sendEmail(user.email, 'Produit de nouveau en stock', emailContent);
+      }
+
+      if (currentPromotion && previousIsPromotion === false) {
+        console.log(`Notifying ${user.email} that product ${product.title} is now on promotion`);
+        const emailContent = `Le produit ${product.title} est maintenant en promotion.`;
+        await sendEmail(user.email, 'Produit en promotion', emailContent);
+      } else if (!currentPromotion && previousIsPromotion === true) {
+        console.log(`Notifying ${user.email} that product ${product.title} is no longer on promotion`);
+        const emailContent = `Le produit ${product.title} n'est plus en promotion.`;
+        await sendEmail(user.email, 'Produit plus en promotion', emailContent);
+      }
+    }
+  } catch (error) {
+    console.error('Error in notifyProductChange:', error);
   }
 };
 
@@ -414,13 +534,13 @@ export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
     if (!id || !isUUIDValid(id)) {
-      return res.status(400).json({ error: 'ID du produit invalide' });
+      return res.status(400).end(); 
     }
 
     const product = await Product.findByPk(id, { transaction });
     if (!product) {
       await transaction.rollback();
-      return res.status(404).json({ error: 'Product not found' });
+      return res.status(404).end(); 
     }
 
     const oldImagePreview = product.image_preview;
@@ -435,18 +555,20 @@ export const deleteProduct = async (req, res) => {
 
     await transaction.commit();
 
-    if (fs.existsSync(oldImagePreview)) {
+    // Suppression des anciens fichiers d'image
+    if (oldImagePreview && fs.existsSync(oldImagePreview)) {
       fs.unlinkSync(oldImagePreview);
     }
     oldImageGallery.forEach(file => {
-      if (fs.existsSync(file)) {
+      if (file && fs.existsSync(file)) {
         fs.unlinkSync(file);
       }
     });
 
-    res.json({ message: 'Product deleted successfully' });
+    res.status(204).end(); 
   } catch (error) {
     await transaction.rollback();
-    res.status(500).json({ error: error.message });
+    console.error("Error deleting product:", error);
+    res.status(500).end(); 
   }
 };

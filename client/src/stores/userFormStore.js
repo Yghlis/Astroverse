@@ -123,7 +123,7 @@ export const useUserFormStore = defineStore('userForm', () => {
     capitalizeEmail();
 
     try {
-      const url = 'http://localhost:8000/users/admin';
+      const url = 'http://localhost:8000/users';
       const method = 'POST';
 
       const dataToSend = {

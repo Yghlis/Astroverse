@@ -42,7 +42,7 @@ export const useProductStore = defineStore("product", {
         return;
       }
       try {
-        const response = await fetch(`${apiUrl}/follow/products/${productId}/follow`, {
+        const response = await fetch(`${apiUrl}/products/${productId}/follow`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -72,7 +72,7 @@ export const useProductStore = defineStore("product", {
         return;
       }
       try {
-        const response = await fetch(`${apiUrl}/follow/products/${productId}/unfollow`, {
+        const response = await fetch(`${apiUrl}/products/${productId}/follow`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",

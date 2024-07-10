@@ -69,19 +69,21 @@ onMounted(() => {
       });
   }
 });
-
 const toggleSubscription = async () => {
   console.log('toggleSubscription called');
   console.log('userId:', userId.value);
   console.log('token:', token.value);
 
   try {
-    const response = await fetch(`http://localhost:8000/users/${userId.value}/newsletter-subscription`, {
+    const response = await fetch(`http://localhost:8000/users/${userId.value}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token.value}` // Utilisez le token JWT pour l'authentification
       },
+      body: JSON.stringify({
+        toggleNewsletterSubscription: !isSubscribedToNewsletter.value // Inversez l'état actuel
+      })
     });
 
     console.log('response status:', response.status);
@@ -99,6 +101,7 @@ const toggleSubscription = async () => {
     setFlashMessage("Erreur lors de l'abonnement.", 'error');
   }
 };
+
 </script>
 
 <style lang="scss" scoped>

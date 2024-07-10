@@ -5,15 +5,16 @@ import path from 'path';
 import fs from 'fs';
 import nodemailer from 'nodemailer';
 
+// Configurer le transporteur de courriel
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD
-    }
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASSWORD,
+  },
 });
 
-// Configure Multer pour sauvegarder les fichiers
+// Configurer Multer pour sauvegarder les fichiers
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -26,6 +27,10 @@ export const upload = multer({ storage });
 
 export const updateNewsletterPdf = async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'PDF file is required' });
+    }
+
     const pdfUrl = `/uploads/${req.file.filename}`;
 
     // Utiliser un UUID fixe pour la newsletter unique
@@ -48,7 +53,7 @@ export const updateNewsletterPdf = async (req, res) => {
 
     const subscribedUsers = await User.findAll({ where: { isSubscribedToNewsletter: true } });
 
-    for (const user of subscribedUsers) {
+    const emailPromises = subscribedUsers.map(user => {
       const mailOptions = {
         from: process.env.EMAIL_USERNAME,
         to: user.email,
@@ -62,11 +67,14 @@ export const updateNewsletterPdf = async (req, res) => {
         ],
       };
 
-      await transporter.sendMail(mailOptions);
-    }
+      return transporter.sendMail(mailOptions);
+    });
 
-    res.status(200).json({ message: 'La Newsletter à été mise a jour et envoyée' });
+    await Promise.all(emailPromises);
+
+    res.status(200).json({ message: 'La Newsletter a été mise à jour et envoyée' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error updating newsletter:", error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
