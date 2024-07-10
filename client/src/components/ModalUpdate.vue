@@ -413,7 +413,7 @@ const detailsData = reactive({
 });
 
 const updateTags = () => {
-  formData.value.tags = tagsInput.value.split(",").map((tag) => tag.trim());
+  formData.value.tags = tagsInput.value.split(',').map((tag) => tag.trim());
 };
 
 const handleImagePreviewChange = (event) => {

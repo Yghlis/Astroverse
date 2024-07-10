@@ -20,6 +20,7 @@
           <div v-if="item">
             <!-- Détails du produit -->
             <div v-if="currentDataType === 'products'">
+              {{ item }}
               <p><strong>Nom du produit :</strong> {{ item.title }}</p>
               <p><strong>Marque :</strong> {{ item.brand }}</p>
               <p><strong>Prix :</strong> {{ item.price }}</p>
@@ -32,10 +33,10 @@
               <p><strong>Univers :</strong> {{ item.universe?.name }}</p>
               <p><strong>Référence :</strong> {{ item.reference }}</p>
               <p>
-                <strong>Dimensions :</strong> {{ item.details?.dimensions }}
+                <strong>Dimensions :</strong> {{ parsedDetails.dimensions }}
               </p>
-              <p><strong>Poids :</strong> {{ item.details?.weight }}</p>
-              <p><strong>Matériaux :</strong> {{ item.details?.materials }}</p>
+              <p><strong>Poids :</strong> {{ parsedDetails.weight }}</p>
+              <p><strong>Matériaux :</strong> {{ parsedDetails.materials }}</p>
               <p><strong>Tags :</strong> {{ item.tags?.join(", ") }}</p>
               <div>
                 <p><strong>Image Preview :</strong></p>
@@ -124,7 +125,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useCharacterFormStore } from "../stores/characterFormStore";
 
 const props = defineProps({
@@ -177,6 +178,17 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error("Erreur:", error.message);
+  }
+});
+
+const parsedDetails = computed(() => {
+  try {
+    return item.value && item.value.details
+      ? JSON.parse(item.value.details)
+      : {};
+  } catch (e) {
+    console.error("Invalid JSON:", e);
+    return {};
   }
 });
 </script>
