@@ -2,7 +2,9 @@ import { Op } from 'sequelize';
 import Universe from '../models/Universe.js';
 import Product from '../models/Product.js';
 import Character from '../models/Character.js';
+import Follow from '../models/Follow.js';
 import sequelize from '../config/database.js';
+
 
 export const addUniverse = async (req, res) => {
   const { name, color1, color2, colorText } = req.body;
@@ -118,5 +120,52 @@ export const deleteUniverse = async (req, res) => {
   } catch (error) {
     await transaction.rollback();
     res.sendStatus(500); 
+  }
+};
+
+
+export const followUniverse = async (req, res) => {
+  const { userId } = req.body; 
+  const { universeId } = req.params;
+
+  if (userId !== req.user.userId) {
+    return res.status(403).json({ error: 'Unauthorized to follow universe for another user' });
+  }
+  try {
+    const universe = await Universe.findByPk(universeId);
+    if (!universe) {
+      return res.status(404).json({ error: 'Universe not found' });
+    }
+
+    const existingFollow = await Follow.findOne({ where: { userId, universeId } });
+    if (existingFollow) {
+      return res.sendStatus(409);
+    }
+    await Follow.create({ userId, universeId });
+    res.sendStatus(201);
+  } catch (error) {
+    res.sendStatus(400);
+  }
+};
+
+export const unfollowUniverse = async (req, res) => {
+  const { userId } = req.body; 
+  const { universeId } = req.params;
+
+  if (userId !== req.user.userId) {
+    return res.status(403).json({ error: 'Unauthorized to unfollow universe for another user' });
+  }
+
+  console.log(`User ID: ${userId}, Universe ID: ${universeId}`); 
+
+  try {
+    const follow = await Follow.destroy({ where: { userId, universeId } });
+    if (follow) {
+      res.sendStatus(200);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (error) {
+    res.sendStatus(400);
   }
 };

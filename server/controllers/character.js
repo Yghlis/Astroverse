@@ -8,6 +8,7 @@ export const addCharacter = async (req, res) => {
 
   const transaction = await sequelize.transaction();
   try {
+    // Vérifiez si l'univers existe
     const universeRecord = await Universe.findOne({ where: { id: universe } });
     if (!universeRecord) {
       return res.status(404).json({ error: 'Universe not found' });
@@ -22,6 +23,7 @@ export const addCharacter = async (req, res) => {
       return res.status(409).json({ error: 'A character with the same name already exists' });
     }
 
+    // Créez le nouveau personnage
     const character = await Character.create({
       name,
       universe: universeRecord.id
@@ -31,17 +33,16 @@ export const addCharacter = async (req, res) => {
     res.status(201).json(character);
   } catch (error) {
     await transaction.rollback();
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 export const updateCharacter = async (req, res) => {
   const { id } = req.params;
   const { name, universe } = req.body;
 
-  console.log('Received PUT request for /characters/:id');
-  console.log('Request params:', req.params);
-  console.log('Request body:', req.body);
+
 
   const transaction = await sequelize.transaction();
   try {

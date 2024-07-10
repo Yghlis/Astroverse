@@ -17,7 +17,6 @@ import userRoutes from './routes/user.js';
 import favoriteRoutes from './routes/favorites.js'; 
 import newsletterRoutes from './routes/newsletter.js';
 import geocodeRoutes from './routes/geocode.js';
-import followRoutes from './routes/follow.js';
 
 dotenv.config();
 
@@ -42,7 +41,6 @@ app.use('/geocode', geocodeRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/favorites', favoriteRoutes);
 app.use('/newsletter', newsletterRoutes); 
-app.use('/follow', followRoutes);
 
 // Middleware de gestion des erreurs
 app.use((err, req, res, next) => {

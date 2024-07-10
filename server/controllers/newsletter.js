@@ -28,7 +28,7 @@ export const upload = multer({ storage });
 export const updateNewsletterPdf = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'PDF file is required' });
+      return res.sendStatus(400); 
     }
 
     const pdfUrl = `/uploads/${req.file.filename}`;
@@ -72,9 +72,9 @@ export const updateNewsletterPdf = async (req, res) => {
 
     await Promise.all(emailPromises);
 
-    res.status(200).json({ message: 'La Newsletter a été mise à jour et envoyée' });
+    res.sendStatus(200); 
   } catch (error) {
     console.error("Error updating newsletter:", error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.sendStatus(500); 
   }
 };

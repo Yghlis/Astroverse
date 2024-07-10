@@ -6,7 +6,33 @@ import Universe from '../models/Universe.js';
 import Character from '../models/Character.js';
 import Follow from '../models/Follow.js';
 import sequelize from '../config/database.js';
+import nodemailer from 'nodemailer';
 import { validate as validateUUID } from 'uuid';
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USERNAME,
+    pass: process.env.EMAIL_PASSWORD
+  }
+});
+
+// Fonction pour envoyer un email
+const sendEmail = async (to, subject, html) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USERNAME,
+    to,
+    subject,
+    html
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent to:', to);
+  } catch (error) {
+    console.log('Error sending email:', error);
+  }
+};
 
 
 const isUUIDValid = (id) => {
