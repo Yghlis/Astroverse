@@ -145,7 +145,7 @@ export const addProduct = async (req, res) => {
       description: z.string().nonempty('La description est requise'),
       stock: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]),
       character: z.string().nonempty('Le personnage est requis'),
-      universe: z.string().nonempty('L\'univers est requis'),
+      universe: z.string().nonempty('L'univers est requis'),
       reference: z.string().optional(),
       details: z.union([z.object({
         dimensions: z.string().nonempty('Les dimensions sont requises'),
@@ -176,13 +176,10 @@ export const addProduct = async (req, res) => {
       details,
       tags,
       availability_status,
-      views_count,
-      number_of_purchases,
-      number_of_favorites,
-      rating
+      views_count
     } = validatedData;
 
-    validateProductFields({ title, price, character, universe, reference });
+   
     // Check if reference is unique
     const existingProduct = await Product.findOne({ where: { reference }, transaction });
     if (existingProduct) {
@@ -191,7 +188,7 @@ export const addProduct = async (req, res) => {
     }
 
     const image_preview = req.files && req.files['image_preview'] ? req.files['image_preview'][0].path : null;
-    const image_gallery = req.files && Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
+    const image_gallery = Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
 
     const universeRecord = isUUIDValid(universe)
       ? await Universe.findByPk(universe, { transaction })

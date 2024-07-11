@@ -73,6 +73,17 @@ const verifyEmail = async (req, res) => {
     res.send('Email vérifié avec succès!');
 };
 
+function authenticateToken(req, res, next) {
+    const token = req.cookies.jwt; // Récupérer le token depuis les cookies
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+}
+
 const postLogin = async (req, res) => {
     const { email, password } = req.body;
 
@@ -148,6 +159,45 @@ const postLogin = async (req, res) => {
     }
 };
 
+const postSignup = async (req, res) => {
+    const { email, password, confirmPassword, first_name, last_name } = req.body;
+
+    if (!first_name || !last_name || !email || !password || !confirmPassword) {
+        return sendError(res, 400, 'Tous les champs doivent être remplis.');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return sendError(res, 400, 'Format de l\'email invalide.');
+    }
+
+    if (!validatePassword(password)) {
+        return sendError(res, 400, 'Le mot de passe doit contenir au moins 12 caractères, dont un chiffre, une majuscule, une minuscule, et un symbole.');
+    }
+
+    if (password !== confirmPassword) {
+        return sendError(res, 400, 'Les mots de passe ne correspondent pas.');
+    }
+
+    const userDoc = await User.findOne({ where: { email } });
+    if (userDoc) {
+        return sendError(res, 400, 'L\'email existe déjà.');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = await User.create({
+        email: email,
+        password_hash: hashedPassword,
+        first_name: first_name,
+        last_name: last_name,
+        emailVerificationToken: uuidv4(),
+        emailVerificationExpires: new Date(Date.now() + 10*60*1000)
+    });
+
+    await sendVerificationEmail(user, req);
+    res.status(201).json({ message: 'Inscription réussie. Veuillez vérifier votre email pour activer votre compte.' });
+};
+
 const postChangePassword = async (req, res) => {
     const { userId, newPassword } = req.body;
 
@@ -197,66 +247,6 @@ function validatePassword(password) {
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{12,}$/;
     return passwordRegex.test(password);
 }
-
-const postSignup = async (req, res) => {
-    const { email, password, confirmPassword, first_name, last_name } = req.body;
-
-    if (!first_name || !last_name || !email || !password || !confirmPassword) {
-        return sendError(res, 400, 'Tous les champs doivent être remplis.');
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return sendError(res, 400, 'Format de l\'email invalide.');
-    }
-
-    if (!validatePassword(password)) {
-        return sendError(res, 400, 'Le mot de passe doit contenir au moins 12 caractères, dont un chiffre, une majuscule, une minuscule, et un symbole.');
-    }
-
-    if (password !== confirmPassword) {
-        return sendError(res, 400, 'Les mots de passe ne correspondent pas.');
-    }
-
-    const userDoc = await User.findOne({ where: { email } });
-    if (userDoc) {
-        return sendError(res, 400, 'L\'email existe déjà.');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const user = await User.create({
-        email: email,
-        password_hash: hashedPassword,
-        first_name: first_name,
-        last_name: last_name,
-        emailVerificationToken: uuidv4(),
-        emailVerificationExpires: new Date(Date.now() + 10*60*1000)
-    });
-
-    await sendVerificationEmail(user, req);
-    res.status(201).json({ message: 'Inscription réussie. Veuillez vérifier votre email pour activer votre compte.' });
-};
-
-const postLogout = (req, res) => {
-    res.cookie('jwt', '', { maxAge: 1 }); // Supprime le cookie en le rendant expiré
-    res.json({ message: 'Déconnexion réussie' });
-};
-
-const resetPasswordGet = async (req, res) => {
-    const { token } = req.params;
-    const user = await User.findOne({
-        where: {
-            resetPasswordToken: token,
-            resetPasswordExpires: { [Op.gt]: new Date() }
-        }
-    });
-
-    if (!user) {
-        return res.status(400).json({ error: 'Le lien de réinitialisation est invalide ou a expiré.' });
-    }
-
-    res.json({ message: "Token est valide.", token: token });
-};
 
 const postForgotPassword = async (req, res) => {
     const { email } = req.body;

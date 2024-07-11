@@ -191,7 +191,7 @@ export const addProduct = async (req, res) => {
     }
 
     const image_preview = req.files && req.files['image_preview'] ? req.files['image_preview'][0].path : null;
-    const image_gallery = req.files && Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
+    const image_gallery = req.filesArray.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
 
     const universeRecord = isUUIDValid(universe)
       ? await Universe.findByPk(universe, { transaction })

@@ -30,8 +30,8 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.use(cors({
-    origin: 'http://localhost:5173', // Remplacez par l'origine de votre front-end
-    credentials: true // Autorise l'envoi et la réception des cookies et des informations d'authentification
+  origin: 'http://localhost:5173', // Remplacez par l'origine de votre front-end
+  credentials: true // Autorise l'envoi et la réception des cookies et des informations d'authentification
 }));
 app.use(cookieParser());
 

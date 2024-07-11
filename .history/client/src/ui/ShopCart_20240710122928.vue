@@ -1,7 +1,7 @@
 <template>
   <transition-group name="list" tag="ul">
     <li v-for="item in cartItems" :key="item.id">
-      <img :src="getImageUrl(item.image_gallery ? item.image_gallery[0] : null)" alt="item image" />
+      <img :src="getImageUrl(item.image_gallery[0])" alt="item image" />
       {{ item.title }}
       <div class="right">
         <div class="quantity">
@@ -18,7 +18,6 @@
     </li>
   </transition-group>
 </template>
-
 
 <script setup>
 import { defineProps, computed } from "vue";

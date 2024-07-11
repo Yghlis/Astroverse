@@ -8,7 +8,7 @@ import Follow from '../models/Follow.js';
 import sequelize from '../config/database.js';
 import nodemailer from 'nodemailer';
 import { validate as validateUUID } from 'uuid';
-import { z } from 'zod';
+const { z } = require('zod');
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -141,23 +141,20 @@ export const addProduct = async (req, res) => {
       discounted_price: z.string().optional().refine(val => /^\d+([.,]\d{1,2})?$/.test(val), {
         message: 'Le prix promotionnel doit être un nombre positif avec ou sans centimes',
       }),
-      is_promotion: z.union([z.boolean(), z.string().transform(val => val.toLowerCase() === 'true')]),
+      is_promotion: z.boolean(),
       description: z.string().nonempty('La description est requise'),
-      stock: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]),
+      stock: z.number().int().nonnegative('Le stock doit être un entier positif'),
       character: z.string().nonempty('Le personnage est requis'),
-      universe: z.string().nonempty('L\'univers est requis'),
+      universe: z.string().nonempty('L'univers est requis'),
       reference: z.string().optional(),
-      details: z.union([z.object({
+      details: z.object({
         dimensions: z.string().nonempty('Les dimensions sont requises'),
         weight: z.string().nonempty('Le poids est requis'),
         materials: z.string().nonempty('Les matériaux sont requis')
-      }), z.string().transform(val => JSON.parse(val))]).optional(),
+      }).optional(),
       tags: z.string().optional(),
       availability_status: z.string().nonempty('Le statut de disponibilité est requis'),
-      views_count: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]),
-      number_of_purchases: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]).optional(),
-      number_of_favorites: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]).optional(),
-      rating: z.union([z.number().nonnegative(), z.string().transform(val => parseFloat(val))]).optional()
+      views_count: z.number().int().nonnegative('Le nombre de vues doit être un entier positif')
     });
 
     const validatedData = schema.parse(req.body);
@@ -176,13 +173,13 @@ export const addProduct = async (req, res) => {
       details,
       tags,
       availability_status,
-      views_count,
-      number_of_purchases,
-      number_of_favorites,
-      rating
+      views_count
     } = validatedData;
 
-    validateProductFields({ title, price, character, universe, reference });
+   
+
+  
+
     // Check if reference is unique
     const existingProduct = await Product.findOne({ where: { reference }, transaction });
     if (existingProduct) {
@@ -191,7 +188,7 @@ export const addProduct = async (req, res) => {
     }
 
     const image_preview = req.files && req.files['image_preview'] ? req.files['image_preview'][0].path : null;
-    const image_gallery = req.files && Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
+    const image_gallery = Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
 
     const universeRecord = isUUIDValid(universe)
       ? await Universe.findByPk(universe, { transaction })
