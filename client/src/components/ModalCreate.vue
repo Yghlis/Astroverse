@@ -452,9 +452,9 @@ onMounted(async () => {
   ) {
     console.log("Fetching universes and characters on modal mount...");
     if (props.currentDataType === "products") {
+      productFormStore.resetFormData();
       await productFormStore.fetchUniverses();
       await productFormStore.fetchCharacters();
-      formData.value = productFormStore.initialData; //la
       console.log("Universes fetched:", productFormStore.universes);
       console.log("Characters fetched:", productFormStore.characters);
     } else if (props.currentDataType === "characters") {
