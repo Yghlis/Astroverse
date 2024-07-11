@@ -326,7 +326,7 @@
               </select>
               <span>{{ errors.roles }}</span>
             </div>
-
+            {{ formData.details }}
             <button type="submit" :disabled="isSubmitting">Soumettre</button>
           </form>
         </div>
@@ -412,8 +412,18 @@ const detailsData = reactive({
   materials: "",
 });
 
+watch(
+  formData,
+  (newFormData) => {
+    detailsData.dimensions = newFormData.details?.dimensions?.value || "";
+    detailsData.weight = newFormData.details?.weight?.value || "";
+    detailsData.materials = newFormData.value?.details?.materials || "";
+  },
+  { immediate: true }
+);
+
 const updateTags = () => {
-  formData.value.tags = tagsInput.value.split(',').map((tag) => tag.trim());
+  formData.value.tags = tagsInput.value.split(",").map((tag) => tag.trim());
 };
 
 const handleImagePreviewChange = (event) => {

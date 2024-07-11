@@ -60,7 +60,7 @@ export const useProductFormStore = defineStore('productForm', () => {
       weight: z.string().nonempty('Le poids est requis'),
       materials: z.string().nonempty('Les matériaux sont requis')
     }).optional(),
-    tags: z.string().optional()
+    tags: z.union([z.string(), z.array(z.string())]).optional()
   });
 
   const formData = reactive({ ...initialData });
