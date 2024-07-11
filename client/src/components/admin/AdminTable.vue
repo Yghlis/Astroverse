@@ -172,7 +172,7 @@ const props = defineProps({
   currentDataType: String,
 });
 
-const emit = defineEmits(["edit", "view", "row-deleted"]);
+const emit = defineEmits(["edit", "view", "row-deleted", "reload:table"]);
 
 const searchQuery = ref("");
 const currentPage = ref(1);

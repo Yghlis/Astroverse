@@ -326,7 +326,6 @@
               </select>
               <span>{{ errors.roles }}</span>
             </div>
-            {{ formData.details }}
             <button type="submit" :disabled="isSubmitting">Soumettre</button>
           </form>
         </div>
@@ -346,13 +345,17 @@ import { useCharacterFormStore } from "../stores/characterFormStore";
 import { useProductFormStore } from "../stores/productFormStore";
 import { useUserFormStore } from "../stores/userFormStore";
 import useFlashMessageStore from "../composables/useFlashMessageStore";
-import { ref, computed, watch, reactive, onMounted } from "vue";
+import { ref, computed, watch, reactive, onMounted, inject } from "vue";
 
 const universeFormStore = useUniverseFormStore();
 const characterFormStore = useCharacterFormStore();
 const productFormStore = useProductFormStore();
 const userFormStore = useUserFormStore();
 const { flashMessage, flashMessageType } = useFlashMessageStore();
+
+const reloadTable = inject('reloadTable');
+
+
 
 const props = defineProps({
   currentDataType: String,
@@ -415,9 +418,9 @@ const detailsData = reactive({
 watch(
   formData,
   (newFormData) => {
-    detailsData.dimensions = newFormData.details?.dimensions?.value || "";
-    detailsData.weight = newFormData.details?.weight?.value || "";
-    detailsData.materials = newFormData.value?.details?.materials || "";
+    detailsData.dimensions = newFormData.details?.dimensions || "";
+    detailsData.weight = newFormData.details?.weight || "";
+    detailsData.materials = newFormData.details?.materials || "";
   },
   { immediate: true }
 );
@@ -458,6 +461,9 @@ const onSubmit = async () => {
   } else if (props.currentDataType === "users") {
     capitalizeEmail();
     await userFormStore.handleSubmit();
+  }
+  if (flashMessageType.value === "success") {
+    reloadTable();
   }
 };
 
@@ -534,6 +540,12 @@ onMounted(async () => {
     console.log("Universes fetched:", productFormStore.universes);
     console.log("Characters fetched:", productFormStore.characters);
   }
+});
+
+onMounted(() => {
+  detailsData.dimensions = formData.value.details?.dimensions || "";
+  detailsData.weight = formData.value.details?.weight || "";
+  detailsData.materials = formData.value.details?.materials || "";
 });
 </script>
 

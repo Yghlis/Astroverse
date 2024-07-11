@@ -27,7 +27,6 @@ const props = defineProps({
 const emit = defineEmits(["update:hideSideBarAdmin"]);
 
 const toggleNav = () => {
-  console.log("Toggling navigation, current state:", props.showSideBar);
   emit("update:hideSideBarAdmin", !props.showSideBar);
 };
 </script>

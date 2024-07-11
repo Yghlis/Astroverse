@@ -37,6 +37,7 @@
         @edit="handleEdit"
         @view="handleView"
         @row-deleted="handleRowDeleted"
+        v-if="reloadTable"
       />
     </div>
   </div>
@@ -45,12 +46,24 @@
 <script setup>
 import SideAdmin from "../ui/SideAdmin.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, provide  } from "vue";
 
 const showSideBar = ref(true);
 const tableData = ref([]);
 const tableColumns = ref([]);
 const currentDataType = ref("");
+const reloadTable = ref(true);
+
+
+const handleReloadTable = () => {
+  fetchData(currentDataType.value);
+  reloadTable.value = false;
+  setTimeout(() => {
+    reloadTable.value = true;
+  }, 10);
+};
+
+provide('reloadTable', handleReloadTable);
 
 const toggleNav = (newState) => {
   showSideBar.value = newState;

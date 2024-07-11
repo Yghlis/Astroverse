@@ -340,13 +340,15 @@ import { useProductFormStore } from "../stores/productFormStore";
 import { useCharacterFormStore } from "../stores/characterFormStore";
 import { useUserFormStore } from "../stores/userFormStore";
 import useFlashMessageStore from "../composables/useFlashMessageStore";
-import { ref, computed, onMounted, reactive } from "vue";
+import { ref, computed, onMounted, reactive, inject } from "vue";
 
 const universeFormStore = useUniverseFormStore();
 const productFormStore = useProductFormStore();
 const characterFormStore = useCharacterFormStore();
 const userFormStore = useUserFormStore();
 const { flashMessage, flashMessageType } = useFlashMessageStore();
+
+const reloadTable = inject("reloadTable");
 
 const props = defineProps({
   currentDataType: String,
@@ -438,6 +440,9 @@ const onSubmit = async () => {
   } else if (props.currentDataType === "users") {
     await userFormStore.handleCreate();
   }
+  if (flashMessageType.value === "success") {
+    reloadTable();
+  }
 };
 
 onMounted(async () => {
@@ -449,6 +454,7 @@ onMounted(async () => {
     if (props.currentDataType === "products") {
       await productFormStore.fetchUniverses();
       await productFormStore.fetchCharacters();
+      formData.value = productFormStore.initialData; //la
       console.log("Universes fetched:", productFormStore.universes);
       console.log("Characters fetched:", productFormStore.characters);
     } else if (props.currentDataType === "characters") {
@@ -511,7 +517,6 @@ onMounted(async () => {
   padding: 20px;
   max-height: 70vh;
   overflow-y: auto;
-  
 
   label {
     display: block;
@@ -690,4 +695,3 @@ onMounted(async () => {
   }
 }
 </style>
-
