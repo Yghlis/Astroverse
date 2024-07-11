@@ -42,7 +42,6 @@
   </Transition>
 </template>
 
-
 <script setup>
 import { ref, watch } from "vue";
 import { RouterLink } from "vue-router";
@@ -71,13 +70,12 @@ const loginHandler = async () => {
   const response = await fetch('http://localhost:8000/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: userEmail.value, password: userPassword.value })
+    body: JSON.stringify({ email: userEmail.value, password: userPassword.value }),
+    credentials: 'include' // Important pour inclure les cookies dans la requête
   });
 
   if (response.ok) {
     const data = await response.json();
-    localStorage.setItem('jwt', data.token);
-    localStorage.setItem('userId', data.userId);
     userLoggedIn.value = true;
     if (data.mustChangePassword) {
       showPasswordAlert.value = true;
@@ -101,7 +99,8 @@ const resetPasswordChangeReminder = async () => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-      }
+      },
+      credentials: 'include' // Important pour inclure les cookies dans la requête
     });
 
     if (response.ok) {
@@ -118,14 +117,17 @@ const resetPasswordChangeReminder = async () => {
   }
 };
 
-
-
-const logoutHandler = () => {
-  localStorage.removeItem('jwt');
-  localStorage.removeItem('userId');
-  userLoggedIn.value = false;
-  setFlashMessage('Déconnexion réussie.');
-  setTimeout(() => flashMessage.value = '', 3000); // Cache le message après 3 secondes
+const logoutHandler = async () => {
+  const response = await fetch('http://localhost:8000/auth/logout', {
+    method: 'POST',
+    credentials: 'include' // Important pour inclure les cookies dans la requête
+  });
+  if (response.ok) {
+    userLoggedIn.value = false;
+    setFlashMessage('Déconnexion réussie.');
+  } else {
+    setFlashMessage('Erreur lors de la déconnexion.');
+  }
 };
 
 const forgotPassword = () => {
@@ -141,17 +143,16 @@ const sendResetEmail = async () => {
   const response = await fetch('http://localhost:8000/auth/forgot-password', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: userEmail.value })
+    body: JSON.stringify({ email: userEmail.value }),
+    credentials: 'include' // Important pour inclure les cookies dans la requête
   });
 
   if (response.ok) {
     setFlashMessage('Un email de réinitialisation a été envoyé si votre email est enregistré.');
     passwordResetRequested.value = false;
-    setTimeout(() => flashMessage.value = '', 3000); // Cache le message après 3 secondes
   } else {
     const errorData = await response.json();
     setFlashMessage(errorData.message || 'Erreur lors de l\'envoi de l\'email de réinitialisation.');
-    setTimeout(() => flashMessage.value = '', 3000); // Cache le message après 3 secondes
   }
 };
 
@@ -166,12 +167,11 @@ const returnToInitial = () => {
 };
 
 const checkLoginStatus = () => {
-  userLoggedIn.value = !!localStorage.getItem('jwt');
+  // Ici, vous pouvez ajouter une requête pour vérifier l'état de connexion en fonction des cookies
 };
 
 checkLoginStatus();
 </script>
-
 
 <style scoped>
 .material-symbols-outlined {

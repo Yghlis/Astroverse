@@ -96,11 +96,11 @@ const closeAlert = () => {
 const resetPasswordChangeReminder = async () => {
   const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
   try {
-    const response = await fetch(`http://localhost:8000/users/${userId}/password-reminder-reset`, { // Mise à jour de l'URL
+    const response = await fetch(http://localhost:8000/users/${userId}/password-reminder-reset, { // Mise à jour de l'URL
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+        'Authorization': Bearer ${localStorage.getItem('jwt')}
       }
     });
 

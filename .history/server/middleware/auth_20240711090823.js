@@ -2,8 +2,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 
 export async function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = req.cookies.jwt; // Récupérer le token depuis les cookies
     if (token == null) {
         console.log('Token not present');
         return res.sendStatus(401); // Token non présent

@@ -3,13 +3,6 @@
   <h2 v-if="!userLoggedIn && !passwordResetRequested">Connectez-vous</h2>
   <h2 v-else-if="passwordResetRequested">Réinitialisez votre mot de passe</h2>
 
-  <!-- Alerte de renouvellement du mot de passe -->
-  <div v-if="showPasswordAlert" class="password-alert">
-    <p>Pensez à changer votre mot de passe.</p>
-    <button @click="closeAlert">Fermer</button>
-    <button @click="resetPasswordChangeReminder">Ne plus afficher ce message</button>
-  </div>
-
   <!-- Affichage des messages flash avec classe conditionnelle pour l'animation et la couleur -->
   <p v-if="flashMessage" class="flash-message" :class="{ 'active': flashMessage, 'success': flashMessageType === 'success', 'error': flashMessageType === 'error' }">{{ flashMessage }}</p>
 
@@ -42,11 +35,10 @@
   </Transition>
 </template>
 
-
 <script setup>
 import { ref, watch } from "vue";
-import { RouterLink } from "vue-router";
-import useFlashMessageStore from '@composables/useFlashMessageStore';
+import { RouterLink, useRouter } from "vue-router";
+import useFlashMessageStore from '@stores/useFlashMessageStore';
 
 const { flashMessage, flashMessageType, setFlashMessage } = useFlashMessageStore();
 const userLoggedIn = ref(false);
@@ -55,66 +47,47 @@ const passwordResetRequested = ref(false);
 const userEmail = ref('');
 const userPassword = ref('');
 const errorMessage = ref('');
-const showPasswordAlert = ref(false);
+const router = useRouter();
 
 watch(flashMessage, (newVal, oldVal) => {
   console.log("Flash message updated:", newVal);
 });
 
 const loginHandler = async () => {
-  loginClicked.value = true;  
+  loginClicked.value = true;
   if (!userEmail.value || !userPassword.value) {
     setFlashMessage('Veuillez entrer une adresse e-mail et un mot de passe.', 'error');
     return;
   }
-  // Appel API pour connexion
-  const response = await fetch('http://localhost:8000/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: userEmail.value, password: userPassword.value })
-  });
+  console.log('Tentative de connexion avec:', userEmail.value, userPassword.value);
 
-  if (response.ok) {
-    const data = await response.json();
-    localStorage.setItem('jwt', data.token);
-    localStorage.setItem('userId', data.userId);
-    userLoggedIn.value = true;
-    if (data.mustChangePassword) {
-      showPasswordAlert.value = true;
-    }
-    setFlashMessage('Connexion réussie ! Bienvenue.');
-  } else {
-    const errorData = await response.json();
-    setFlashMessage(errorData.message || 'Erreur de connexion');
-  }
-};
-
-const closeAlert = () => {
-  showPasswordAlert.value = false;
-};
-
-const resetPasswordChangeReminder = async () => {
-  const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
   try {
-    const response = await fetch(`http://localhost:8000/users/${userId}/password-reminder-reset`, { // Mise à jour de l'URL
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-      }
+    const response = await fetch('http://localhost:8000/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail.value, password: userPassword.value })
     });
 
+    console.log('Réponse de l\'API:', response);
+
     if (response.ok) {
-      showPasswordAlert.value = false;
-      setFlashMessage('Le rappel de changement de mot de passe a été réinitialisé.', 'success');
+      const data = await response.json();
+      console.log('Données reçues:', data);
+      
+      localStorage.setItem('jwt', data.token);
+      if (data.mustChangePassword) {
+        router.push({ name: 'ChangePassword', params: { userId: data.userId, token: data.token } });
+      } else {
+        userLoggedIn.value = true;
+        setFlashMessage('Connexion réussie ! Bienvenue.');
+      }
     } else {
-      const errorText = await response.text();
-      console.error('Erreur lors de la réinitialisation du rappel de changement de mot de passe:', errorText);
-      const errorData = JSON.parse(errorText);
-      setFlashMessage(errorData.message || 'Erreur lors de la réinitialisation du rappel de changement de mot de passe.', 'error');
+      const errorData = await response.json();
+      setFlashMessage(errorData.message || 'Erreur de connexion');
     }
   } catch (error) {
-    setFlashMessage('Une erreur est survenue lors de la réinitialisation du rappel de changement de mot de passe.', 'error');
+    console.error('Erreur lors de la connexion:', error);
+    setFlashMessage('Erreur lors de la connexion', 'error');
   }
 };
 
@@ -122,7 +95,6 @@ const resetPasswordChangeReminder = async () => {
 
 const logoutHandler = () => {
   localStorage.removeItem('jwt');
-  localStorage.removeItem('userId');
   userLoggedIn.value = false;
   setFlashMessage('Déconnexion réussie.');
   setTimeout(() => flashMessage.value = '', 3000); // Cache le message après 3 secondes
@@ -172,7 +144,6 @@ const checkLoginStatus = () => {
 checkLoginStatus();
 </script>
 
-
 <style scoped>
 .material-symbols-outlined {
   font-size: 150px;
@@ -187,31 +158,12 @@ h2 {
   margin: 0;
 }
 
-.password-alert {
-  background-color: #ffdddd;
-  border-left: 6px solid #f44336;
-  margin-bottom: 15px;
-  padding: 15px;
-}
-
-.password-alert p {
-  margin: 0;
-  font-size: 16px;
-}
-
-.password-alert button {
-  margin-top: 10px;
-  padding: 10px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
 .log-btn-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  margin-top: 20px;
+  margin-top: 20px; 
   width: 100%;
 }
 .log-btn, .log-input {

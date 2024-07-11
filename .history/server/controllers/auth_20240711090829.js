@@ -73,18 +73,6 @@ const verifyEmail = async (req, res) => {
     res.send('Email vérifié avec succès!');
 };
 
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (token == null) return res.sendStatus(401);
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
-    });
-}
-
 const postLogin = async (req, res) => {
     const { email, password } = req.body;
 
@@ -133,18 +121,23 @@ const postLogin = async (req, res) => {
             { expiresIn: '1h' }
         );
 
+        // Envoyer le token dans un cookie HTTP-only
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Utiliser secure: true en production
+            maxAge: 3600000 // 1 heure en millisecondes
+        });
+
         if (user.mustChangePassword) {
             return res.status(200).json({
                 message: 'Must change password',
                 mustChangePassword: true,
-                userId: user.user_id,
-                token: token,
+                userId: user.user_id
             });
         }
 
         res.status(200).json({
             message: 'Login successful',
-            token: token,
             userId: user.user_id,
             firstName: user.first_name,
             lastName: user.last_name,
@@ -154,7 +147,6 @@ const postLogin = async (req, res) => {
         return sendError(res, 500, 'An error occurred during login');
     }
 };
-
 
 const postChangePassword = async (req, res) => {
     const { userId, newPassword } = req.body;
@@ -182,19 +174,24 @@ const postChangePassword = async (req, res) => {
             { expiresIn: '1h' }
         );
 
+        // Envoyer le token dans un cookie HTTP-only
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 3600000
+        });
+
         console.log('Password changed successfully for user:', userId);
 
         res.status(200).json({ 
             message: 'Password changed successfully',
-            mustChangePassword: user.mustChangePassword,
-            token: token 
+            mustChangePassword: user.mustChangePassword
         });
     } catch (error) {
         console.error('Error changing password:', error);
         return sendError(res, 500, 'An error occurred during password change');
     }
 };
-
 
 function validatePassword(password) {
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{12,}$/;
@@ -241,6 +238,7 @@ const postSignup = async (req, res) => {
 };
 
 const postLogout = (req, res) => {
+    res.cookie('jwt', '', { maxAge: 1 }); // Supprime le cookie en le rendant expiré
     res.json({ message: 'Déconnexion réussie' });
 };
 
