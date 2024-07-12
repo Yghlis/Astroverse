@@ -2,7 +2,10 @@
   <TheLoader v-if="loading" :loading="loading"> </TheLoader>
   <div v-else-if="error">{{ error }}</div>
   <div v-else-if="product" class="item-container">
-    <ZoomImg v-model:isFullscreen="zoomIn" :imageSrc="getImageUrl(activeImage)" />
+    <ZoomImg
+      v-model:isFullscreen="zoomIn"
+      :imageSrc="getImageUrl(activeImage)"
+    />
     <div class="left">
       <transition name="fade" mode="out-in">
         <img
@@ -47,7 +50,10 @@
         </div>
         <div class="call-to-action">
           <span class="price" :class="{ promotion: product.is_promotion }">
-            {{ product.is_promotion ? product.discounted_price : product.price }} €
+            {{
+              product.is_promotion ? product.discounted_price : product.price
+            }}
+            €
           </span>
           <button @click="addToCart">Ajouter au panier</button>
         </div>
@@ -64,7 +70,9 @@
           <h3>Caractéristiques:</h3>
           <div class="content">
             <span>Marque: {{ product.brand }}</span>
-            <span v-for="(value, key) in parsedDetails" :key="key">{{ capitalizeFirstLetter(key) }}: {{ value }}</span>
+            <span v-for="(value, key) in parsedDetails" :key="key"
+              >{{ capitalizeFirstLetter(key) }}: {{ value }}</span
+            >
           </div>
         </div>
         <div class="tags">
@@ -77,7 +85,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useCartStore } from "../stores/cartStore";
 import { useProductStore } from "../stores/useProductStore";
 
@@ -85,6 +93,7 @@ import ZoomImg from "../ui/ZoomImg.vue";
 import TheLoader from "../ui/TheLoader.vue";
 
 const route = useRoute();
+const router = useRouter();
 const zoomIn = ref(false);
 const productStore = useProductStore();
 const activeImage = ref("null");
@@ -95,17 +104,31 @@ const error = computed(() => productStore.error);
 const isFavorite = computed(() => productStore.isFavorite);
 const parsedDetails = computed(() => {
   try {
-    return product.value && product.value.details ? JSON.parse(product.value.details) : {};
+    return product.value && product.value.details
+      ? JSON.parse(product.value.details)
+      : {};
   } catch (e) {
     console.error("Invalid JSON:", e);
     return {};
   }
 });
 
+const formatProductNameForURL = (name) => {
+  return name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+};
+
 onMounted(async () => {
   const productId = route.params.id;
   await productStore.fetchProduct(productId);
   activeImage.value = product.value.image_gallery[0];
+  //modification du slug de l'url
+  if (product.value) {
+    const formattedName = formatProductNameForURL(product.value.title);
+    router.replace({ path: `/item/${formattedName}` });
+  }
 });
 
 const zoomInImg = () => {
@@ -116,18 +139,26 @@ const capitalizeFirstLetter = (string) => {
 };
 
 const discountPercentage = computed(() => {
-  if (product.value && product.value.is_promotion && product.value.discounted_price) {
-    return Math.round(((product.value.price - product.value.discounted_price) / product.value.price) * 100);
+  if (
+    product.value &&
+    product.value.is_promotion &&
+    product.value.discounted_price
+  ) {
+    return Math.round(
+      ((product.value.price - product.value.discounted_price) /
+        product.value.price) *
+        100
+    );
   }
   return 0;
 });
 
 const toggleNotification = async () => {
   notification.value = !notification.value;
-  const userId = localStorage.getItem("userId"); 
+  const userId = localStorage.getItem("userId");
   const productId = route.params.id;
-  console.log("User ID:", userId); 
-  console.log("Product ID:", productId); 
+  console.log("User ID:", userId);
+  console.log("Product ID:", productId);
 
   if (notification.value) {
     await productStore.followProduct(userId, productId);
@@ -241,7 +272,8 @@ const addToCart = () => {
       align-items: flex-start;
       padding: 20px;
       border: 1px solid #e2e2e2;
-      box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+      box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
+        rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
       h2 {
         font-size: 20px;
         margin: 0;
