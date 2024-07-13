@@ -27,51 +27,59 @@
 
   <Transition name="slide" mode="out-in">
     <div v-if="!userLoggedIn">
-      <div
-        v-if="!loginClicked && !passwordResetRequested"
-        class="log-btn-container"
-      >
-        <button class="log-btn" @click="loginClicked = true">Connexion</button>
-        <RouterLink @click="toggle" to="/register" class="log-btn"
-          >Inscription</RouterLink
+      <Transition name="slide" mode="out-in">
+        <div
+          v-if="!loginClicked && !passwordResetRequested"
+          class="log-btn-container"
         >
-      </div>
-      <div v-else class="log-btn-container">
-        <div v-if="passwordResetRequested">
-          <input
-            type="email"
-            class="log-input"
-            placeholder="Votre email"
-            v-model="userEmail"
-          />
-          <button class="log-btn alt" @click="sendResetEmail">
-            Envoyer un mail
+          <button class="log-btn" @click="loginClicked = true">
+            Connexion
           </button>
-          <button class="log-btn" @click="returnToLogin">Retour</button>
+          <RouterLink @click="toggle" to="/register" class="log-btn"
+            >Inscription</RouterLink
+          >
         </div>
-        <div v-else>
-          <input
-            type="email"
-            class="log-input"
-            placeholder="Email"
-            v-model="userEmail"
-          />
-          <input
-            type="password"
-            class="log-input"
-            placeholder="Mot de passe"
-            v-model="userPassword"
-          />
-          <button class="log-btn alt" @click="loginHandler">
-            Me Connecter
-          </button>
-          <button type="button" @click="forgotPassword" class="forgot-password">
-            Mot de passe oublié?
-          </button>
-          <button class="log-btn" @click="returnToInitial">Retour</button>
+        <div v-else class="log-btn-container">
+          <div v-if="passwordResetRequested">
+            <input
+              type="email"
+              class="log-input"
+              placeholder="Votre email"
+              v-model="userEmail"
+            />
+            <button class="log-btn alt" @click="sendResetEmail">
+              Envoyer un mail
+            </button>
+            <button class="log-btn" @click="returnToLogin">Retour</button>
+          </div>
+          <div v-else>
+            <input
+              type="email"
+              class="log-input"
+              placeholder="Email"
+              v-model="userEmail"
+            />
+            <input
+              type="password"
+              class="log-input"
+              placeholder="Mot de passe"
+              v-model="userPassword"
+            />
+            <button class="log-btn alt" @click="loginHandler">
+              Me Connecter
+            </button>
+            <button
+              type="button"
+              @click="forgotPassword"
+              class="log-btn forgot-password"
+            >
+              Mot de passe oublié?
+            </button>
+            <button class="log-btn" @click="returnToInitial">Retour</button>
+          </div>
+          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         </div>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-      </div>
+      </Transition>
     </div>
     <div v-else class="log-btn-container">
       <button class="log-btn" @click="logoutHandler">Logout</button>
@@ -84,7 +92,7 @@
 import { ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
-import { useUserStore } from '../stores/userStore';
+import { useUserStore } from "../stores/userStore";
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();
@@ -141,7 +149,7 @@ const closeAlert = () => {
 };
 
 const resetPasswordChangeReminder = async () => {
-  const userId = localStorage.getItem("userId"); // Assuming userId is stored in localStorage
+  const userId = localStorage.getItem("userId");
   try {
     const response = await fetch(
       `http://localhost:8000/users/${userId}/password-reminder-reset`,
@@ -181,9 +189,6 @@ const resetPasswordChangeReminder = async () => {
     );
   }
 };
-
-
-
 
 const logoutHandler = () => {
   localStorage.removeItem("jwt");
@@ -249,7 +254,7 @@ const toggle = () => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .material-symbols-outlined {
   font-size: 150px;
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
@@ -257,6 +262,7 @@ const toggle = () => {
   text-align: center;
   width: 100%;
 }
+
 h2 {
   text-align: center;
   font-size: 2rem;
@@ -268,18 +274,18 @@ h2 {
   border-left: 6px solid #f44336;
   margin-bottom: 15px;
   padding: 15px;
-}
 
-.password-alert p {
-  margin: 0;
-  font-size: 16px;
-}
+  p {
+    margin: 0;
+    font-size: 16px;
+  }
 
-.password-alert button {
-  margin-top: 10px;
-  padding: 10px;
-  font-size: 14px;
-  cursor: pointer;
+  button {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
 }
 
 .log-btn-container {
@@ -290,8 +296,8 @@ h2 {
   margin-top: 20px;
   width: 100%;
 }
-.log-btn,
-.log-input {
+
+.log-btn {
   padding: 10px;
   width: 100%;
   text-align: center;
@@ -306,29 +312,53 @@ h2 {
   cursor: pointer;
   font-family: "Nippo", sans-serif;
   text-decoration: none;
+
+  &:hover {
+    color: white;
+    background-color: black;
+    border: 1px solid black;
+  }
+  &.alt:hover {
+    color: white;
+    background-color: #727272;
+    border: 1px solid #727272;
+  }
 }
-.log-btn:hover,
-.log-btn.alt:hover {
-  color: white;
-  background-color: #f2a45a;
-  border: 1px solid #f2a45a;
+
+.log-input {
+  padding: 10px 20px;
+  width: 100%;
+  margin: 5px 0;
+  border: 1px solid black;
+  border-radius: 25px;
+
+  font-size: 20px;
+  font-family: "Nippo", sans-serif;
+  &:focus {
+    outline: none;
+  }
 }
+
 .log-btn.alt {
   margin-top: 20px;
-  background-color: #f2a45a;
+  background-color: black;
   color: white;
-  border: 1px solid #f2a45a;
+  border: 1px solid black;
 }
+
 .error-message {
   color: red;
   text-align: center;
 }
+
 .slide-enter-active,
 .slide-leave-active {
-  transition: transform 0.5s ease;
+  transition: transform 0.5s ease, opacity 0.5s ease;
 }
+
 .slide-enter-from,
 .slide-leave-to {
   transform: translateY(100%);
+  opacity: 0;
 }
 </style>
