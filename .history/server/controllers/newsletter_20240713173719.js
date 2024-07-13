@@ -4,7 +4,6 @@
   import path from 'path';
   import fs from 'fs';
   import nodemailer from 'nodemailer';
-  import { z } from 'zod';
 
   // Configurer le transporteur de courriel
   const transporter = nodemailer.createTransport({
