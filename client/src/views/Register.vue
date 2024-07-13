@@ -1,5 +1,16 @@
 <template>
   <div class="register-container">
+    <p
+      v-if="flashMessage"
+      class="flash-message"
+      :class="{
+        active: flashMessage,
+        success: flashMessageType === 'success',
+        error: flashMessageType === 'error',
+      }"
+    >
+      {{ flashMessage }}
+    </p>
     <h2>Créez votre compte</h2>
     <form @submit.prevent="register">
       <div class="form-group">
@@ -29,9 +40,11 @@
           id="email"
           v-model="email"
           placeholder="Entrez votre email"
+          autocomplete="username"
           required
         />
       </div>
+
       <div class="form-group">
         <label for="password">Mot de passe<span>*</span>:</label>
         <input
@@ -39,6 +52,7 @@
           id="password"
           v-model="password"
           placeholder="Créez un mot de passe"
+          autocomplete="new-password"
           @input="evaluatePassword"
           required
         />
@@ -55,6 +69,7 @@
           id="confirmPassword"
           v-model="confirmPassword"
           placeholder="Confirmez votre mot de passe"
+          autocomplete="new-password"
           required
         />
       </div>
@@ -71,6 +86,11 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useSidebarStore } from "../stores/sidebarStore";
+import useFlashMessageStore from "@composables/useFlashMessageStore";
+
+const { flashMessage, flashMessageType, setFlashMessage } =
+  useFlashMessageStore();
+
 const sidebarStore = useSidebarStore();
 
 const first_name = ref("");
@@ -123,19 +143,21 @@ const register = async () => {
       hasSpecialChar
     )
   ) {
-    alert(
-      "Le mot de passe est trop faible. Il doit contenir au moins 12 caractères, avec au moins un symbole, un chiffre, une lettre minuscule et une lettre majuscule."
+    setFlashMessage(
+      "Le mot de passe est trop faible. Il doit contenir au moins 12 caractères, avec au moins un symbole, un chiffre, une lettre minuscule et une lettre majuscule.",
+      "error"
     );
     return;
   }
 
   if (password.value !== confirmPassword.value) {
-    alert("Les mots de passe ne correspondent pas");
+    setFlashMessage("Les mots de passe ne correspondent pas", "error");
     return;
   }
 
   try {
-    const response = await fetch("http://localhost:8000/auth/signup", {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${apiUrl}/auth/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -151,13 +173,16 @@ const register = async () => {
     const data = await response.json();
     console.log("Register response:", data);
     if (response.ok) {
-      router.push("/");
+      setFlashMessage("Inscription réussie !", "success");
+      setTimeout(() => {
+        router.push("/");
+      }, 5000);
     } else {
-      alert(data.message || "Registration failed");
+      setFlashMessage(data.message || "Échec de l'enregistrement", "error");
     }
   } catch (error) {
     console.error("Error during registration:", error);
-    alert("An error occurred during registration");
+    setFlashMessage("Une erreur s'est produite lors de l'inscription", "error");
   }
 };
 
@@ -253,5 +278,9 @@ const goToLogin = () => {
       }
     }
   }
+}
+.error-message {
+  color: red;
+  text-align: center;
 }
 </style>
