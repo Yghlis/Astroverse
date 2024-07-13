@@ -224,15 +224,30 @@
               <span>{{ errors.name }}</span>
 
               <label for="color1">Couleur 1</label>
-              <input id="color1" v-model="formData.color1" type="color" />
+              <input
+                id="color1"
+                v-model="formData.color1"
+                type="color"
+                class="color-input"
+              />
               <span>{{ errors.color1 }}</span>
 
               <label for="color2">Couleur 2</label>
-              <input id="color2" v-model="formData.color2" type="color" />
+              <input
+                id="color2"
+                v-model="formData.color2"
+                type="color"
+                class="color-input"
+              />
               <span>{{ errors.color2 }}</span>
 
               <label for="colorText">Couleur du Texte</label>
-              <input id="colorText" v-model="formData.colorText" type="color" />
+              <input
+                id="colorText"
+                v-model="formData.colorText"
+                type="color"
+                class="color-input"
+              />
               <span>{{ errors.colorText }}</span>
             </div>
 
@@ -353,9 +368,7 @@ const productFormStore = useProductFormStore();
 const userFormStore = useUserFormStore();
 const { flashMessage, flashMessageType } = useFlashMessageStore();
 
-const reloadTable = inject('reloadTable');
-
-
+const reloadTable = inject("reloadTable");
 
 const props = defineProps({
   currentDataType: String,
@@ -688,6 +701,12 @@ onMounted(() => {
     &:disabled {
       background-color: #c4c4c4;
       cursor: not-allowed;
+    }
+    &.color-input {
+      width: 50px;
+      padding: 0;
+      margin-top: 5px;
+      cursor: pointer;
     }
   }
 
