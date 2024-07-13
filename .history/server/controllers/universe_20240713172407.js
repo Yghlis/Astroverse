@@ -4,17 +4,15 @@ import Product from '../models/Product.js';
 import Character from '../models/Character.js';
 import Follow from '../models/Follow.js';
 import sequelize from '../config/database.js';
-import { z } from 'zod';
+
+
+
 
 export const addUniverse = async (req, res) => {
   const { name, color1, color2, colorText } = req.body;
-  const addUniverseSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    color1: z.string().optional(),
-    color2: z.string().optional(),
-    colorText: z.string().optional(),
-  });
+
   try {
+    // Validate input
     addUniverseSchema.parse(req.body);
 
     const transaction = await sequelize.transaction();
@@ -73,52 +71,34 @@ export const updateUniverse = async (req, res) => {
   const { name, color1, color2, colorText } = req.body;
   console.log('Received data for update:', req.body);
 
-  try {
-    const updateUniverseSchema = z.object({
-      name: z.string().min(1, "Name is required").optional(),
-      color1: z.string().optional(),
-      color2: z.string().optional(),
-      colorText: z.string().optional(),
-    });
-    // Validate input
-    updateUniverseSchema.parse(req.body);
-  } catch (e) {
-    return res.status(400).json({ error: e.errors });
-  }
-
   const transaction = await sequelize.transaction();
   try {
-    const universe = await Universe.findByPk(id, { transaction });
+    const universe = await Universe.findByPk(id);
     if (!universe) {
       console.log('Universe not found');
-      await transaction.rollback();
-      return res.sendStatus(404);
+      return res.sendStatus(404); 
     }
 
-    const existingUniverse = await Universe.findOne({
-      where: { name, id: { [Op.ne]: id } },
-      transaction
-    });
+    const existingUniverse = await Universe.findOne({ where: { name, id: { [Op.ne]: id } } });
     if (existingUniverse) {
-      await transaction.rollback();
-      return res.sendStatus(409);
+      return res.sendStatus(409); 
     }
 
     console.log('Updating Universe with ID:', id);
     await universe.update({
-      name: name !== undefined ? name : universe.name,
-      color1: color1 !== undefined ? color1 : universe.color1,
-      color2: color2 !== undefined ? color2 : universe.color2,
-      colorText: colorText !== undefined ? colorText : universe.colorText,
+      name,
+      color1,
+      color2,
+      colorText,
     }, { transaction });
 
     await transaction.commit();
     console.log('Update committed successfully');
-    res.status(200).json(universe);
+    res.status(200).json(universe); 
   } catch (error) {
     console.error("Error updating universe:", error);
     await transaction.rollback();
-    res.sendStatus(500);
+    res.sendStatus(500); 
   }
 };
 

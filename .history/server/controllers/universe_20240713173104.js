@@ -74,12 +74,6 @@ export const updateUniverse = async (req, res) => {
   console.log('Received data for update:', req.body);
 
   try {
-    const updateUniverseSchema = z.object({
-      name: z.string().min(1, "Name is required").optional(),
-      color1: z.string().optional(),
-      color2: z.string().optional(),
-      colorText: z.string().optional(),
-    });
     // Validate input
     updateUniverseSchema.parse(req.body);
   } catch (e) {
