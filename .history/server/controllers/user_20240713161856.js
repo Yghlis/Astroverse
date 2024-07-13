@@ -119,25 +119,6 @@ export const updateUser = async (req, res) => {
   const authenticatedUserId = req.user.userId;
   const userData = req.body;
 
-  const updateUserSchema = z.object({
-    first_name: z.string().optional(),
-    last_name: z.string().optional(),
-    email: z.string().email().optional(),
-    password: z.string().optional(),
-    phone_number: z.string().optional(),
-    address: z.object({
-      street: z.string().optional(),
-      city: z.string().optional(),
-      postal_code: z.string().optional(),
-      country: z.string().optional(),
-    }).optional(),
-    roles: z.array(z.string()).optional(),
-    isEmailVerified: z.boolean().optional(),
-    mustChangePassword: z.boolean().optional(),
-    resetPasswordReminder: z.boolean().optional(),
-    toggleNewsletterSubscription: z.boolean().optional(),
-  }).passthrough();
-
   // Vérifiez si l'utilisateur authentifié est soit l'utilisateur en question soit un administrateur
   if (id !== authenticatedUserId && req.user.role !== 'ROLE_ADMIN') {
     return res.sendStatus(403); 
@@ -154,7 +135,7 @@ export const updateUser = async (req, res) => {
     first_name,
     last_name,
     email,
-    password,
+    password_hash,
     phone_number,
     address,
     roles,
@@ -184,8 +165,8 @@ export const updateUser = async (req, res) => {
       }
     }
 
-    const hashedPassword = password
-      ? await bcrypt.hash(password, 10)
+    const hashedPassword = password_hash
+      ? await bcrypt.hash(password_hash, 10)
       : user.password_hash;
 
     // Mettre à jour les champs fournis
@@ -200,7 +181,7 @@ export const updateUser = async (req, res) => {
         roles: roles !== undefined && req.user.role === 'ROLE_ADMIN' ? roles : user.roles,
         isEmailVerified: isEmailVerified !== undefined && req.user.role === 'ROLE_ADMIN' ? isEmailVerified : user.isEmailVerified,
         mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : user.mustChangePassword,
-        lastPasswordChange: resetPasswordReminder ? new Date() : password ? new Date() : user.lastPasswordChange,
+        lastPasswordChange: resetPasswordReminder ? new Date() : password_hash ? new Date() : user.lastPasswordChange,
       },
       { transaction }
     );

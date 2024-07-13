@@ -6,7 +6,6 @@ import Universe from '../models/Universe.js';
 import Character from '../models/Character.js';
 import Follow from '../models/Follow.js';
 import sequelize from '../config/database.js';
-import User from '../models/user.js';
 import nodemailer from 'nodemailer';
 import { validate as validateUUID } from 'uuid';
 import { z } from 'zod';
@@ -134,35 +133,39 @@ export const addProduct = async (req, res) => {
     console.log("addProduct called with req.body:", req.body);
     console.log("addProduct called with req.files:", req.files);
 
-    const schema = z.object({
+    const productSchema = z.object({
       title: z.string().nonempty('Le titre est requis'),
       brand: z.string().nonempty('La marque est requise'),
-      price: z.string().refine(val => /^\d+([.,]\d{1,2})?$/.test(val), {
-        message: 'Le prix doit être un nombre positif avec ou sans centimes',
-      }),
-      discounted_price: z.string().optional().refine(val => /^\d+([.,]\d{1,2})?$/.test(val), {
-        message: 'Le prix promotionnel doit être un nombre positif avec ou sans centimes',
-      }),
-      is_promotion: z.union([z.boolean(), z.string().transform(val => val.toLowerCase() === 'true')]),
+      price: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Le prix doit être un nombre positif avec ou sans centimes'),
+      discounted_price: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Le prix promotionnel doit être un nombre positif avec ou sans centimes').optional(),
+      is_promotion: z.boolean(),
       description: z.string().nonempty('La description est requise'),
-      stock: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]),
-      character: z.string().nonempty('Le personnage est requis'),
-      universe: z.string().nonempty('L\'univers est requis'),
+      stock: z.number().int().nonnegative(),
+      number_of_purchases: z.number().int().nonnegative().optional(),
+      number_of_favorites: z.number().int().nonnegative().optional(),
+      rating: z.number().nonnegative().max(5).optional(),
+      image_preview: z.any().optional(),
+      image_gallery: z.array(z.any()).optional(),
+      character: z.string().uuid('Le personnage est requis'),
+      universe: z.string().uuid('L\'univers est requis'),
       reference: z.string().optional(),
-      details: z.union([z.object({
+      details: z.object({
         dimensions: z.string().nonempty('Les dimensions sont requises'),
         weight: z.string().nonempty('Le poids est requis'),
         materials: z.string().nonempty('Les matériaux sont requis')
-      }), z.string().transform(val => JSON.parse(val))]).optional(),
-      tags: z.string().optional(),
+      }).optional(),
+      tags: z.array(z.string()).optional(),
       availability_status: z.string().nonempty('Le statut de disponibilité est requis'),
-      views_count: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]),
-      number_of_purchases: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]).optional(),
-      number_of_favorites: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]).optional(),
-      rating: z.union([z.number().nonnegative(), z.string().transform(val => parseFloat(val))]).optional()
-    }).passthrough();
+      views_count: z.number().int().nonnegative()
+    }).strict();
 
-    const validatedData = schema.parse(req.body);
+    let validatedData;
+    try {
+      validatedData = productSchema.parse(req.body);
+    } catch (error) {
+      console.error('Validation error:', error);
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
 
     const {
       title,
@@ -172,19 +175,21 @@ export const addProduct = async (req, res) => {
       is_promotion,
       description,
       stock,
+      number_of_purchases,
+      number_of_favorites,
+      rating,
       character,
       universe,
       reference,
       details,
       tags,
       availability_status,
-      views_count,
-      number_of_purchases,
-      number_of_favorites,
-      rating
+      views_count
     } = validatedData;
 
+    // Validate required fields
     validateProductFields({ title, price, character, universe, reference });
+
     // Check if reference is unique
     const existingProduct = await Product.findOne({ where: { reference }, transaction });
     if (existingProduct) {
@@ -193,7 +198,7 @@ export const addProduct = async (req, res) => {
     }
 
     const image_preview = req.files && req.files['image_preview'] ? req.files['image_preview'][0].path : null;
-    const image_gallery = req.files && Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
+    const image_gallery = Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
 
     const universeRecord = isUUIDValid(universe)
       ? await Universe.findByPk(universe, { transaction })
@@ -213,7 +218,7 @@ export const addProduct = async (req, res) => {
       return res.status(404).json({ error: 'Character not found' });
     }
 
-    const productTags = tags ? tags.split(',').map(tag => tag.trim()) : [];
+    const productTags = tags ? tags : [];
 
     const product = await Product.create({
       title,
@@ -394,36 +399,6 @@ export const updateProduct = async (req, res) => {
       return res.status(400).json({ error: 'ID du produit invalide' });
     }
 
-    const schema = z.object({
-      title: z.string().nonempty('Le titre est requis'),
-      brand: z.string().nonempty('La marque est requise'),
-      price: z.string().refine(val => /^\d+([.,]\d{1,2})?$/.test(val), {
-        message: 'Le prix doit être un nombre positif avec ou sans centimes',
-      }),
-      discounted_price: z.string().optional().refine(val => /^\d+([.,]\d{1,2})?$/.test(val), {
-        message: 'Le prix promotionnel doit être un nombre positif avec ou sans centimes',
-      }),
-      is_promotion: z.union([z.boolean(), z.string().transform(val => val.toLowerCase() === 'true')]),
-      description: z.string().nonempty('La description est requise'),
-      stock: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]),
-      character: z.string().nonempty('Le personnage est requis'),
-      universe: z.string().nonempty('L\'univers est requis'),
-      reference: z.string().optional(),
-      details: z.union([z.object({
-        dimensions: z.string().nonempty('Les dimensions sont requises'),
-        weight: z.string().nonempty('Le poids est requis'),
-        materials: z.string().nonempty('Les matériaux sont requis')
-      }), z.string().transform(val => JSON.parse(val))]).optional(),
-      tags: z.string().optional(),
-      availability_status: z.string().nonempty('Le statut de disponibilité est requis'),
-      views_count: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]),
-      number_of_purchases: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]).optional(),
-      number_of_favorites: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]).optional(),
-      rating: z.union([z.number().nonnegative(), z.string().transform(val => parseFloat(val))]).optional()
-    }).passthrough();
-
-    const validatedData = schema.parse(req.body);
-
     const {
       title,
       brand,
@@ -432,17 +407,17 @@ export const updateProduct = async (req, res) => {
       is_promotion,
       description,
       stock,
+      number_of_purchases,
+      number_of_favorites,
+      rating,
       character,
       universe,
       reference,
       details,
       tags,
       availability_status,
-      views_count,
-      number_of_purchases,
-      number_of_favorites,
-      rating
-    } = validatedData;
+      views_count
+    } = req.body;
 
     // Validate required fields
     validateProductFields({ title, price, character, universe, reference });
@@ -575,7 +550,6 @@ export const updateProduct = async (req, res) => {
     res.status(500).end();
   }
 };
-
 
 // Notification lors du changement de stock ou de promotion
 export const notifyProductChange = async (product, previousStock, previousIsPromotion) => {

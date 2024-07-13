@@ -123,7 +123,7 @@ export const updateUser = async (req, res) => {
     first_name: z.string().optional(),
     last_name: z.string().optional(),
     email: z.string().email().optional(),
-    password: z.string().optional(),
+    password_hash: z.string().optional(),
     phone_number: z.string().optional(),
     address: z.object({
       street: z.string().optional(),
@@ -154,7 +154,7 @@ export const updateUser = async (req, res) => {
     first_name,
     last_name,
     email,
-    password,
+    password_hash,
     phone_number,
     address,
     roles,
@@ -184,8 +184,8 @@ export const updateUser = async (req, res) => {
       }
     }
 
-    const hashedPassword = password
-      ? await bcrypt.hash(password, 10)
+    const hashedPassword = password_hash
+      ? await bcrypt.hash(password_hash, 10)
       : user.password_hash;
 
     // Mettre à jour les champs fournis
@@ -200,7 +200,7 @@ export const updateUser = async (req, res) => {
         roles: roles !== undefined && req.user.role === 'ROLE_ADMIN' ? roles : user.roles,
         isEmailVerified: isEmailVerified !== undefined && req.user.role === 'ROLE_ADMIN' ? isEmailVerified : user.isEmailVerified,
         mustChangePassword: mustChangePassword !== undefined ? mustChangePassword : user.mustChangePassword,
-        lastPasswordChange: resetPasswordReminder ? new Date() : password ? new Date() : user.lastPasswordChange,
+        lastPasswordChange: resetPasswordReminder ? new Date() : password_hash ? new Date() : user.lastPasswordChange,
       },
       { transaction }
     );
