@@ -22,7 +22,7 @@
       @update:hideUserSideBar="toggleUser"
       @update:hideCartSideBar="toggleCart"
     >
-      <UserDisplay v-if="userClicked"></UserDisplay>
+      <UserDisplay v-if="userClicked" @update:hideUserSideBar="toggleUser"></UserDisplay>
       <ShoppingCart v-if="cartClicked" @update:hideCartSideBar="toggleCart"></ShoppingCart>
     </SideBar>
   </header>
@@ -34,9 +34,15 @@ import SideBar from "../ui/SideBar.vue";
 import UserDisplay from "./UserDisplay.vue";
 import ShoppingCart from "./ShoppingCart.vue";
 import { computed, ref, watch, onMounted, nextTick } from "vue";
-import logoPath from "../assets/images/logo.png"; // Importer le logo
+import logoPath from "../assets/images/logo.png";
+import { useSidebarStore } from '../stores/sidebarStore';
+const sidebarStore = useSidebarStore();
 
-const logo = ref(logoPath); // Référence au chemin du logo
+
+
+
+
+const logo = ref(logoPath); 
 const userClicked = ref(false);
 const cartClicked = ref(false);
 const type = ref("");
@@ -45,6 +51,10 @@ const toggleUser = () => {
   type.value = "user";
   userClicked.value = !userClicked.value;
 };
+
+watch(() => sidebarStore.isUserSidebarVisible, (newValue, oldValue) => {
+  toggleUser();
+});
 
 const toggleCart = () => {
   type.value = "cart";

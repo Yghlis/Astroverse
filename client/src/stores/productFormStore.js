@@ -60,7 +60,7 @@ export const useProductFormStore = defineStore('productForm', () => {
       weight: z.string().nonempty('Le poids est requis'),
       materials: z.string().nonempty('Les matériaux sont requis')
     }).optional(),
-    tags: z.string().optional()
+    tags: z.union([z.string(), z.array(z.string())]).optional()
   });
 
   const formData = reactive({ ...initialData });
@@ -114,7 +114,14 @@ export const useProductFormStore = defineStore('productForm', () => {
     console.log('Form data after setting:', JSON.stringify(formData, null, 2));
   }
   
-  
+  function resetFormData() {
+    Object.assign(formData, { ...initialData });
+    Object.assign(detailsData, {
+      dimensions: '',
+      weight: '',
+      materials: ''
+    });
+  }
   
 
   async function fetchCharacters() {
@@ -370,6 +377,7 @@ export const useProductFormStore = defineStore('productForm', () => {
     characters,
     universes,
     setFormData,
+    resetFormData,
     fetchCharacters,
     fetchUniverses,
     validate,

@@ -14,13 +14,25 @@
       >checkout</RouterLink
     > -->
     <RouterLink to="/form">About us</RouterLink>
-    <RouterLink to="/admin" :class="{ active: $route.path === '/admin' }"
+    <RouterLink v-if="isAdmin" to="/admin" :class="{ active: $route.path === '/admin' }"
       >Admin</RouterLink
     >
   </nav>
 </template>
 
-<script setup></script>
+<script setup>
+import { onMounted, computed } from 'vue';
+import { useUserStore } from '../stores/userStore';
+
+const userStore = useUserStore();
+
+onMounted(() => {
+  userStore.checkAdmin();
+});
+
+const isAdmin = computed(() => userStore.isAdmin);
+
+</script>
 
 <style lang="scss" scoped>
 nav {

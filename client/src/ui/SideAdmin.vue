@@ -27,7 +27,6 @@ const props = defineProps({
 const emit = defineEmits(["update:hideSideBarAdmin"]);
 
 const toggleNav = () => {
-  console.log("Toggling navigation, current state:", props.showSideBar);
   emit("update:hideSideBarAdmin", !props.showSideBar);
 };
 </script>
@@ -35,26 +34,28 @@ const toggleNav = () => {
 <style lang="scss" scoped>
 .open-btn {
   position: fixed;
-  top: 120px;
-  left: 10px;
+  bottom: 50px;
+  left: 15px;
   cursor: pointer;
   color: black;
   background-color: white;
-  transition: all 0.3s ease;
-  padding: 10px;
+  padding: 5px;
   border-radius: 100%;
-  border: 1px solid #f2a45a;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   align-self: flex-end;
+  transition: all 0.3s ease;
+  animation: lightWave 1.5s infinite;
+  animation-delay: 3s;
   &:hover {
     color: white;
     background-color: #f2a45a;
-    transform: scale(1.1);
+    transform: scale(1.05);
   }
   .material-symbols-outlined {
-    font-size: 30px;
+    font-size: 35px;
     font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
     transition: transform 0.5s ease;
   }
@@ -98,8 +99,21 @@ const toggleNav = () => {
     }
   }
   .slot-content {
-    padding: 20px;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+}
+
+// Animation de vague de lumière
+@keyframes lightWave {
+  0% {
+    box-shadow: 0 0 0 0 rgba(242, 164, 90, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 20px 20px rgba(242, 164, 90, 0);
   }
 }
 

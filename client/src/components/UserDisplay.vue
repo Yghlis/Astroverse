@@ -7,33 +7,79 @@
   <div v-if="showPasswordAlert" class="password-alert">
     <p>Pensez à changer votre mot de passe.</p>
     <button @click="closeAlert">Fermer</button>
-    <button @click="resetPasswordChangeReminder">Ne plus afficher ce message</button>
+    <button @click="resetPasswordChangeReminder">
+      Ne plus afficher ce message
+    </button>
   </div>
 
   <!-- Affichage des messages flash avec classe conditionnelle pour l'animation et la couleur -->
-  <p v-if="flashMessage" class="flash-message" :class="{ 'active': flashMessage, 'success': flashMessageType === 'success', 'error': flashMessageType === 'error' }">{{ flashMessage }}</p>
+  <p
+    v-if="flashMessage"
+    class="flash-message"
+    :class="{
+      active: flashMessage,
+      success: flashMessageType === 'success',
+      error: flashMessageType === 'error',
+    }"
+  >
+    {{ flashMessage }}
+  </p>
 
   <Transition name="slide" mode="out-in">
     <div v-if="!userLoggedIn">
-      <div v-if="!loginClicked && !passwordResetRequested" class="log-btn-container">
-        <button class="log-btn" @click="loginClicked = true">Login</button>
-        <RouterLink to="/register" class="log-btn">Register</RouterLink>
-      </div>
-      <div v-else class="log-btn-container">
-        <div v-if="passwordResetRequested">
-          <input type="email" class="log-input" placeholder="Votre email" v-model="userEmail">
-          <button class="log-btn alt" @click="sendResetEmail">Envoyer un mail</button>
-          <button class="log-btn" @click="returnToLogin">Retour</button>
+      <Transition name="slide" mode="out-in">
+        <div
+          v-if="!loginClicked && !passwordResetRequested"
+          class="log-btn-container"
+        >
+          <button class="log-btn" @click="loginClicked = true">
+            Connexion
+          </button>
+          <RouterLink @click="toggle" to="/register" class="log-btn"
+            >Inscription</RouterLink
+          >
         </div>
-        <div v-else>
-          <input type="email" class="log-input" placeholder="Email" v-model="userEmail">
-          <input type="password" class="log-input" placeholder="Mot de passe" v-model="userPassword">
-          <button class="log-btn alt" @click="loginHandler">Me Connecter</button>
-          <button type="button" @click="forgotPassword" class="forgot-password">Mot de passe oublié?</button>
-          <button class="log-btn" @click="returnToInitial">Retour</button>
+        <div v-else class="log-btn-container">
+          <div v-if="passwordResetRequested">
+            <input
+              type="email"
+              class="log-input"
+              placeholder="Votre email"
+              v-model="userEmail"
+            />
+            <button class="log-btn alt" @click="sendResetEmail">
+              Envoyer un mail
+            </button>
+            <button class="log-btn" @click="returnToLogin">Retour</button>
+          </div>
+          <div v-else>
+            <input
+              type="email"
+              class="log-input"
+              placeholder="Email"
+              v-model="userEmail"
+            />
+            <input
+              type="password"
+              class="log-input"
+              placeholder="Mot de passe"
+              v-model="userPassword"
+            />
+            <button class="log-btn alt" @click="loginHandler">
+              Me Connecter
+            </button>
+            <button
+              type="button"
+              @click="forgotPassword"
+              class="log-btn forgot-password"
+            >
+              Mot de passe oublié?
+            </button>
+            <button class="log-btn" @click="returnToInitial">Retour</button>
+          </div>
+          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         </div>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-      </div>
+      </Transition>
     </div>
     <div v-else class="log-btn-container">
       <button class="log-btn" @click="logoutHandler">Logout</button>
@@ -42,50 +88,59 @@
   </Transition>
 </template>
 
-
 <script setup>
 import { ref, watch } from "vue";
 import { RouterLink } from "vue-router";
-import useFlashMessageStore from '@composables/useFlashMessageStore';
+import useFlashMessageStore from "@composables/useFlashMessageStore";
+import { useUserStore } from "../stores/userStore";
 
-const { flashMessage, flashMessageType, setFlashMessage } = useFlashMessageStore();
+const { flashMessage, flashMessageType, setFlashMessage } =
+  useFlashMessageStore();
 const userLoggedIn = ref(false);
 const loginClicked = ref(false);
 const passwordResetRequested = ref(false);
-const userEmail = ref('');
-const userPassword = ref('');
-const errorMessage = ref('');
+const userEmail = ref("");
+const userPassword = ref("");
+const errorMessage = ref("");
 const showPasswordAlert = ref(false);
+const userStore = useUserStore();
 
 watch(flashMessage, (newVal, oldVal) => {
   console.log("Flash message updated:", newVal);
 });
 
 const loginHandler = async () => {
-  loginClicked.value = true;  
+  loginClicked.value = true;
   if (!userEmail.value || !userPassword.value) {
-    setFlashMessage('Veuillez entrer une adresse e-mail et un mot de passe.', 'error');
+    setFlashMessage(
+      "Veuillez entrer une adresse e-mail et un mot de passe.",
+      "error"
+    );
     return;
   }
   // Appel API pour connexion
-  const response = await fetch('http://localhost:8000/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: userEmail.value, password: userPassword.value })
+  const response = await fetch("http://localhost:8000/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: userEmail.value,
+      password: userPassword.value,
+    }),
   });
 
   if (response.ok) {
     const data = await response.json();
-    localStorage.setItem('jwt', data.token);
-    localStorage.setItem('userId', data.userId);
+    localStorage.setItem("jwt", data.token);
+    localStorage.setItem("userId", data.userId);
     userLoggedIn.value = true;
     if (data.mustChangePassword) {
       showPasswordAlert.value = true;
     }
-    setFlashMessage('Connexion réussie ! Bienvenue.');
+    setFlashMessage("Connexion réussie ! Bienvenue.");
+    userStore.checkAdmin();
   } else {
     const errorData = await response.json();
-    setFlashMessage(errorData.message || 'Erreur de connexion');
+    setFlashMessage(errorData.message || "Erreur de connexion");
   }
 };
 
@@ -94,38 +149,54 @@ const closeAlert = () => {
 };
 
 const resetPasswordChangeReminder = async () => {
-  const userId = localStorage.getItem('userId'); // Assuming userId is stored in localStorage
+  const userId = localStorage.getItem("userId");
   try {
-    const response = await fetch(`http://localhost:8000/users/${userId}/password-reminder-reset`, { // Mise à jour de l'URL
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+    const response = await fetch(
+      `http://localhost:8000/users/${userId}/password-reminder-reset`,
+      {
+        // Mise à jour de l'URL
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+        },
       }
-    });
+    );
 
     if (response.ok) {
       showPasswordAlert.value = false;
-      setFlashMessage('Le rappel de changement de mot de passe a été réinitialisé.', 'success');
+      setFlashMessage(
+        "Le rappel de changement de mot de passe a été réinitialisé.",
+        "success"
+      );
     } else {
       const errorText = await response.text();
-      console.error('Erreur lors de la réinitialisation du rappel de changement de mot de passe:', errorText);
+      console.error(
+        "Erreur lors de la réinitialisation du rappel de changement de mot de passe:",
+        errorText
+      );
       const errorData = JSON.parse(errorText);
-      setFlashMessage(errorData.message || 'Erreur lors de la réinitialisation du rappel de changement de mot de passe.', 'error');
+      setFlashMessage(
+        errorData.message ||
+          "Erreur lors de la réinitialisation du rappel de changement de mot de passe.",
+        "error"
+      );
     }
   } catch (error) {
-    setFlashMessage('Une erreur est survenue lors de la réinitialisation du rappel de changement de mot de passe.', 'error');
+    setFlashMessage(
+      "Une erreur est survenue lors de la réinitialisation du rappel de changement de mot de passe.",
+      "error"
+    );
   }
 };
 
-
-
 const logoutHandler = () => {
-  localStorage.removeItem('jwt');
-  localStorage.removeItem('userId');
+  localStorage.removeItem("jwt");
+  localStorage.removeItem("userId");
   userLoggedIn.value = false;
-  setFlashMessage('Déconnexion réussie.');
-  setTimeout(() => flashMessage.value = '', 3000); // Cache le message après 3 secondes
+  setFlashMessage("Déconnexion réussie.");
+  setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+  userStore.checkAdmin();
 };
 
 const forgotPassword = () => {
@@ -134,24 +205,29 @@ const forgotPassword = () => {
 
 const sendResetEmail = async () => {
   if (!userEmail.value) {
-    setFlashMessage('Veuillez entrer votre email.');
+    setFlashMessage("Veuillez entrer votre email.");
     return;
   }
 
-  const response = await fetch('http://localhost:8000/auth/forgot-password', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: userEmail.value })
+  const response = await fetch("http://localhost:8000/auth/forgot-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: userEmail.value }),
   });
 
   if (response.ok) {
-    setFlashMessage('Un email de réinitialisation a été envoyé si votre email est enregistré.');
+    setFlashMessage(
+      "Un email de réinitialisation a été envoyé si votre email est enregistré."
+    );
     passwordResetRequested.value = false;
-    setTimeout(() => flashMessage.value = '', 3000); // Cache le message après 3 secondes
+    setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
   } else {
     const errorData = await response.json();
-    setFlashMessage(errorData.message || 'Erreur lors de l\'envoi de l\'email de réinitialisation.');
-    setTimeout(() => flashMessage.value = '', 3000); // Cache le message après 3 secondes
+    setFlashMessage(
+      errorData.message ||
+        "Erreur lors de l'envoi de l'email de réinitialisation."
+    );
+    setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
   }
 };
 
@@ -166,21 +242,27 @@ const returnToInitial = () => {
 };
 
 const checkLoginStatus = () => {
-  userLoggedIn.value = !!localStorage.getItem('jwt');
+  userLoggedIn.value = !!localStorage.getItem("jwt");
 };
 
 checkLoginStatus();
+
+const emit = defineEmits(["update:hideUserSideBar"]);
+
+const toggle = () => {
+  emit("update:hideUserSideBar", false);
+};
 </script>
 
-
-<style scoped>
+<style lang="scss" scoped>
 .material-symbols-outlined {
   font-size: 150px;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
   transition: transform 0.5s ease;
   text-align: center;
   width: 100%;
 }
+
 h2 {
   text-align: center;
   font-size: 2rem;
@@ -192,18 +274,18 @@ h2 {
   border-left: 6px solid #f44336;
   margin-bottom: 15px;
   padding: 15px;
-}
 
-.password-alert p {
-  margin: 0;
-  font-size: 16px;
-}
+  p {
+    margin: 0;
+    font-size: 16px;
+  }
 
-.password-alert button {
-  margin-top: 10px;
-  padding: 10px;
-  font-size: 14px;
-  cursor: pointer;
+  button {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
 }
 
 .log-btn-container {
@@ -214,7 +296,8 @@ h2 {
   margin-top: 20px;
   width: 100%;
 }
-.log-btn, .log-input {
+
+.log-btn {
   padding: 10px;
   width: 100%;
   text-align: center;
@@ -227,27 +310,55 @@ h2 {
   transition: all 0.3s ease;
   background-color: white;
   cursor: pointer;
-  font-family: 'Nippo', sans-serif;
+  font-family: "Nippo", sans-serif;
+  text-decoration: none;
+
+  &:hover {
+    color: white;
+    background-color: black;
+    border: 1px solid black;
+  }
+  &.alt:hover {
+    color: white;
+    background-color: #727272;
+    border: 1px solid #727272;
+  }
 }
-.log-btn:hover, .log-btn.alt:hover {
-  color: white;
-  background-color: #f2a45a;
-  border: 1px solid #f2a45a;
+
+.log-input {
+  padding: 10px 20px;
+  width: 100%;
+  margin: 5px 0;
+  border: 1px solid black;
+  border-radius: 25px;
+
+  font-size: 20px;
+  font-family: "Nippo", sans-serif;
+  &:focus {
+    outline: none;
+  }
 }
+
 .log-btn.alt {
   margin-top: 20px;
-  background-color: #f2a45a;
+  background-color: black;
   color: white;
-  border: 1px solid #f2a45a;
+  border: 1px solid black;
 }
+
 .error-message {
   color: red;
   text-align: center;
 }
-.slide-enter-active, .slide-leave-active {
-  transition: transform 0.5s ease;
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.5s ease, opacity 0.5s ease;
 }
-.slide-enter-from, .slide-leave-to {
+
+.slide-enter-from,
+.slide-leave-to {
   transform: translateY(100%);
+  opacity: 0;
 }
 </style>
