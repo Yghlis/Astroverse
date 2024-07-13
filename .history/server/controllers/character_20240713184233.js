@@ -4,19 +4,7 @@ import sequelize from '../config/database.js';
 import { Op } from 'sequelize'; 
 import { z } from 'zod';
 
-
-
 export const addCharacter = async (req, res) => {
-  const addCharacterSchema = z.object({
-    name: z.string().min(1, "Name is required"),
-    universe: z.string().uuid("Universe ID must be a valid UUID"),
-  }).passthrough();
-  try {
-    addCharacterSchema.parse(req.body);
-  } catch (e) {
-    return res.status(400).json({ error: e.errors });
-  }
-
   const { name, universe } = req.body;
 
   const transaction = await sequelize.transaction();
@@ -53,53 +41,37 @@ export const addCharacter = async (req, res) => {
 
 export const updateCharacter = async (req, res) => {
   const { id } = req.params;
-  const updateCharacterSchema = z.object({
-    name: z.string().min(1, "Name is required").optional(),
-    universe: z.string().uuid("Universe ID must be a valid UUID").optional(),
-  }).passthrough();
-  // Valider les données d'entrée
-  try {
-    updateCharacterSchema.parse(req.body);
-  } catch (e) {
-    return res.status(400).json({ error: e.errors });
-  }
-
   const { name, universe } = req.body;
+
+
 
   const transaction = await sequelize.transaction();
   try {
     const character = await Character.findByPk(id);
     if (!character) {
-      await transaction.rollback();
       return res.status(404).json({ error: 'Character not found' });
     }
 
-    if (universe) {
-      const universeRecord = await Universe.findOne({ where: { id: universe } });
-      if (!universeRecord) {
-        await transaction.rollback();
-        return res.status(404).json({ error: 'Universe not found' });
-      }
+    const universeRecord = await Universe.findOne({ where: { id: universe } });
+    if (!universeRecord) {
+      return res.status(404).json({ error: 'Universe not found' });
     }
 
     // Vérifiez si un autre personnage avec le même nom existe déjà
-    if (name) {
-      const existingCharacter = await Character.findOne({
-        where: {
-          name,
-          id: { [Op.ne]: id } // Exclure le personnage actuel de la recherche
-        }
-      });
-
-      if (existingCharacter) {
-        await transaction.rollback();
-        return res.status(409).json({ error: 'A character with the same name already exists' });
+    const existingCharacter = await Character.findOne({
+      where: {
+        name,
+        id: { [Op.ne]: id } // Exclure le personnage actuel de la recherche
       }
+    });
+
+    if (existingCharacter) {
+      return res.status(409).json({ error: 'A character with the same name already exists' });
     }
 
     await character.update({
-      name: name || character.name,
-      universe: universe || character.universe
+      name,
+      universe: universeRecord.id
     }, { transaction });
 
     await transaction.commit();
@@ -110,7 +82,6 @@ export const updateCharacter = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 export const getCharacters = async (req, res) => {
   try {

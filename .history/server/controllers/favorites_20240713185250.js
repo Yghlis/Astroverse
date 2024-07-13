@@ -5,9 +5,6 @@ import { z } from 'zod';
 // Ajouter un produit aux favoris
 export const addFavorite = async (req, res) => {
   const userId = req.user.userId;
-  const addFavoriteSchema = z.object({
-    productId: z.string().uuid("Product ID must be a valid UUID"),
-  });
 
   console.log(`userId from token: ${userId}`);
 

@@ -156,7 +156,8 @@
   const toggleNotification = async () => {
     notification.value = !notification.value;
     const userId = localStorage.getItem("userId");
-    const productId = product.value.id;
+    const  = localStorage.getItem("productId");
+  
     console.log("User ID:", userId);
     console.log("Product ID:", productId);
 
@@ -168,7 +169,7 @@
   };
 
   const toggleFavorite = async () => {
-    const productId = product.value.id;
+    const productId = route.params.id;
     if (isFavorite.value) {
       await productStore.removeFavorite(productId);
     } else {

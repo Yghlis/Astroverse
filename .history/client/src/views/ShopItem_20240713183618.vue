@@ -123,6 +123,7 @@
   onMounted(async () => {
     const productId = route.params.id;
     await productStore.fetchProduct(productId);
+    console.log("Product:", product.value.id);
     activeImage.value = product.value.image_gallery[0];
     //modification du slug de l'url
     if (product.value) {

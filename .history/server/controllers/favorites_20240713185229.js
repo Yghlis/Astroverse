@@ -4,42 +4,30 @@ import { z } from 'zod';
 
 // Ajouter un produit aux favoris
 export const addFavorite = async (req, res) => {
+  const { productId } = req.body;
   const userId = req.user.userId;
-  const addFavoriteSchema = z.object({
-    productId: z.string().uuid("Product ID must be a valid UUID"),
-  });
 
   console.log(`userId from token: ${userId}`);
-
-  // Valider les données d'entrée
-  try {
-    addFavoriteSchema.parse(req.body);
-  } catch (e) {
-    return res.status(400).json({ error: e.errors });
-  }
-
-  const { productId } = req.body;
   console.log(`productId from request body: ${productId}`);
 
   try {
     const product = await Product.findByPk(productId);
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' }); // Produit non trouvé
+      return res.status(404); // Produit non trouvé
     }
 
     const existingFavorite = await Favorite.findOne({ where: { userId, productId } });
     if (existingFavorite) {
-      return res.status(400).json({ error: 'Product already in favorites' }); // Produit déjà ajouté aux favoris
+      return res.status(400); // Produit déjà ajouté aux favoris
     }
 
     const favorite = await Favorite.create({ userId, productId });
     res.status(201).json(favorite); // Succès, favori créé
   } catch (error) {
     console.log('Erreur:', error);
-    res.status(500).json({ error: 'Internal server error' }); // Erreur interne du serveur
+    res.status(500); // Erreur interne du serveur
   }
 };
-
 
 // Supprimer un produit des favoris
 export const removeFavorite = async (req, res) => {

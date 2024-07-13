@@ -122,6 +122,7 @@
 
   onMounted(async () => {
     const productId = route.params.id;
+    console.log("Product ID:", productId);
     await productStore.fetchProduct(productId);
     activeImage.value = product.value.image_gallery[0];
     //modification du slug de l'url
@@ -156,7 +157,7 @@
   const toggleNotification = async () => {
     notification.value = !notification.value;
     const userId = localStorage.getItem("userId");
-    const productId = product.value.id;
+    const productId = route.params.id;
     console.log("User ID:", userId);
     console.log("Product ID:", productId);
 
@@ -168,7 +169,7 @@
   };
 
   const toggleFavorite = async () => {
-    const productId = product.value.id;
+    const productId = route.params.id;
     if (isFavorite.value) {
       await productStore.removeFavorite(productId);
     } else {

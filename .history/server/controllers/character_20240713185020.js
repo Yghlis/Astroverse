@@ -53,10 +53,7 @@ export const addCharacter = async (req, res) => {
 
 export const updateCharacter = async (req, res) => {
   const { id } = req.params;
-  const updateCharacterSchema = z.object({
-    name: z.string().min(1, "Name is required").optional(),
-    universe: z.string().uuid("Universe ID must be a valid UUID").optional(),
-  }).passthrough();
+
   // Valider les données d'entrée
   try {
     updateCharacterSchema.parse(req.body);
