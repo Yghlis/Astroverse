@@ -3,41 +3,7 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from 'sequelize';
-import { z } from 'zod';
 import User from '../models/user.js';
-
-// Schémas de validation Zod
-const loginSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required')
-});
-
-const signupSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
-  confirmPassword: z.string().min(1, 'Confirm password is required'),
-  first_name: z.string().min(1, 'First name is required'),
-  last_name: z.string().min(1, 'Last name is required')
-}).refine(data => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword']
-});
-
-const changePasswordSchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
-  newPassword: z.string().min(12, 'Password must be at least 12 characters long')
-    .regex(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/, 'Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character')
-});
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email format')
-});
-
-const resetPasswordSchema = z.object({
-  token: z.string().uuid('Invalid token'),
-  newPassword: z.string().min(12, 'Password must be at least 12 characters long')
-    .regex(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/, 'Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character')
-});
 
 function sendError(res, statusCode, message) {
     res.status(statusCode).json({ error: message });
@@ -120,12 +86,6 @@ function authenticateToken(req, res, next) {
 }
 
 const postLogin = async (req, res) => {
-    try {
-        loginSchema.parse(req.body);
-    } catch (e) {
-        return res.status(400).json({ error: e.errors });
-    }
-
     const { email, password } = req.body;
 
     try {
@@ -195,13 +155,8 @@ const postLogin = async (req, res) => {
     }
 };
 
-const postChangePassword = async (req, res) => {
-    try {
-        changePasswordSchema.parse(req.body);
-    } catch (e) {
-        return res.status(400).json({ error: e.errors });
-    }
 
+const postChangePassword = async (req, res) => {
     const { userId, newPassword } = req.body;
 
     console.log('Received request to change password for user:', userId);
@@ -240,18 +195,13 @@ const postChangePassword = async (req, res) => {
     }
 };
 
+
 function validatePassword(password) {
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{12,}$/;
     return passwordRegex.test(password);
 }
 
 const postSignup = async (req, res) => {
-    try {
-        signupSchema.parse(req.body);
-    } catch (e) {
-        return res.status(400).json({ error: e.errors });
-    }
-
     const { email, password, confirmPassword, first_name, last_name } = req.body;
 
     if (!first_name || !last_name || !email || !password || !confirmPassword) {
@@ -311,12 +261,6 @@ const resetPasswordGet = async (req, res) => {
 };
 
 const postForgotPassword = async (req, res) => {
-    try {
-        forgotPasswordSchema.parse(req.body);
-    } catch (e) {
-        return res.status(400).json({ error: e.errors });
-    }
-
     const { email } = req.body;
     const user = await User.findOne({ where: { email } });
     if (user) {
@@ -343,12 +287,6 @@ const postForgotPassword = async (req, res) => {
 };
 
 const postResetPassword = async (req, res) => {
-    try {
-        resetPasswordSchema.parse(req.body);
-    } catch (e) {
-        return res.status(400).json({ error: e.errors });
-    }
-
     const { token, newPassword } = req.body;
     const user = await User.findOne({
         where: {

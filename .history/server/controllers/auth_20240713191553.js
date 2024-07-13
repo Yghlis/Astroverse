@@ -195,6 +195,7 @@ const postLogin = async (req, res) => {
     }
 };
 
+
 const postChangePassword = async (req, res) => {
     try {
         changePasswordSchema.parse(req.body);
@@ -205,10 +206,6 @@ const postChangePassword = async (req, res) => {
     const { userId, newPassword } = req.body;
 
     console.log('Received request to change password for user:', userId);
-
-    if (!validatePassword(newPassword)) {
-        return sendError(res, 400, 'Le mot de passe doit contenir au moins 12 caractères, dont un chiffre, une majuscule, une minuscule, et un symbole.');
-    }
 
     try {
         const user = await User.findByPk(userId);
@@ -239,11 +236,6 @@ const postChangePassword = async (req, res) => {
         return sendError(res, 500, 'An error occurred during password change');
     }
 };
-
-function validatePassword(password) {
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{12,}$/;
-    return passwordRegex.test(password);
-}
 
 const postSignup = async (req, res) => {
     try {

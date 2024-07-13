@@ -11,7 +11,7 @@ export const addFavorite = async (req, res) => {
 
   console.log(`userId from token: ${userId}`);
 
-
+  // Valider les données d'entrée
   try {
     addFavoriteSchema.parse(req.body);
   } catch (e) {
@@ -24,7 +24,7 @@ export const addFavorite = async (req, res) => {
   try {
     const product = await Product.findByPk(productId);
     if (!product) {
-      return res.status(404).json({ error: 'Product not found' }); 
+      return res.status(404).json({ error: 'Product not found' }); // Produit non trouvé
     }
 
     const existingFavorite = await Favorite.findOne({ where: { userId, productId } });

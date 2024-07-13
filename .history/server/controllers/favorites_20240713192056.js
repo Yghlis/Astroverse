@@ -11,7 +11,7 @@ export const addFavorite = async (req, res) => {
 
   console.log(`userId from token: ${userId}`);
 
-
+  // Valider les données d'entrée
   try {
     addFavoriteSchema.parse(req.body);
   } catch (e) {

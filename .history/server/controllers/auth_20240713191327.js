@@ -3,41 +3,8 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from 'sequelize';
-import { z } from 'zod';
 import User from '../models/user.js';
 
-// Schémas de validation Zod
-const loginSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required')
-});
-
-const signupSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
-  confirmPassword: z.string().min(1, 'Confirm password is required'),
-  first_name: z.string().min(1, 'First name is required'),
-  last_name: z.string().min(1, 'Last name is required')
-}).refine(data => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword']
-});
-
-const changePasswordSchema = z.object({
-  userId: z.string().uuid('Invalid user ID'),
-  newPassword: z.string().min(12, 'Password must be at least 12 characters long')
-    .regex(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/, 'Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character')
-});
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email format')
-});
-
-const resetPasswordSchema = z.object({
-  token: z.string().uuid('Invalid token'),
-  newPassword: z.string().min(12, 'Password must be at least 12 characters long')
-    .regex(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/, 'Password must contain at least one digit, one lowercase letter, one uppercase letter, and one special character')
-});
 
 function sendError(res, statusCode, message) {
     res.status(statusCode).json({ error: message });
@@ -206,10 +173,6 @@ const postChangePassword = async (req, res) => {
 
     console.log('Received request to change password for user:', userId);
 
-    if (!validatePassword(newPassword)) {
-        return sendError(res, 400, 'Le mot de passe doit contenir au moins 12 caractères, dont un chiffre, une majuscule, une minuscule, et un symbole.');
-    }
-
     try {
         const user = await User.findByPk(userId);
         if (!user) {
@@ -239,11 +202,6 @@ const postChangePassword = async (req, res) => {
         return sendError(res, 500, 'An error occurred during password change');
     }
 };
-
-function validatePassword(password) {
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{12,}$/;
-    return passwordRegex.test(password);
-}
 
 const postSignup = async (req, res) => {
     try {
