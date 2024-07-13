@@ -84,6 +84,7 @@
 import { ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
+import { useUserStore } from '../stores/userStore';
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();
@@ -94,6 +95,7 @@ const userEmail = ref("");
 const userPassword = ref("");
 const errorMessage = ref("");
 const showPasswordAlert = ref(false);
+const userStore = useUserStore();
 
 watch(flashMessage, (newVal, oldVal) => {
   console.log("Flash message updated:", newVal);
@@ -127,6 +129,7 @@ const loginHandler = async () => {
       showPasswordAlert.value = true;
     }
     setFlashMessage("Connexion réussie ! Bienvenue.");
+    userStore.checkAdmin();
   } else {
     const errorData = await response.json();
     setFlashMessage(errorData.message || "Erreur de connexion");
@@ -179,12 +182,16 @@ const resetPasswordChangeReminder = async () => {
   }
 };
 
+
+
+
 const logoutHandler = () => {
   localStorage.removeItem("jwt");
   localStorage.removeItem("userId");
   userLoggedIn.value = false;
   setFlashMessage("Déconnexion réussie.");
   setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+  userStore.checkAdmin();
 };
 
 const forgotPassword = () => {
