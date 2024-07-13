@@ -20,7 +20,6 @@
           <div v-if="item">
             <!-- Détails du produit -->
             <div v-if="currentDataType === 'products'">
-              {{ item }}
               <p><strong>Nom du produit :</strong> {{ item.title }}</p>
               <p><strong>Marque :</strong> {{ item.brand }}</p>
               <p><strong>Prix :</strong> {{ item.price }}</p>

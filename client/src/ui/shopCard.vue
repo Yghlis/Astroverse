@@ -18,13 +18,11 @@
       </div>
       <div class="price">
         <span :class="{ promotion: product.is_promotion }">
-            {{
-              product.is_promotion ? product.discounted_price : product.price
-            }}
-            €
-          </span>
-          <div v-if="product.is_promotion" class="promo-data">
-            <span class="promo">- {{ discountPercentage }}%</span>
+          {{ product.is_promotion ? product.discounted_price : product.price }}
+          €
+        </span>
+        <div v-if="product.is_promotion" class="promo-data">
+          <span class="promo">- {{ discountPercentage }}%</span>
           <span class="price-original"> {{ product.price }} € </span>
         </div>
       </div>
@@ -81,9 +79,15 @@ const getImageUrl = (absolutePath) => {
 };
 
 const discountPercentage = computed(() => {
-  if (props.product && props.product.is_promotion && props.product.discounted_price) {
+  if (
+    props.product &&
+    props.product.is_promotion &&
+    props.product.discounted_price
+  ) {
     return Math.round(
-      ((props.product.price - props.product.discounted_price) / props.product.price) * 100
+      ((props.product.price - props.product.discounted_price) /
+        props.product.price) *
+        100
     );
   }
   return 0;
@@ -148,7 +152,8 @@ const addToCart = () => {
       margin: 10px 0 0 0;
     }
     .title {
-      height: 60px;
+      min-height: 30px;
+      max-height: 60px;
       //for having ... when text is too long
       overflow: hidden;
       text-overflow: ellipsis;
@@ -185,12 +190,12 @@ const addToCart = () => {
         font-weight: 700;
         border-radius: 5px;
         background-color: black;
-            color: #ffffff;
-            padding: 5px 10px;
+        color: #ffffff;
+        padding: 5px 10px;
         &.promotion {
-            background-color: #ff0000;
-            color: #ffffff;
-          }
+          background-color: #ff0000;
+          color: #ffffff;
+        }
       }
       .promo-data {
         display: flex;
