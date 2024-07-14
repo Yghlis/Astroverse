@@ -6,6 +6,9 @@
     </div>
     <NavBar />
     <div class="right-btn">
+      <button class="btn" @click="toggleFavorite">
+        <span class="material-symbols-outlined alt"> favorite </span>
+      </button>
       <button class="btn" @click="toggleUser">
         <span class="material-symbols-outlined">account_circle</span>
       </button>
@@ -17,13 +20,23 @@
       </button>
     </div>
     <SideBar
-      :showSideBar="userClicked || cartClicked"
+      :showSideBar="userClicked || cartClicked || favoriteClicked"
       :type="type"
       @update:hideUserSideBar="toggleUser"
       @update:hideCartSideBar="toggleCart"
+      @update:hideFavoriteSideBar="toggleFavorite"
     >
-      <UserDisplay v-if="userClicked" @update:hideUserSideBar="toggleUser"></UserDisplay>
-      <ShoppingCart v-if="cartClicked" @update:hideCartSideBar="toggleCart"></ShoppingCart>
+      <UserDisplay
+        v-if="userClicked"
+        @update:hideUserSideBar="toggleUser"
+      ></UserDisplay>
+      <ShoppingCart
+        v-if="cartClicked"
+        @update:hideCartSideBar="toggleCart"
+      ></ShoppingCart>
+      <TheFavorite v-if="favoriteClicked"
+      @update:hideFavoriteSideBar="toggleFavorite">
+      </TheFavorite>
     </SideBar>
   </header>
 </template>
@@ -35,16 +48,17 @@ import UserDisplay from "./UserDisplay.vue";
 import ShoppingCart from "./ShoppingCart.vue";
 import { computed, ref, watch, onMounted, nextTick } from "vue";
 import logoPath from "../assets/images/logo.png";
-import { useSidebarStore } from '../stores/sidebarStore';
+import { useSidebarStore } from "../stores/sidebarStore";
+import TheFavorite from "./TheFavorite.vue";
+
+
+
 const sidebarStore = useSidebarStore();
 
-
-
-
-
-const logo = ref(logoPath); 
+const logo = ref(logoPath);
 const userClicked = ref(false);
 const cartClicked = ref(false);
+const favoriteClicked = ref(false);
 const type = ref("");
 
 const toggleUser = () => {
@@ -52,13 +66,21 @@ const toggleUser = () => {
   userClicked.value = !userClicked.value;
 };
 
-watch(() => sidebarStore.isUserSidebarVisible, (newValue, oldValue) => {
-  toggleUser();
-});
+watch(
+  () => sidebarStore.isUserSidebarVisible,
+  (newValue, oldValue) => {
+    toggleUser();
+  }
+);
 
 const toggleCart = () => {
   type.value = "cart";
   cartClicked.value = !cartClicked.value;
+};
+
+const toggleFavorite = () => {
+  type.value = "favorite";
+  favoriteClicked.value = !favoriteClicked.value;
 };
 
 //Panier
@@ -78,16 +100,16 @@ watch(NombreDeItems, async (newValue, oldValue) => {
       numberItems.value,
       {
         transform: ["translateY(0)", "translateY(50px)", "translateY(0)"],
-        backgroundColor: [null, "#f2a45a", 'white'],
+        backgroundColor: [null, "#f2a45a", "white"],
       },
       {
         duration: 0.8,
         easing: "ease",
       }
     );
-     // Ajouter la classe après la durée de l'animation
-     setTimeout(() => {
-      numberItems.value.style.cssText = '';
+    // Ajouter la classe après la durée de l'animation
+    setTimeout(() => {
+      numberItems.value.style.cssText = "";
     }, 850);
   }
 });
