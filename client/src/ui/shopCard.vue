@@ -50,6 +50,10 @@ const navigateToDetail = () => {
 };
 
 const getImageUrl = (absolutePath) => {
+  console.log("wtf", absolutePath);
+  if (!absolutePath) {
+    return "";
+  }
   // Extraire la partie relative du chemin absolu
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;

@@ -47,7 +47,7 @@ export const useProductStore = defineStore("product", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ userId }),
         });
@@ -57,10 +57,16 @@ export const useProductStore = defineStore("product", {
           console.error("Error message from API:", responseData);
           throw new Error(responseData.error || "Failed to follow product");
         }
-        useFlashMessageStore().setFlashMessage("Product followed successfully", "success");
+        useFlashMessageStore().setFlashMessage(
+          "Product followed successfully",
+          "success"
+        );
       } catch (error) {
         console.error("Fetch error:", error.message);
-        useFlashMessageStore().setFlashMessage(error.message || "Failed to follow product", "error");
+        useFlashMessageStore().setFlashMessage(
+          error.message || "Failed to follow product",
+          "error"
+        );
       }
     },
 
@@ -77,7 +83,7 @@ export const useProductStore = defineStore("product", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ userId }),
         });
@@ -87,10 +93,16 @@ export const useProductStore = defineStore("product", {
           console.error("Error message from API:", responseData);
           throw new Error(responseData.error || "Failed to unfollow product");
         }
-        useFlashMessageStore().setFlashMessage("Product unfollowed successfully", "success");
+        useFlashMessageStore().setFlashMessage(
+          "Product unfollowed successfully",
+          "success"
+        );
       } catch (error) {
         console.error("Fetch error:", error.message);
-        useFlashMessageStore().setFlashMessage(error.message || "Failed to unfollow product", "error");
+        useFlashMessageStore().setFlashMessage(
+          error.message || "Failed to unfollow product",
+          "error"
+        );
       }
     },
 
@@ -107,7 +119,7 @@ export const useProductStore = defineStore("product", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ productId }),
         });
@@ -118,10 +130,16 @@ export const useProductStore = defineStore("product", {
           throw new Error(responseData.error || "Failed to add favorite");
         }
         this.isFavorite = true;
-        useFlashMessageStore().setFlashMessage("Product added to favorites", "success");
+        useFlashMessageStore().setFlashMessage(
+          "Product added to favorites",
+          "success"
+        );
       } catch (error) {
         console.error("Fetch error:", error.message);
-        useFlashMessageStore().setFlashMessage(error.message || "Failed to add favorite", "error");
+        useFlashMessageStore().setFlashMessage(
+          error.message || "Failed to add favorite",
+          "error"
+        );
       }
     },
 
@@ -138,7 +156,7 @@ export const useProductStore = defineStore("product", {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         console.log("API response:", response);
@@ -148,10 +166,16 @@ export const useProductStore = defineStore("product", {
           throw new Error(responseData.error || "Failed to remove favorite");
         }
         this.isFavorite = false;
-        useFlashMessageStore().setFlashMessage("Product removed from favorites", "success");
+        useFlashMessageStore().setFlashMessage(
+          "Product removed from favorites",
+          "success"
+        );
       } catch (error) {
         console.error("Fetch error:", error.message);
-        useFlashMessageStore().setFlashMessage(error.message || "Failed to remove favorite", "error");
+        useFlashMessageStore().setFlashMessage(
+          error.message || "Failed to remove favorite",
+          "error"
+        );
       }
     },
 
@@ -165,17 +189,17 @@ export const useProductStore = defineStore("product", {
       try {
         const response = await fetch(`${apiUrl}/favorites`, {
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         const favorites = await response.json();
-        this.isFavorite = favorites.some(fav => fav.productId === productId);
+        this.isFavorite = favorites.some((fav) => fav.productId === productId);
       } catch (error) {
         console.error("Fetch error:", error.message);
       }
     },
 
-    async getFollowedProducts() {
+    async getFollowedProducts(userId) {
       const apiUrl = import.meta.env.VITE_API_URL;
       const token = localStorage.getItem("jwt");
       if (!token) {
@@ -183,16 +207,17 @@ export const useProductStore = defineStore("product", {
         return;
       }
       try {
-        const response = await fetch(`${apiUrl}/products/followed`, {
+        const response = await fetch(`${apiUrl}/products/${userId}/followed`, {
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         const followedProducts = await response.json();
         console.log("Followed products:", followedProducts);
+        this.followedProducts = followedProducts;
       } catch (error) {
         console.error("Fetch error:", error.message);
       }
-    }
+    },
   },
 });

@@ -49,12 +49,11 @@
       </button>
     </form>
     <h2>Mes produits suivis</h2>
-    {{ followedProducts }}
     <TheCarousel>
       <shopCard
-        v-for="item in figurines"
+        v-for="item in displayProducts"
         :key="item.id"
-        :product="item"
+        :product="item.Product"
       ></shopCard>
     </TheCarousel>
   </div>
@@ -74,7 +73,7 @@ const productStore = useProductStore();
 onMounted(() => {
   const id = localStorage.getItem("userId");
   userStore.getUserById(id);
-  productStore.getFollowedProducts();
+  productStore.getFollowedProducts(id);
 });
 
 const userData = computed(() => userStore.userData);
@@ -108,6 +107,17 @@ watch(
     } ${addressData.postal_code || ""} ${addressData.country || ""}`.trim();
     address.value = formattedAddress;
     initialAddress.value = formattedAddress;
+  },
+  { immediate: true }
+);
+
+const displayProducts = ref([]);
+
+// Watcher pour mettre à jour les produits suivis affichés lorsque les données changent
+watch(
+  followedProducts,
+  (newVal) => {
+    displayProducts.value = newVal;
   },
   { immediate: true }
 );
