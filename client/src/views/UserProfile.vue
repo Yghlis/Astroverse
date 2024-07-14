@@ -1,6 +1,6 @@
 <template>
   <div class="profile-container">
-    <h2>Profil Utilisateur</h2>
+    <h2>Mes Informations</h2>
     <form @submit.prevent="updateProfile">
       <div class="form-group">
         <label for="firstName">Prénom<span>*</span>:</label>
@@ -162,7 +162,6 @@ const updateProfile = () => {
 
   console.log("Données utilisateur avant envoi :", updatedUserData);
 
-  // Mettez à jour le profil utilisateur en appelant une méthode du store ici
   userStore.updateUser(userData.value.user_id, updatedUserData);
 };
 </script>
