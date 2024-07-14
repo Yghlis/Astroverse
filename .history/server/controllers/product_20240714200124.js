@@ -11,6 +11,7 @@ import nodemailer from 'nodemailer';
 import { validate as validateUUID } from 'uuid';
 import { z } from 'zod';
 
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -35,6 +36,7 @@ const sendEmail = async (to, subject, html) => {
     console.log('Error sending email:', error);
   }
 };
+
 
 const isUUIDValid = (id) => {
   return validateUUID(id);
@@ -97,12 +99,13 @@ export const unfollowProduct = async (req, res) => {
   }
 };
 
+
 export const getFollowedProducts = async (req, res) => {
   const userId = req.user.userId;
   const requestedUserId = req.params.userId;
   
   if (userId !== requestedUserId) {
-    return res.status(403).json({ error: 'Interdit : Vous n\'avez pas la permission d\'accéder à cette ressource' });
+    return res.status(403).json({ error: 'Interdit : Vous n'avez pas la permission d'accéder à cette ressource' });
   }
 
   try {
@@ -122,6 +125,13 @@ export const getFollowedProducts = async (req, res) => {
     res.json(followedProducts);
   } catch (error) {
     res.status(500).json({ error: 'Erreur interne du serveur' });
+  }
+}; 
+
+    res.status(200).json(followedProducts);
+  } catch (error) {
+    console.error("Error fetching followed products:", error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -161,6 +171,7 @@ export const checkStock = async (req, res) => {
     res.status(500).json({ available: false, message: 'Server error', error });
   }
 };
+
 
 export const addProduct = async (req, res) => {
   const transaction = await sequelize.transaction();
@@ -316,6 +327,7 @@ export const addProduct = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 // Notification lors de la création d'un nouveau produit dans un univers suivi
 export const notifyNewProductInUniverse = async (product) => {
@@ -607,6 +619,7 @@ export const updateProduct = async (req, res) => {
     res.status(500).end();
   }
 };
+
 
 // Notification lors du changement de stock ou de promotion
 export const notifyProductChange = async (product, previousStock, previousIsPromotion) => {
