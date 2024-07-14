@@ -35,7 +35,8 @@
 import { ref, onMounted } from "vue";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
 
-const { flashMessage, flashMessageType, setFlashMessage } = useFlashMessageStore();
+const { flashMessage, flashMessageType, setFlashMessage } =
+  useFlashMessageStore();
 const isSubscribedToNewsletter = ref(false);
 const isLoggedIn = ref(false);
 const token = ref("");
@@ -43,65 +44,70 @@ const userId = ref("");
 
 // Vérifier si l'utilisateur est connecté lors du chargement du composant
 onMounted(() => {
-  console.log('onMounted in TheFooter.vue called');
+  console.log("onMounted in TheFooter.vue called");
   token.value = localStorage.getItem("jwt"); // Assurez-vous que la clé est correcte
   userId.value = localStorage.getItem("userId");
   isLoggedIn.value = !!token.value;
 
-  console.log('userId in TheFooter.vue:', userId.value);
-  console.log('token in TheFooter.vue:', token.value);
-  console.log('isLoggedIn in TheFooter.vue:', isLoggedIn.value);
+  console.log("userId in TheFooter.vue:", userId.value);
+  console.log("token in TheFooter.vue:", token.value);
+  console.log("isLoggedIn in TheFooter.vue:", isLoggedIn.value);
 
   // Récupérer l'état d'abonnement de l'utilisateur
   if (isLoggedIn.value) {
     fetch(`/api/users/${userId.value}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${token.value}` // Utilisez le token JWT pour l'authentification
+        Authorization: `Bearer ${token.value}`, // Utilisez le token JWT pour l'authentification
       },
     })
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         isSubscribedToNewsletter.value = data.isSubscribedToNewsletter;
       })
-      .catch(error => {
-        console.error("Erreur lors de la récupération de l'état d'abonnement:", error);
+      .catch((error) => {
+        console.error(
+          "Erreur lors de la récupération de l'état d'abonnement:",
+          error
+        );
       });
   }
 });
 const toggleSubscription = async () => {
-  console.log('toggleSubscription called');
-  console.log('userId:', userId.value);
-  console.log('token:', token.value);
+  console.log("toggleSubscription called");
+  console.log("userId:", userId.value);
+  console.log("token:", token.value);
 
   try {
-    const response = await fetch(`http://localhost:8000/users/${userId.value}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token.value}` // Utilisez le token JWT pour l'authentification
-      },
-      body: JSON.stringify({
-        toggleNewsletterSubscription: !isSubscribedToNewsletter.value // Inversez l'état actuel
-      })
-    });
+    const response = await fetch(
+      `http://localhost:8000/users/${userId.value}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token.value}`, // Utilisez le token JWT pour l'authentification
+        },
+        body: JSON.stringify({
+          toggleNewsletterSubscription: !isSubscribedToNewsletter.value, // Inversez l'état actuel
+        }),
+      }
+    );
 
-    console.log('response status:', response.status);
+    console.log("response status:", response.status);
 
     if (response.ok) {
       const data = await response.json();
-      console.log('response data:', data);
+      console.log("response data:", data);
       isSubscribedToNewsletter.value = data.isSubscribedToNewsletter;
-      setFlashMessage(data.message, 'success');
+      setFlashMessage(data.message, "success");
     } else {
-      setFlashMessage("Erreur lors de l'abonnement.", 'error');
+      setFlashMessage("Erreur lors de l'abonnement.", "error");
     }
   } catch (error) {
     console.error("Erreur lors de l'abonnement:", error);
-    setFlashMessage("Erreur lors de l'abonnement.", 'error');
+    setFlashMessage("Erreur lors de l'abonnement.", "error");
   }
 };
-
 </script>
 
 <style lang="scss" scoped>
@@ -125,7 +131,7 @@ const toggleSubscription = async () => {
 }
 
 .footer {
-  background-color: #333;
+  background-color: black;
   color: #fff;
   padding: 20px 0;
   text-align: center;
@@ -153,16 +159,17 @@ const toggleSubscription = async () => {
 
       &-button {
         padding: 10px 20px;
+        font-size: 20px;
         border: none;
         border-radius: 4px;
-        background-color: #f2a45a;
-        color: #fff;
+        color: black;
+        background-color: white;
         font-weight: bold;
         cursor: pointer;
         transition: background-color 0.3s ease;
 
         &:hover {
-          background-color: #c57b36;
+          background-color: #ccc;
         }
       }
     }

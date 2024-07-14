@@ -47,11 +47,11 @@ const toggleNav = () => {
   justify-content: center;
   align-self: flex-end;
   transition: all 0.3s ease;
-  animation: lightWave 1.5s infinite;
+  animation: blueLightWave 1.5s infinite;
   animation-delay: 3s;
   &:hover {
     color: white;
-    background-color: #f2a45a;
+    background-color: #007bff;
     transform: scale(1.05);
   }
   .material-symbols-outlined {
@@ -107,13 +107,12 @@ const toggleNav = () => {
   }
 }
 
-// Animation de vague de lumière
-@keyframes lightWave {
+@keyframes blueLightWave {
   0% {
-    box-shadow: 0 0 0 0 rgba(242, 164, 90, 0.7);
+    box-shadow: 0 0 0 0 #007bff;
   }
   100% {
-    box-shadow: 0 0 20px 20px rgba(242, 164, 90, 0);
+    box-shadow: 0 0 20px 20px rgba(0, 0, 255, 0);
   }
 }
 
