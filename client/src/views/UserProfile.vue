@@ -48,22 +48,37 @@
         Mettre à jour le profil
       </button>
     </form>
+    <h2>Mes produits suivis</h2>
+    {{ followedProducts }}
+    <TheCarousel>
+      <shopCard
+        v-for="item in figurines"
+        :key="item.id"
+        :product="item"
+      ></shopCard>
+    </TheCarousel>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import TheLoader from "../ui/TheLoader.vue";
+import TheCarousel from "../ui/TheCarousel.vue";
+import shopCard from "../ui/shopCard.vue";
 import { useUserStore } from "../stores/userStore";
+import { useProductStore } from "../stores/useProductStore";
 
 const userStore = useUserStore();
+const productStore = useProductStore();
 
 onMounted(() => {
   const id = localStorage.getItem("userId");
   userStore.getUserById(id);
+  productStore.getFollowedProducts();
 });
 
 const userData = computed(() => userStore.userData);
+const followedProducts = computed(() => productStore.followedProducts);
 
 // Refs pour les champs d'entrée
 const firstName = ref("");
@@ -177,7 +192,7 @@ const updateProfile = () => {
 
   h2 {
     margin-bottom: 20px;
-    font-size: 54px;
+    font-size: 45px;
   }
 
   form {

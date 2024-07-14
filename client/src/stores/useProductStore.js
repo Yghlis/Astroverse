@@ -7,6 +7,7 @@ export const useProductStore = defineStore("product", {
     loading: false,
     error: null,
     isFavorite: false,
+    followedProducts: {},
   }),
 
   actions: {
@@ -173,5 +174,25 @@ export const useProductStore = defineStore("product", {
         console.error("Fetch error:", error.message);
       }
     },
+
+    async getFollowedProducts() {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const token = localStorage.getItem("jwt");
+      if (!token) {
+        console.error("Token not present");
+        return;
+      }
+      try {
+        const response = await fetch(`${apiUrl}/products/followed`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        const followedProducts = await response.json();
+        console.log("Followed products:", followedProducts);
+      } catch (error) {
+        console.error("Fetch error:", error.message);
+      }
+    }
   },
 });
