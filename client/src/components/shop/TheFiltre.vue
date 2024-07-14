@@ -5,7 +5,7 @@
     </Transition>
     <div class="filter">
       <div class="filter-header">
-        <h2>Filter</h2>
+        <h2>Filtrer</h2>
         <div v-if="NombreDeFilter" class="number-filtre">
           <span>{{ NombreDeFilter }}</span>
         </div>
@@ -343,15 +343,15 @@ watch(screenWidth, (newWidth) => {
   .filter-header {
     width: 100%;
     height: 50px;
-    background-color: #f2a45a;
+    background-color: black;
     border-radius: 15px 15px 0 0;
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
     padding: 0 10px;
     h2 {
       color: white;
-      font-size: 20px;
+      font-size: 22px;
       font-weight: bold;
     }
     .number-filtre {

@@ -1,8 +1,6 @@
 <template>
   <div class="container-shop">
-    <div class="banner"></div>
     <SearchBar />
-    <!-- <h1>{{ searchText }}</h1> -->
     <div class="sub_container">
       <TheLoader v-if="loading" :loading="loading"> </TheLoader>
       <div v-if="error">{{ error }}</div>
@@ -97,11 +95,7 @@ onBeforeUnmount(() => {
   align-items: flex-start;
   margin: 100px auto 0 auto;
   gap: 20px;
-  .banner {
-    width: 100%;
-    height: 200px;
-    background-color: #f2a45a;
-  }
+  padding-top: 50px;
   .sub_container {
     width: 100%;
     display: flex;
