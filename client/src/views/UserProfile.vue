@@ -14,7 +14,7 @@
 
       <div class="form-group">
         <label for="email">Email<span>*</span>:</label>
-        <input v-model="email" id="email" type="email" disabled />
+        <input v-model="email" id="email" type="email" required />
       </div>
 
       <div class="form-group" v-if="phoneNumber">

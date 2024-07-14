@@ -122,6 +122,7 @@ header {
   position: fixed;
   top: 0;
   width: 100%;
+  padding: 0 50px;
   font-family: "Montserrat", sans-serif;
   background-color: white;
   display: flex;
@@ -155,7 +156,6 @@ header {
     align-items: center;
     justify-content: center;
     margin-left: auto;
-    margin-right: 50px;
     button {
       margin: 0 10px;
     }
