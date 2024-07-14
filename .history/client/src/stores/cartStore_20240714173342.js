@@ -16,30 +16,6 @@ export const useCartStore = defineStore('cart', {
     },
   },
   actions: {
-    async syncCart() {
-      try {
-        const response = await fetch('http://localhost:8000/basket', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'session-id': localStorage.getItem('sessionId'),
-          },
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Error syncing cart:', errorText);
-          return;
-        }
-
-        const data = await response.json();
-        this.cartItems = data.items;
-        localStorage.setItem('cartStore', JSON.stringify(this.$state));
-      } catch (error) {
-        console.error('Error syncing cart:', error);
-      }
-    },
-
     async addItemToCart(item) {
       const existingItem = this.cartItems.find(cartItem => cartItem.id === item.id);
       const newQuantity = 1; // Toujours ajouter 1 au panier
@@ -96,90 +72,77 @@ export const useCartStore = defineStore('cart', {
         } else {
           console.error('Stock insuffisant:', checkStockData.message);
         }
-
-        // Synchroniser le panier après chaque ajout
-        await this.syncCart();
       } catch (error) {
         console.error('Error checking stock or adding to basket:', error);
       }
     },
-
     async decrementItemQuantity(itemId) {
       const item = this.cartItems.find(cartItem => cartItem.id === itemId);
       if (item) {
+        const newQuantity = -1;
         try {
-          const decrementBasketResponse = await fetch('http://localhost:8000/basket/decrement', {
+          console.log('Checking stock for decrementing item:', itemId, 'Quantity:', newQuantity);
+          const checkStockResponse = await fetch('http://localhost:8000/products/check-stock', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'session-id': localStorage.getItem('sessionId'),
-              'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             },
-            body: JSON.stringify({ productId: item.id })
+            body: JSON.stringify({ productId: item.id, quantity: newQuantity })
           });
 
-          if (!decrementBasketResponse.ok) {
-            const errorText = await decrementBasketResponse.text();
-            console.error('Error decrementing product in basket:', errorText);
+          if (!checkStockResponse.ok) {
+            const errorText = await checkStockResponse.text();
+            console.error('Error checking stock:', errorText);
             return;
           }
 
-          console.log('Product decremented in basket successfully');
+          const checkStockData = await checkStockResponse.json();
+          console.log('Parsed JSON response:', checkStockData);
 
-          // Si la quantité est supérieure à 1, décrémenter simplement
-          if (item.quantity > 1) {
-            item.quantity--;
-            console.log('Existing item quantity decremented:', item.quantity);
+          if (checkStockData.available) {
+            const decrementBasketResponse = await fetch('http://localhost:8000/basket/decrement', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'session-id': localStorage.getItem('sessionId'),
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+              },
+              body: JSON.stringify({ productId: item.id })
+            });
+
+            if (!decrementBasketResponse.ok) {
+              const errorText = await decrementBasketResponse.text();
+              console.error('Error decrementing product in basket:', errorText);
+              return;
+            }
+
+            console.log('Product decremented in basket successfully');
+
+            // Si la quantité est supérieure à 1, décrémenter simplement
+            if (item.quantity > 1) {
+              item.quantity--;
+              console.log('Existing item quantity decremented:', item.quantity);
+            } else {
+              // Si la quantité atteint 0, retirer l'article du panier
+              this.cartItems = this.cartItems.filter(cartItem => cartItem.id !== item.id);
+              console.log('Item removed from cart:', item.id);
+            }
+            localStorage.setItem('cartStore', JSON.stringify(this.$state));
           } else {
-            // Si la quantité atteint 0, retirer l'article du panier
-            this.cartItems = this.cartItems.filter(cartItem => cartItem.id !== item.id);
-            console.log('Item removed from cart:', item.id);
+            console.error('Stock insuffisant:', checkStockData.message);
           }
-          localStorage.setItem('cartStore', JSON.stringify(this.$state));
-
-          // Synchroniser le panier après chaque décrémentation
-          await this.syncCart();
         } catch (error) {
-          console.error('Error decrementing from basket:', error);
+          console.error('Error checking stock or decrementing from basket:', error);
         }
       }
     },
-
-    async removeItemFromCart(itemId) {
-      const item = this.cartItems.find(cartItem => cartItem.id === itemId);
-      if (item) {
-        try {
-          const removeItemResponse = await fetch('http://localhost:8000/basket/remove', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'session-id': localStorage.getItem('sessionId'),
-              'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-            },
-            body: JSON.stringify({ productId: item.id })
-          });
-
-          if (!removeItemResponse.ok) {
-            const errorText = await removeItemResponse.text();
-            console.error('Error removing product from basket:', errorText);
-            return;
-          }
-
-          console.log('Product removed from basket successfully');
-
-          this.cartItems = this.cartItems.filter(cartItem => cartItem.id !== item.id);
-          localStorage.setItem('cartStore', JSON.stringify(this.$state));
-
-          // Synchroniser le panier après chaque suppression
-          await this.syncCart();
-        } catch (error) {
-          console.error('Error removing from basket:', error);
-        }
-      }
-    },
-
     getItemPrice(item) {
       return item.is_promotion && item.discounted_price ? item.discounted_price : item.price;
+    },
+    removeItemFromCart(itemId) {
+      this.cartItems = this.cartItems.filter(item => item.id !== itemId);
+      localStorage.setItem('cartStore', JSON.stringify(this.$state));
     }
   },
 });

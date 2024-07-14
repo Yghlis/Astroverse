@@ -3,18 +3,6 @@ import Product from '../models/Product.js';
 import ProductMongo from '../models/ProductMongo.js'; // Importer le modèle MongoDB
 import { v4 as uuidv4 } from 'uuid';
 
-const ONE_MINUTE = 60 * 1000;
-
-const clearBasketIfExpired = async (basket) => {
-  const now = new Date();
-  if (basket.firstItemAddedAt && now - new Date(basket.firstItemAddedAt) > ONE_MINUTE) {
-    basket.items = [];
-    basket.firstItemAddedAt = null;
-    await basket.save();
-    console.log('Basket cleared due to expiration');
-  }
-};
-
 // Ajouter ou mettre à jour un produit dans le panier
 export const addToBasket = async (req, res) => {
   const { productId } = req.body;
@@ -47,13 +35,10 @@ export const addToBasket = async (req, res) => {
         id: uuidv4(),
         userId,
         sessionId,
-        items: [{ productId, quantity: 1 }],
-        firstItemAddedAt: new Date()
+        items: [{ productId, quantity: 1 }]
       });
       console.log('New basket created with item:', basket.items);
     } else {
-      await clearBasketIfExpired(basket);
-
       // Mettre à jour le panier existant
       const items = basket.items || [];
       const existingItem = items.find(item => item.productId === productId);
@@ -64,14 +49,9 @@ export const addToBasket = async (req, res) => {
         items.push({ productId, quantity: 1 });
         console.log('New item added:', { productId, quantity: 1 });
       }
-
-      if (items.length === 1) {
-        basket.firstItemAddedAt = new Date();
-      }
-
       // Mettre à jour le champ items avec le tableau modifié
       await Basket.update(
-        { items: items, updatedAt: new Date(), firstItemAddedAt: basket.firstItemAddedAt },
+        { items: items, updatedAt: new Date() },
         { where: { id: basket.id } }
       );
       console.log('Basket updated with new items:', items);
@@ -98,8 +78,6 @@ export const addToBasket = async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 };
-
-// Décrémenter ou supprimer un produit dans le panier
 export const decrementFromBasket = async (req, res) => {
   const { productId } = req.body;
   const userId = req.user ? req.user.userId : null;
@@ -119,8 +97,6 @@ export const decrementFromBasket = async (req, res) => {
       return res.status(404).json({ message: 'Basket not found.' });
     }
 
-    await clearBasketIfExpired(basket);
-
     const items = basket.items || [];
     const existingItem = items.find(item => item.productId === productId);
 
@@ -136,19 +112,16 @@ export const decrementFromBasket = async (req, res) => {
       console.log('Item removed:', productId);
     }
 
-    if (basket.items.length === 0) {
-      basket.firstItemAddedAt = null;
-    }
+    await Basket.update({ items: basket.items, updatedAt: new Date() }, { where: { id: basket.id } });
 
-    basket.updatedAt = new Date();
-    await basket.save();
-
+    // Mettre à jour le stock du produit
     const product = await Product.findByPk(productId);
     if (product) {
       product.stock += 1;
       await product.save();
     }
 
+    // Mettre à jour le stock du produit dans MongoDB
     const productMongo = await ProductMongo.findOne({ id: productId });
     if (productMongo) {
       productMongo.stock += 1;
@@ -182,8 +155,6 @@ export const removeFromBasket = async (req, res) => {
       return res.status(404).json({ message: 'Basket not found.' });
     }
 
-    await clearBasketIfExpired(basket);
-
     const items = basket.items || [];
     const itemIndex = items.findIndex(item => item.productId === productId);
 
@@ -193,19 +164,16 @@ export const removeFromBasket = async (req, res) => {
 
     const [removedItem] = items.splice(itemIndex, 1);
 
-    if (items.length === 0) {
-      basket.firstItemAddedAt = null;
-    }
+    await Basket.update({ items: items, updatedAt: new Date() }, { where: { id: basket.id } });
 
-    basket.updatedAt = new Date();
-    await basket.save();
-
+    // Mettre à jour le stock du produit
     const product = await Product.findByPk(productId);
     if (product) {
       product.stock += removedItem.quantity;
       await product.save();
     }
 
+    // Mettre à jour le stock du produit dans MongoDB
     const productMongo = await ProductMongo.findOne({ id: productId });
     if (productMongo) {
       productMongo.stock += removedItem.quantity;
@@ -215,33 +183,6 @@ export const removeFromBasket = async (req, res) => {
     res.status(200).json({ message: 'Product removed from basket successfully.' });
   } catch (error) {
     console.error('Error removing product from basket:', error);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-};
-
-export const getBasket = async (req, res) => {
-  const userId = req.user ? req.user.userId : null;
-  const sessionId = req.headers['session-id'];
-
-  if (!sessionId) {
-    return res.status(400).json({ message: 'Session ID is required.' });
-  }
-
-  try {
-    let basket = await Basket.findOne({ where: { userId } });
-    if (!basket) {
-      basket = await Basket.findOne({ where: { sessionId } });
-    }
-
-    if (!basket) {
-      return res.status(404).json({ message: 'Basket not found.' });
-    }
-
-    await clearBasketIfExpired(basket);
-
-    res.status(200).json({ items: basket.items });
-  } catch (error) {
-    console.error('Error fetching basket:', error);
     res.status(500).json({ message: 'Internal server error.' });
   }
 };

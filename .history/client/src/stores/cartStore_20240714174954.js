@@ -16,30 +16,6 @@ export const useCartStore = defineStore('cart', {
     },
   },
   actions: {
-    async syncCart() {
-      try {
-        const response = await fetch('http://localhost:8000/basket', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'session-id': localStorage.getItem('sessionId'),
-          },
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Error syncing cart:', errorText);
-          return;
-        }
-
-        const data = await response.json();
-        this.cartItems = data.items;
-        localStorage.setItem('cartStore', JSON.stringify(this.$state));
-      } catch (error) {
-        console.error('Error syncing cart:', error);
-      }
-    },
-
     async addItemToCart(item) {
       const existingItem = this.cartItems.find(cartItem => cartItem.id === item.id);
       const newQuantity = 1; // Toujours ajouter 1 au panier
@@ -96,14 +72,10 @@ export const useCartStore = defineStore('cart', {
         } else {
           console.error('Stock insuffisant:', checkStockData.message);
         }
-
-        // Synchroniser le panier après chaque ajout
-        await this.syncCart();
       } catch (error) {
         console.error('Error checking stock or adding to basket:', error);
       }
     },
-
     async decrementItemQuantity(itemId) {
       const item = this.cartItems.find(cartItem => cartItem.id === itemId);
       if (item) {
@@ -136,15 +108,11 @@ export const useCartStore = defineStore('cart', {
             console.log('Item removed from cart:', item.id);
           }
           localStorage.setItem('cartStore', JSON.stringify(this.$state));
-
-          // Synchroniser le panier après chaque décrémentation
-          await this.syncCart();
         } catch (error) {
           console.error('Error decrementing from basket:', error);
         }
       }
     },
-
     async removeItemFromCart(itemId) {
       const item = this.cartItems.find(cartItem => cartItem.id === itemId);
       if (item) {
@@ -169,15 +137,11 @@ export const useCartStore = defineStore('cart', {
 
           this.cartItems = this.cartItems.filter(cartItem => cartItem.id !== item.id);
           localStorage.setItem('cartStore', JSON.stringify(this.$state));
-
-          // Synchroniser le panier après chaque suppression
-          await this.syncCart();
         } catch (error) {
           console.error('Error removing from basket:', error);
         }
       }
     },
-
     getItemPrice(item) {
       return item.is_promotion && item.discounted_price ? item.discounted_price : item.price;
     }

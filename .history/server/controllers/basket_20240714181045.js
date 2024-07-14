@@ -218,30 +218,3 @@ export const removeFromBasket = async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 };
-
-export const getBasket = async (req, res) => {
-  const userId = req.user ? req.user.userId : null;
-  const sessionId = req.headers['session-id'];
-
-  if (!sessionId) {
-    return res.status(400).json({ message: 'Session ID is required.' });
-  }
-
-  try {
-    let basket = await Basket.findOne({ where: { userId } });
-    if (!basket) {
-      basket = await Basket.findOne({ where: { sessionId } });
-    }
-
-    if (!basket) {
-      return res.status(404).json({ message: 'Basket not found.' });
-    }
-
-    await clearBasketIfExpired(basket);
-
-    res.status(200).json({ items: basket.items });
-  } catch (error) {
-    console.error('Error fetching basket:', error);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-};

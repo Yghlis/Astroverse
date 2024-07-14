@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import Header from "./components/Header.vue";
 import TheFooter from "./components/TheFooter.vue";
 import { useCartStore } from './stores/cartStore';
@@ -19,26 +19,12 @@ import { useCartStore } from './stores/cartStore';
 const isLoggedIn = ref(false);
 const firstName = ref("");
 const lastName = ref("");
-const cartStore = useCartStore();
 
 // Vérifier si l'utilisateur est connecté lors du chargement du composant
 onMounted(() => {
   isLoggedIn.value = !!localStorage.getItem("token");
   firstName.value = localStorage.getItem("firstName");
   lastName.value = localStorage.getItem("lastName");
-
-  // Synchroniser le panier immédiatement lors du montage
-  cartStore.syncCart();
-
-  // Synchroniser le panier toutes les minutes
-  const interval = setInterval(() => {
-    cartStore.syncCart();
-  }, 60000); // 60000 ms = 1 minute
-
-  // Nettoyer l'intervalle lorsqu'on démonte le composant
-  onUnmounted(() => {
-    clearInterval(interval);
-  });
 });
 
 // Fonction pour gérer la déconnexion

@@ -3,22 +3,11 @@ import Product from '../models/Product.js';
 import ProductMongo from '../models/ProductMongo.js'; // Importer le modèle MongoDB
 import { v4 as uuidv4 } from 'uuid';
 
-const ONE_MINUTE = 60 * 1000;
-
-const clearBasketIfExpired = async (basket) => {
-  const now = new Date();
-  if (basket.firstItemAddedAt && now - new Date(basket.firstItemAddedAt) > ONE_MINUTE) {
-    basket.items = [];
-    basket.firstItemAddedAt = null;
-    await basket.save();
-    console.log('Basket cleared due to expiration');
-  }
-};
-
+// Ajouter ou mettre à jour un produit dans le panier
 // Ajouter ou mettre à jour un produit dans le panier
 export const addToBasket = async (req, res) => {
   const { productId } = req.body;
-  const userId = req.user ? req.user.userId : null; // Récupérer l'ID utilisateur du token JWT si disponible
+  const userId = req.user ? req.user.userId : null;
   const sessionId = req.headers['session-id'];
 
   console.log('Request body:', req.body);
@@ -28,21 +17,18 @@ export const addToBasket = async (req, res) => {
   }
 
   try {
-    // Vérifier si le produit existe et a suffisamment de stock
     const product = await Product.findByPk(productId);
     if (!product || product.stock < 1) {
       console.log('Insufficient stock or product not found.');
       return res.status(400).json({ message: 'Insufficient stock or product not found.' });
     }
 
-    // Vérifier si un panier existe pour cet utilisateur ou cette session
     let basket = await Basket.findOne({ where: { userId } });
     if (!basket) {
       basket = await Basket.findOne({ where: { sessionId } });
     }
 
     if (!basket) {
-      // Créer un nouveau panier
       basket = await Basket.create({
         id: uuidv4(),
         userId,
@@ -54,9 +40,9 @@ export const addToBasket = async (req, res) => {
     } else {
       await clearBasketIfExpired(basket);
 
-      // Mettre à jour le panier existant
       const items = basket.items || [];
       const existingItem = items.find(item => item.productId === productId);
+
       if (existingItem) {
         existingItem.quantity += 1;
         console.log('Existing item found, updated quantity:', existingItem.quantity);
@@ -69,23 +55,15 @@ export const addToBasket = async (req, res) => {
         basket.firstItemAddedAt = new Date();
       }
 
-      // Mettre à jour le champ items avec le tableau modifié
-      await Basket.update(
-        { items: items, updatedAt: new Date(), firstItemAddedAt: basket.firstItemAddedAt },
-        { where: { id: basket.id } }
-      );
-      console.log('Basket updated with new items:', items);
+      basket.items = items;
+      basket.updatedAt = new Date();
+      await basket.save();
+      console.log('Basket updated with new items:', basket.items);
     }
 
-    // Vérifiez que les modifications sont bien sauvegardées
-    const updatedBasket = await Basket.findOne({ where: { id: basket.id } });
-    console.log('Verified updated basket:', updatedBasket.items);
-
-    // Mettre à jour le stock du produit
     product.stock -= 1;
     await product.save();
 
-    // Mettre à jour le stock du produit dans MongoDB
     const productMongo = await ProductMongo.findOne({ id: productId });
     if (productMongo) {
       productMongo.stock -= 1;
@@ -98,7 +76,6 @@ export const addToBasket = async (req, res) => {
     res.status(500).json({ message: 'Internal server error.' });
   }
 };
-
 // Décrémenter ou supprimer un produit dans le panier
 export const decrementFromBasket = async (req, res) => {
   const { productId } = req.body;
@@ -140,8 +117,7 @@ export const decrementFromBasket = async (req, res) => {
       basket.firstItemAddedAt = null;
     }
 
-    basket.updatedAt = new Date();
-    await basket.save();
+    await Basket.update({ items: basket.items, firstItemAddedAt: basket.firstItemAddedAt, updatedAt: new Date() }, { where: { id: basket.id } });
 
     const product = await Product.findByPk(productId);
     if (product) {
@@ -162,6 +138,7 @@ export const decrementFromBasket = async (req, res) => {
   }
 };
 
+// Supprimer un produit du panier
 // Supprimer un produit du panier
 export const removeFromBasket = async (req, res) => {
   const { productId } = req.body;
@@ -197,8 +174,7 @@ export const removeFromBasket = async (req, res) => {
       basket.firstItemAddedAt = null;
     }
 
-    basket.updatedAt = new Date();
-    await basket.save();
+    await Basket.update({ items: items, firstItemAddedAt: basket.firstItemAddedAt, updatedAt: new Date() }, { where: { id: basket.id } });
 
     const product = await Product.findByPk(productId);
     if (product) {
@@ -215,33 +191,6 @@ export const removeFromBasket = async (req, res) => {
     res.status(200).json({ message: 'Product removed from basket successfully.' });
   } catch (error) {
     console.error('Error removing product from basket:', error);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-};
-
-export const getBasket = async (req, res) => {
-  const userId = req.user ? req.user.userId : null;
-  const sessionId = req.headers['session-id'];
-
-  if (!sessionId) {
-    return res.status(400).json({ message: 'Session ID is required.' });
-  }
-
-  try {
-    let basket = await Basket.findOne({ where: { userId } });
-    if (!basket) {
-      basket = await Basket.findOne({ where: { sessionId } });
-    }
-
-    if (!basket) {
-      return res.status(404).json({ message: 'Basket not found.' });
-    }
-
-    await clearBasketIfExpired(basket);
-
-    res.status(200).json({ items: basket.items });
-  } catch (error) {
-    console.error('Error fetching basket:', error);
     res.status(500).json({ message: 'Internal server error.' });
   }
 };
