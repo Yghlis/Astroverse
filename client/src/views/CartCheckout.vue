@@ -234,6 +234,10 @@ const handleSubmit = () => {
             border-radius: 4px;
             margin-bottom: 4px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            &:hover {
+              background-color: #e7e7e7;
+            }
           }
         }
       }

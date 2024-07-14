@@ -1,4 +1,3 @@
-<!-- src/components/NavBar.vue -->
 <template>
   <nav>
     <!-- <RouterLink to="/" :class="{ active: $route.path === '/' }"
@@ -14,15 +13,22 @@
       >checkout</RouterLink
     > -->
     <RouterLink to="/form">About us</RouterLink>
-    <RouterLink v-if="isAdmin" to="/admin" :class="{ active: $route.path === '/admin' }"
+    <RouterLink
+      v-if="isAdmin"
+      to="/admin"
+      :class="{ active: $route.path === '/admin' }"
       >Admin</RouterLink
+    >
+    <!-- ajouter la verif que nous somme connecter -->
+    <RouterLink to="/profile" :class="{ active: $route.path === '/profile' }"
+      >pro</RouterLink
     >
   </nav>
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue';
-import { useUserStore } from '../stores/userStore';
+import { onMounted, computed } from "vue";
+import { useUserStore } from "../stores/userStore";
 
 const userStore = useUserStore();
 
@@ -31,7 +37,6 @@ onMounted(() => {
 });
 
 const isAdmin = computed(() => userStore.isAdmin);
-
 </script>
 
 <style lang="scss" scoped>
@@ -39,24 +44,24 @@ nav {
   background-color: white;
   padding: 1rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  width: 500px;
+  gap: 20px;
   a {
     color: black;
-    font-size: 22px;
+    font-size: 25px;
     font-weight: bold;
     text-decoration: none;
-    transition: all 0.3s ease;
     padding: 0.5rem 1rem;
-    border-radius: 15px;
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
     &:hover,
     &.active {
       color: white;
-      background-color: #f2a45a;
+      background-color: black;
     }
     .material-symbols-outlined {
       font-size: 22px;

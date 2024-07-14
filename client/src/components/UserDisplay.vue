@@ -82,8 +82,9 @@
       </Transition>
     </div>
     <div v-else class="log-btn-container">
-      <button class="log-btn" @click="logoutHandler">Logout</button>
-      <span>Bienvenue!</span>
+      <RouterLink @click="toggle" to="/profile" class="log-btn"
+      >Mon Profile</RouterLink>
+      <button class="log-btn" @click="logoutHandler">Déconnexion</button>
     </div>
   </Transition>
 </template>

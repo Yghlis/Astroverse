@@ -28,11 +28,7 @@
 import { ref, watch, onMounted } from "vue";
 import { animate } from "motion";
 import { useShopStore } from "../stores/useShopStore";
-import { useRouter, useRoute } from 'vue-router';
-
-
-
-
+import { useRouter, useRoute } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
@@ -47,7 +43,6 @@ const handleSearch = async (text) => {
   router.push({ query });
 };
 
-
 onMounted(() => {
   if (route.query.title) {
     searchText.value = route.query.title;
@@ -55,21 +50,15 @@ onMounted(() => {
   }
 });
 
-
-
 watch(searchText, (newSearch) => {
   handleSearch(newSearch);
 });
-
-
 
 watch(route, (newRoute) => {
   if (newRoute.query.title !== searchText.value) {
     searchText.value = newRoute.query.title || "";
   }
 });
-
-
 
 //Animation
 const handleFocus = () => {
@@ -82,7 +71,6 @@ const handleBlur = () => {
   changeIcon();
 };
 
-
 const changeIcon = () => {
   if (icon.value === "search") {
     icon.value = "close";
@@ -94,7 +82,6 @@ const changeIcon = () => {
 const resetSearchText = () => {
   searchText.value = "";
 };
-
 </script>
 
 <style lang="scss" scoped>
@@ -125,10 +112,10 @@ const resetSearchText = () => {
     width: 300px;
     padding: 10px 10px 10px 40px;
     font-size: 20px;
-    border: 1px solid black;
+    border: 1px solid #ccc;
     border-radius: 10px;
     &:focus {
-      border-color: #f2a45a;
+      border-color: black;
       outline: none;
     }
   }

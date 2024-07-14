@@ -30,7 +30,7 @@ const props = defineProps({
 });
 
 // Définir les événements
-const emit = defineEmits(["update:hideUserSideBar", "update:hideCartSideBar"]);
+const emit = defineEmits(["update:hideUserSideBar", "update:hideCartSideBar", "update:hideFavoriteSideBar"]);
 
 // Fonction pour émettre l'événement
 const toggle = () => {
@@ -38,6 +38,8 @@ const toggle = () => {
     emit("update:hideUserSideBar", false);
   } else if (props.type === "cart") {
     emit("update:hideCartSideBar", false);
+  } else if (props.type === "favorite") {
+    emit("update:hideFavoriteSideBar", false);
   }
 };
 

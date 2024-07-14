@@ -4,8 +4,12 @@
       <img :src="logo" alt="Logo" class="logo" />
       <h1>Astroverse</h1>
     </div>
+    <div class="divider"></div>
     <NavBar />
     <div class="right-btn">
+      <button class="btn" @click="toggleFavorite">
+        <span class="material-symbols-outlined alt"> favorite </span>
+      </button>
       <button class="btn" @click="toggleUser">
         <span class="material-symbols-outlined">account_circle</span>
       </button>
@@ -17,13 +21,25 @@
       </button>
     </div>
     <SideBar
-      :showSideBar="userClicked || cartClicked"
+      :showSideBar="userClicked || cartClicked || favoriteClicked"
       :type="type"
       @update:hideUserSideBar="toggleUser"
       @update:hideCartSideBar="toggleCart"
+      @update:hideFavoriteSideBar="toggleFavorite"
     >
-      <UserDisplay v-if="userClicked" @update:hideUserSideBar="toggleUser"></UserDisplay>
-      <ShoppingCart v-if="cartClicked" @update:hideCartSideBar="toggleCart"></ShoppingCart>
+      <UserDisplay
+        v-if="userClicked"
+        @update:hideUserSideBar="toggleUser"
+      ></UserDisplay>
+      <ShoppingCart
+        v-if="cartClicked"
+        @update:hideCartSideBar="toggleCart"
+      ></ShoppingCart>
+      <TheFavorite
+        v-if="favoriteClicked"
+        @update:hideFavoriteSideBar="toggleFavorite"
+      >
+      </TheFavorite>
     </SideBar>
   </header>
 </template>
@@ -35,16 +51,15 @@ import UserDisplay from "./UserDisplay.vue";
 import ShoppingCart from "./ShoppingCart.vue";
 import { computed, ref, watch, onMounted, nextTick } from "vue";
 import logoPath from "../assets/images/logo.png";
-import { useSidebarStore } from '../stores/sidebarStore';
+import { useSidebarStore } from "../stores/sidebarStore";
+import TheFavorite from "./TheFavorite.vue";
+
 const sidebarStore = useSidebarStore();
 
-
-
-
-
-const logo = ref(logoPath); 
+const logo = ref(logoPath);
 const userClicked = ref(false);
 const cartClicked = ref(false);
+const favoriteClicked = ref(false);
 const type = ref("");
 
 const toggleUser = () => {
@@ -52,13 +67,21 @@ const toggleUser = () => {
   userClicked.value = !userClicked.value;
 };
 
-watch(() => sidebarStore.isUserSidebarVisible, (newValue, oldValue) => {
-  toggleUser();
-});
+watch(
+  () => sidebarStore.isUserSidebarVisible,
+  (newValue, oldValue) => {
+    toggleUser();
+  }
+);
 
 const toggleCart = () => {
   type.value = "cart";
   cartClicked.value = !cartClicked.value;
+};
+
+const toggleFavorite = () => {
+  type.value = "favorite";
+  favoriteClicked.value = !favoriteClicked.value;
 };
 
 //Panier
@@ -78,16 +101,17 @@ watch(NombreDeItems, async (newValue, oldValue) => {
       numberItems.value,
       {
         transform: ["translateY(0)", "translateY(50px)", "translateY(0)"],
-        backgroundColor: [null, "#f2a45a", 'white'],
+        color: [null, "white", "black"],
+        backgroundColor: [null, "black", "white"],
       },
       {
         duration: 0.8,
         easing: "ease",
       }
     );
-     // Ajouter la classe après la durée de l'animation
-     setTimeout(() => {
-      numberItems.value.style.cssText = '';
+    // Ajouter la classe après la durée de l'animation
+    setTimeout(() => {
+      numberItems.value.style.cssText = "";
     }, 850);
   }
 });
@@ -98,30 +122,40 @@ header {
   position: fixed;
   top: 0;
   width: 100%;
-  font-family: "Nippo", sans-serif;
+  padding: 0 50px;
+  font-family: "Montserrat", sans-serif;
   background-color: white;
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: 100px;
   z-index: 1000;
+  gap: 50px;
   .logo {
     display: flex;
     align-items: center;
     h1 {
-      font-size: 2rem;
-      color: #f2a45a;
+      font-size: 32px;
+      color: black;
     }
     img {
       width: 100px;
       height: 100px;
     }
   }
+  .divider {
+    height: 35px;
+    width: 1px;
+    background-color: #ccc;
+    border: none;
+    margin: 20px 0;
+  }
   .right-btn {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-left: auto;
     button {
       margin: 0 10px;
     }
@@ -139,7 +173,7 @@ header {
       justify-content: center;
       &:hover {
         color: white;
-        background-color: #f2a45a;
+        background-color: black;
         transform: scale(1.1);
       }
       .material-symbols-outlined {

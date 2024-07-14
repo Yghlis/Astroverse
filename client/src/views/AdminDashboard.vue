@@ -46,14 +46,13 @@
 <script setup>
 import SideAdmin from "../ui/SideAdmin.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
-import { ref, onMounted, provide  } from "vue";
+import { ref, onMounted, provide } from "vue";
 
 const showSideBar = ref(true);
 const tableData = ref([]);
 const tableColumns = ref([]);
 const currentDataType = ref("");
 const reloadTable = ref(true);
-
 
 const handleReloadTable = () => {
   fetchData(currentDataType.value);
@@ -63,7 +62,7 @@ const handleReloadTable = () => {
   }, 10);
 };
 
-provide('reloadTable', handleReloadTable);
+provide("reloadTable", handleReloadTable);
 
 const toggleNav = (newState) => {
   showSideBar.value = newState;
@@ -192,6 +191,8 @@ const handleRowDeleted = (id) => {
     flex-direction: column;
     margin: 0;
     width: 100%;
+    gap: 10px;
+    font-family: "Montserrat", sans-serif;
     button {
       width: 100%;
       padding: 20px 10px;
@@ -199,11 +200,12 @@ const handleRowDeleted = (id) => {
       color: black;
       border: none;
       font-size: 26px;
+      font-family: "Montserrat", sans-serif;
       cursor: pointer;
       transition: all 0.3s ease;
       &:hover,
       &.active {
-        background-color: #f2a45a;
+        background-color: black;
         color: white;
       }
     }
