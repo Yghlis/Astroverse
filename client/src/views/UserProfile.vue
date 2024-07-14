@@ -301,4 +301,16 @@ const updateProfile = () => {
     }
   }
 }
+
+@media  (max-width: 768px) {
+  .profile-container {
+    h2 {
+      font-size: 30px;
+    }
+    form {
+      width: 90%;
+    }
+  }
+  
+}
 </style>
