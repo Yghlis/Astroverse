@@ -4,42 +4,22 @@
     <form @submit.prevent="updateProfile">
       <div class="form-group">
         <label for="firstName">Prénom<span>*</span>:</label>
-        <input
-          v-model="userData.first_name"
-          id="firstName"
-          type="text"
-          required
-        />
+        <input v-model="firstName" id="firstName" type="text" required />
       </div>
 
       <div class="form-group">
         <label for="lastName">Nom<span>*</span>:</label>
-        <input
-          v-model="userData.last_name"
-          id="lastName"
-          type="text"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="firstName">Prénom<span>*</span>:</label>
-        <input
-          v-model="userData.first_name"
-          id="fisrtName"
-          type="text"
-          required
-        />
+        <input v-model="lastName" id="lastName" type="text" required />
       </div>
 
       <div class="form-group">
         <label for="email">Email<span>*</span>:</label>
-        <input v-model="userData.email" id="email" type="email" disabled />
+        <input v-model="email" id="email" type="email" disabled />
       </div>
 
-      <div class="form-group" v-if="userData.phone_number">
+      <div class="form-group" v-if="phoneNumber">
         <label for="phoneNumber">Numéro de Téléphone:</label>
-        <input v-model="userData.phone_number" id="phoneNumber" type="text" />
+        <input v-model="phoneNumber" id="phoneNumber" type="text" />
       </div>
 
       <div class="form-group address-section">
@@ -64,13 +44,15 @@
           </li>
         </ul>
       </div>
-      <button type="submit">Mettre à jour le profil</button>
+      <button type="submit" :disabled="!addressSelected">
+        Mettre à jour le profil
+      </button>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import TheLoader from "../ui/TheLoader.vue";
 import { useUserStore } from "../stores/userStore";
 
@@ -82,7 +64,40 @@ onMounted(() => {
 });
 
 const userData = computed(() => userStore.userData);
-const address = ref(userData.value.address || "");
+
+// Refs pour les champs d'entrée
+const firstName = ref("");
+const lastName = ref("");
+const email = ref("");
+const phoneNumber = ref("");
+
+// Ref pour l'adresse complète
+const address = ref("");
+const initialAddress = ref("");
+
+// Ref pour indiquer si une adresse suggérée a été sélectionnée
+const addressSelected = ref(true);
+
+// Watcher pour mettre à jour les valeurs des champs lorsque les données utilisateur changent
+watch(
+  userData,
+  (newVal) => {
+    firstName.value = newVal.first_name || "";
+    lastName.value = newVal.last_name || "";
+    email.value = newVal.email || "";
+    phoneNumber.value = newVal.phone_number || "";
+
+    const addressData = newVal.address || {};
+    const formattedAddress = `${addressData.street || ""} ${
+      addressData.city || ""
+    } ${addressData.postal_code || ""} ${addressData.country || ""}`.trim();
+    address.value = formattedAddress;
+    initialAddress.value = formattedAddress;
+  },
+  { immediate: true }
+);
+
+const fullAddress = ref({});
 
 const suggestions = ref([]);
 const loading = ref(false);
@@ -112,23 +127,43 @@ const handleInput = () => {
   debounceTimeout = setTimeout(() => {
     if (address.value.trim()) {
       fetchSuggestions(address.value);
+      addressSelected.value = false;
+    } else {
+      addressSelected.value = true;
     }
   }, 300);
 };
 
 const selectSuggestion = (suggestion) => {
   address.value = suggestion.formatted;
+  Object.assign(fullAddress.value, suggestion);
   suggestions.value = [];
+  addressSelected.value = true;
 };
 
 const updateProfile = () => {
-  console.log("Adresse de livraison courte:", address.value);
-  console.log("User From localStorage", localStorage.getItem("userId"));
+  let updatedUserData = {
+    first_name: firstName.value,
+    last_name: lastName.value,
+    email: email.value,
+    phone_number: phoneNumber.value,
+  };
+
+  if (address.value !== initialAddress.value) {
+    const formattedAddress = {
+      street:
+        fullAddress.value.housenumber + " " + fullAddress.value.street || "",
+      city: fullAddress.value.city || "",
+      postal_code: fullAddress.value.postcode || "",
+      country: fullAddress.value.country || "",
+    };
+    updatedUserData = { ...updatedUserData, address: formattedAddress };
+  }
+
+  console.log("Données utilisateur avant envoi :", updatedUserData);
+
   // Mettez à jour le profil utilisateur en appelant une méthode du store ici
-  userStore.updateUser(userData.value.user_id, {
-    ...userData.value,
-    address: address.value,
-  });
+  userStore.updateUser(userData.value.user_id, updatedUserData);
 };
 </script>
 
@@ -139,6 +174,7 @@ const updateProfile = () => {
   justify-content: center;
   align-items: center;
   height: 100%;
+  margin-bottom: 50px;
 
   h2 {
     margin-bottom: 20px;
@@ -193,19 +229,6 @@ const updateProfile = () => {
       display: flex;
       flex-direction: column;
 
-      label {
-        margin-bottom: 8px;
-        font-weight: bold;
-        font-size: 20px;
-      }
-
-      input[type="text"] {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 16px;
-      }
-
       ul {
         margin-top: 10px;
         padding: 0;
@@ -245,6 +268,11 @@ const updateProfile = () => {
       &:focus {
         outline: none;
         background-color: #9b9b9b;
+      }
+
+      &:disabled {
+        background-color: grey;
+        cursor: not-allowed;
       }
     }
   }
