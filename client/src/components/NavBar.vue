@@ -19,10 +19,6 @@
       :class="{ active: $route.path === '/admin' }"
       >Admin</RouterLink
     >
-    <!-- ajouter la verif que nous somme connecter -->
-    <RouterLink to="/profile" :class="{ active: $route.path === '/profile' }"
-      >pro</RouterLink
-    >
   </nav>
 </template>
 

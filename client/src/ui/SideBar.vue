@@ -30,7 +30,11 @@ const props = defineProps({
 });
 
 // Définir les événements
-const emit = defineEmits(["update:hideUserSideBar", "update:hideCartSideBar", "update:hideFavoriteSideBar"]);
+const emit = defineEmits([
+  "update:hideUserSideBar",
+  "update:hideCartSideBar",
+  "update:hideFavoriteSideBar",
+]);
 
 // Fonction pour émettre l'événement
 const toggle = () => {
@@ -42,7 +46,6 @@ const toggle = () => {
     emit("update:hideFavoriteSideBar", false);
   }
 };
-
 </script>
 
 <style lang="scss" scoped>
@@ -96,6 +99,7 @@ const toggle = () => {
   .slot-content {
     padding: 20px;
     width: 100%;
+    overflow-y: auto;
   }
 }
 
