@@ -1,12 +1,5 @@
 <template>
   <div class="card" @click.stop="navigateToDetail">
-    <span
-      class="material-symbols-outlined favorite"
-      :class="{ active: liked }"
-      @click.stop="like"
-    >
-      favorite
-    </span>
     <img :src="getImageUrl(product.image_preview)" alt="figurine image" />
     <div class="divider"></div>
     <div class="information">
@@ -41,7 +34,7 @@ const props = defineProps({
   product: Object,
 });
 
-const liked = ref(false);
+
 
 const router = useRouter();
 
@@ -60,10 +53,6 @@ const getImageUrl = (absolutePath) => {
   return `${apiUrl}/uploads/${relativePath}`;
 };
 
-const like = () => {
-  liked.value = !liked.value;
-  console.log("like");
-};
 
 const discountPercentage = computed(() => {
   if (

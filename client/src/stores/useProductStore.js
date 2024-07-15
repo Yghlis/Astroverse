@@ -8,6 +8,7 @@ export const useProductStore = defineStore("product", {
     error: null,
     isFavorite: false,
     followedProducts: {},
+    favoriteProducts: {},
   }),
 
   actions: {
@@ -215,6 +216,28 @@ export const useProductStore = defineStore("product", {
         const followedProducts = await response.json();
         console.log("Followed products:", followedProducts);
         this.followedProducts = followedProducts;
+      } catch (error) {
+        console.error("Fetch error:", error.message);
+      }
+    },
+
+    async getFavoriteProducts() {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const token = localStorage.getItem("jwt");
+      if (!token) {
+        console.error("Token not present");
+        return;
+      }
+      try {
+        const response = await fetch(`${apiUrl}/favorites`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const favorites = await response.json();
+        this.favoriteProducts = favorites;
+        console.log("Favorite products:", favorites);
+        return favorites;
       } catch (error) {
         console.error("Fetch error:", error.message);
       }
