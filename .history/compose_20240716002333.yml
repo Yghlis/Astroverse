@@ -13,8 +13,6 @@ services:
       - ./client:/home/node
     depends_on:
       - server
-    dns:
-      - 8.8.8.8
 
   server:
     image: node:20.0.0-alpine
@@ -38,10 +36,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=example
       - DB_NAME=astroverse
-      - DB_URI=mongodb+srv://ghlisyouri:xkrIicKRIlQhsquY@cluster0.omp14.mongodb.net/astroverse?retryWrites=true&w=majority&appName=Cluster0
- # URI de MongoDB Atlas
-    dns:
-      - 8.8.8.8
+      - DB_URI=mongodb+srv://ghlisyouri:xkrIicKRIlQhsquY@projet4iw.qnrubr8.mongodb.net/?retryWrites=true&w=majority&appName=projet4iw  # URI de MongoDB Atlas
 
   postgres:
     image: postgres:13

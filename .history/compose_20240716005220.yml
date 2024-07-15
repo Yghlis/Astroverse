@@ -38,8 +38,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=example
       - DB_NAME=astroverse
-      - DB_URI=mongodb+srv://ghlisyouri:xkrIicKRIlQhsquY@cluster0.omp14.mongodb.net/astroverse?retryWrites=true&w=majority&appName=Cluster0
- # URI de MongoDB Atlas
+      - DB_URI=mongodb+srv://ghlisyouri:xkrIicKRIlQhsquY@cluster0.omp14.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0  # URI de MongoDB Atlas
     dns:
       - 8.8.8.8
 
