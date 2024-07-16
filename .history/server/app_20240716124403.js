@@ -10,7 +10,7 @@ import Product from './models/Product.js';
 import Universe from './models/Universe.js';
 import User from './models/user.js'; 
 import Character from './models/Character.js';
-import Follow from './models/Follow.js';
+import Follow from './models/Follow.js'; // Importez le modèle Follow
 import Basket from './models/Basket.js'; 
 import productRoutes from './routes/product.js';
 import universeRoutes from './routes/universe.js';
@@ -25,6 +25,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 8000;
+
 
 import authRoutes from './routes/auth.js';
 
