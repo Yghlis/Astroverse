@@ -47,6 +47,7 @@
       <button type="submit" :disabled="!addressSelected">
         Mettre à jour le profil
       </button>
+      <p @click="sendResetEmail">Modifier le mot de passe</p>
     </form>
     <h2>Mes produits suivis</h2>
     <TheCarousel>
@@ -66,6 +67,10 @@ import TheCarousel from "../ui/TheCarousel.vue";
 import shopCard from "../ui/shopCard.vue";
 import { useUserStore } from "../stores/userStore";
 import { useProductStore } from "../stores/useProductStore";
+import useFlashMessageStore from "@composables/useFlashMessageStore";
+
+const { flashMessage, flashMessageType, setFlashMessage } =
+  useFlashMessageStore();
 
 const userStore = useUserStore();
 const productStore = useProductStore();
@@ -189,6 +194,33 @@ const updateProfile = () => {
 
   userStore.updateUser(userData.value.user_id, updatedUserData);
 };
+
+const sendResetEmail = async () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (!email.value) {
+    setFlashMessage("Veuillez entrer votre email.");
+    return;
+  }
+  const response = await fetch(`${apiUrl}/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email.value }),
+  });
+
+  if (response.ok) {
+    setFlashMessage(
+      "Un email de réinitialisation a été envoyé."
+    );
+    setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+  } else {
+    const errorData = await response.json();
+    setFlashMessage(
+      errorData.message ||
+        "Erreur lors de l'envoi de l'email de réinitialisation."
+    );
+    setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+  }
+};
 </script>
 
 <style scoped lang="scss">
@@ -299,10 +331,22 @@ const updateProfile = () => {
         cursor: not-allowed;
       }
     }
+    p {
+      margin-top: 25px;
+      margin-bottom: 0;
+      font-size: 20px;
+      color: #333;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+      &:hover {
+        color: red;
+      }
+    }
   }
 }
 
-@media  (max-width: 768px) {
+@media (max-width: 768px) {
   .profile-container {
     h2 {
       font-size: 30px;
@@ -311,6 +355,5 @@ const updateProfile = () => {
       width: 90%;
     }
   }
-  
 }
 </style>

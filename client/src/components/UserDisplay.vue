@@ -40,50 +40,53 @@
           >
         </div>
         <div v-else class="log-btn-container">
-          <div v-if="passwordResetRequested">
-            <input
-              type="email"
-              class="log-input"
-              placeholder="Votre email"
-              v-model="userEmail"
-            />
-            <button class="log-btn alt" @click="sendResetEmail">
-              Envoyer un mail
-            </button>
-            <button class="log-btn" @click="returnToLogin">Retour</button>
-          </div>
-          <div v-else>
-            <input
-              type="email"
-              class="log-input"
-              placeholder="Email"
-              v-model="userEmail"
-            />
-            <input
-              type="password"
-              class="log-input"
-              placeholder="Mot de passe"
-              v-model="userPassword"
-            />
-            <button class="log-btn alt" @click="loginHandler">
-              Me Connecter
-            </button>
-            <button
-              type="button"
-              @click="forgotPassword"
-              class="log-btn forgot-password"
-            >
-              Mot de passe oublié?
-            </button>
-            <button class="log-btn" @click="returnToInitial">Retour</button>
-          </div>
+          <Transition name="slide" mode="out-in">
+            <div v-if="passwordResetRequested">
+              <input
+                type="email"
+                class="log-input"
+                placeholder="Votre email"
+                v-model="userEmail"
+              />
+              <button class="log-btn alt" @click="sendResetEmail">
+                Envoyer un mail
+              </button>
+              <button class="log-btn" @click="returnToLogin">Retour</button>
+            </div>
+            <div v-else>
+              <input
+                type="email"
+                class="log-input"
+                placeholder="Email"
+                v-model="userEmail"
+              />
+              <input
+                type="password"
+                class="log-input"
+                placeholder="Mot de passe"
+                v-model="userPassword"
+              />
+              <button class="log-btn alt" @click="loginHandler">
+                Me Connecter
+              </button>
+              <button
+                type="button"
+                @click="forgotPassword"
+                class="log-btn forgot-password"
+              >
+                Mot de passe oublié?
+              </button>
+              <button class="log-btn" @click="returnToInitial">Retour</button>
+            </div>
+          </Transition>
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         </div>
       </Transition>
     </div>
     <div v-else class="log-btn-container">
       <RouterLink @click="toggle" to="/profile" class="log-btn"
-      >Mon Profile</RouterLink>
+        >Mon Profile</RouterLink
+      >
       <button class="log-btn" @click="logoutHandler">Déconnexion</button>
     </div>
   </Transition>
@@ -94,6 +97,10 @@ import { ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
 import { useUserStore } from "../stores/userStore";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();
@@ -197,6 +204,9 @@ const logoutHandler = () => {
   userLoggedIn.value = false;
   setFlashMessage("Déconnexion réussie.");
   setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+  setTimeout(() => {
+    router.push("/");
+  } ,500)
   userStore.checkAdmin();
 };
 
