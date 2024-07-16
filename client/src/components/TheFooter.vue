@@ -41,6 +41,7 @@ const isSubscribedToNewsletter = ref(false);
 const isLoggedIn = ref(false);
 const token = ref("");
 const userId = ref("");
+const apiUrl = import.meta.env.VITE_API_URL;
 
 // Vérifier si l'utilisateur est connecté lors du chargement du composant
 onMounted(() => {
@@ -80,7 +81,7 @@ const toggleSubscription = async () => {
 
   try {
     const response = await fetch(
-      `http://localhost:8000/users/${userId.value}`,
+      `${apiUrl}/users/${userId.value}`,
       {
         method: "PUT",
         headers: {

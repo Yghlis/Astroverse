@@ -38,6 +38,7 @@ import useFlashMessageStore from "@composables/useFlashMessageStore";
 
 const route = useRoute();
 const router = useRouter();
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const state = reactive({
   newPassword: "",
@@ -58,7 +59,7 @@ const { flashMessage, flashMessageType, flashMessageActive, setFlashMessage } =
 const verifyToken = async () => {
   try {
     const response = await fetch(
-      `http://localhost:8000/auth/reset-password/${state.token}`
+      `${apiUrl}/auth/reset-password/${state.token}`
     );
     if (!response.ok) {
       throw new Error("Erreur de validation du token.");
@@ -108,7 +109,8 @@ const submitNewPassword = async () => {
     return;
   }
   try {
-    const response = await fetch(`http://localhost:8000/auth/reset-password`, {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${apiUrl}/auth/reset-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

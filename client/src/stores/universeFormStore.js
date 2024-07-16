@@ -53,7 +53,9 @@ export const useUniverseFormStore = defineStore('universeForm', () => {
     }
     isSubmitting.value = true;
     try {
-      const response = await fetch('http://localhost:8000/universes', {
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      const response = await fetch(`${apiUrl}/universes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +102,7 @@ export const useUniverseFormStore = defineStore('universeForm', () => {
       const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
       let response;
       console.log('Updating existing universe with ID:', formData.id);
-      response = await fetch(`http://localhost:8000/universes/${formData.id}`, {
+      response = await fetch(`${apiUrl}/universes/${formData.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

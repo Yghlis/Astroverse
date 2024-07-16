@@ -18,7 +18,9 @@ export const useCartStore = defineStore('cart', {
   actions: {
     async syncCart() {
       try {
-        const response = await fetch('http://localhost:8000/basket', {
+        const apiUrl = import.meta.env.VITE_API_URL;
+
+        const response = await fetch(`${apiUrl}/basket`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -44,10 +46,12 @@ export const useCartStore = defineStore('cart', {
       const existingItem = this.cartItems.find(cartItem => cartItem.id === item.id);
       const newQuantity = 1; // Toujours ajouter 1 au panier
       const price = this.getItemPrice(item);
+      const apiUrl = import.meta.env.VITE_API_URL;
 
       try {
         console.log('Checking stock for item:', item.id, 'Quantity:', newQuantity);
-        const checkStockResponse = await fetch('http://localhost:8000/products/check-stock', {
+
+        const checkStockResponse = await fetch(`${apiUrl}/products/check-stock`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -66,7 +70,7 @@ export const useCartStore = defineStore('cart', {
         console.log('Parsed JSON response:', checkStockData);
 
         if (checkStockData.available) {
-          const addBasketResponse = await fetch('http://localhost:8000/basket', {
+          const addBasketResponse = await fetch(`${apiUrl}/basket`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -108,7 +112,9 @@ export const useCartStore = defineStore('cart', {
       const item = this.cartItems.find(cartItem => cartItem.id === itemId);
       if (item) {
         try {
-          const decrementBasketResponse = await fetch('http://localhost:8000/basket/decrement', {
+          const apiUrl = import.meta.env.VITE_API_URL;
+
+          const decrementBasketResponse = await fetch(`${apiUrl}/basket/decrement`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -149,7 +155,9 @@ export const useCartStore = defineStore('cart', {
       const item = this.cartItems.find(cartItem => cartItem.id === itemId);
       if (item) {
         try {
-          const removeItemResponse = await fetch('http://localhost:8000/basket/remove', {
+          const apiUrl = import.meta.env.VITE_API_URL;
+
+          const removeItemResponse = await fetch(`${apiUrl}/basket/remove`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

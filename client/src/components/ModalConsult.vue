@@ -143,21 +143,23 @@ const props = defineProps({
 const item = ref(null);
 const characterFormStore = useCharacterFormStore();
 const universeName = ref("");
+const apiUrl = import.meta.env.VITE_API_URL;
+
 
 const getImageUrl = (filename) => {
-  return `http://localhost:8000/uploads/${filename.split("/").pop()}`;
+  return `${apiUrl}/uploads/${filename.split("/").pop()}`;
 };
 
 onMounted(async () => {
   let url = "";
   if (props.currentDataType === "products") {
-    url = `http://localhost:8000/products/${props.selectedRow.id}`;
+    url = `${apiUrl}/products/${props.selectedRow.id}`;
   } else if (props.currentDataType === "characters") {
-    url = `http://localhost:8000/characters/${props.selectedRow.id}`;
+    url = `${apiUrl}/characters/${props.selectedRow.id}`;
   } else if (props.currentDataType === "universes") {
-    url = `http://localhost:8000/universes/${props.selectedRow.id}`;
+    url = `${apiUrl}/universes/${props.selectedRow.id}`;
   } else if (props.currentDataType === "users") {
-    url = `http://localhost:8000/users/${props.selectedRow.user_id}`;
+    url = `${apiUrl}/users/${props.selectedRow.user_id}`;
   }
   try {
     const response = await fetch(url, {

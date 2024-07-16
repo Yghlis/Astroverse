@@ -13,8 +13,6 @@ services:
       - ./client:/home/node
     depends_on:
       - server
-    dns:
-      - 8.8.8.8
 
   server:
     image: node:20.0.0-alpine
@@ -28,21 +26,29 @@ services:
       - 8000:8000
     volumes:
       - ./server:/home/node
-      - ./server/.env:/home/node/.env  # Monter le fichier .env
+      - ./server/.env:/home/node/.env # Monter le fichier .env
     depends_on:
+      - postgres
       - mongo
     environment:
       - NODE_ENV=development
-      - DB_HOST=ce0lkuo944ch99.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com
-      - DB_USER=uaja5q72u27152
-      - DB_PASSWORD=pe68b14e81680e62fe19c22785ccdb6ac878d1f5d139d9e509b9c222d68bb673d
-      - DB_NAME=d57n6c1r15fodr
-      - DB_PORT=5432
-      - DB_URI=mongodb+srv://ghlisyouri:xkrIicKRIlQhsquY@cluster0.omp14.mongodb.net/astroverse?retryWrites=true&w=majority&appName=Cluster0 # URI de MongoDB Atlas
-    dns:
-      - 8.8.8.8
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=example
+      - DB_NAME=astroverse
+      - DB_URI=mongodb://mongo:27017/astroverse # URI de MongoDB
 
-  
+  postgres:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: astroverse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
   mongo:
     image: mongo:latest

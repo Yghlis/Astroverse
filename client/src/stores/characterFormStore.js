@@ -49,7 +49,9 @@ export const useCharacterFormStore = defineStore("characterForm", () => {
 
   async function fetchUniverseNameById(universeId) {
     try {
-      const response = await fetch(`http://localhost:8000/universes/${universeId}`, {
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      const response = await fetch(`${apiUrl}/universes/${universeId}`, {
         method: 'GET',
       });
       if (!response.ok) {
@@ -83,7 +85,9 @@ export const useCharacterFormStore = defineStore("characterForm", () => {
       }
     isSubmitting.value = true;
     try {
-      const url = 'http://localhost:8000/characters';
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      const url = `${apiUrl}/characters`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
