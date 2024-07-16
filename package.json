@@ -2,7 +2,9 @@
     "name": "astroverse-root",
     "version": "1.0.0",
     "scripts": {
-      "start": "cd server && npm install && npm start"
+        "start": "cd server && npm install && npm start"
+    },
+    "dependencies": {
+        "pg-hstore": "^2.3.4"
     }
-  }
-  
+}
