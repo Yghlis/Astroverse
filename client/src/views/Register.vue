@@ -189,6 +189,7 @@ const register = async () => {
 const goToLogin = () => {
   sidebarStore.toggleUserSidebar();
 };
+
 </script>
 
 <style lang="scss" scoped>
