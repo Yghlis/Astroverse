@@ -82,7 +82,9 @@ export const useUserFormStore = defineStore('userForm', () => {
     capitalizeEmail();
 
     try {
-      const url = `http://localhost:8000/users/${formData.user_id}`;
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      const url = `${apiUrl}/users/${formData.user_id}`;
       const method = 'PUT';
 
       const response = await fetch(url, {
@@ -123,7 +125,9 @@ export const useUserFormStore = defineStore('userForm', () => {
     capitalizeEmail();
 
     try {
-      const url = 'http://localhost:8000/users';
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      const url = `${apiUrl}/users`;
       const method = 'POST';
 
       const dataToSend = {

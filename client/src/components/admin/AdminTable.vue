@@ -173,6 +173,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["edit", "view", "row-deleted", "reload:table"]);
+const apiUrl = import.meta.env.VITE_API_URL;
+
 
 const searchQuery = ref("");
 const currentPage = ref(1);
@@ -269,7 +271,7 @@ const confirmDelete = (row) => {
 const deleteRow = async () => {
   const userId = rowToDelete.value.id || rowToDelete.value.user_id; // Try id first, then user_id
   console.log(`Deleting user with ID: ${userId}`);
-  const url = `http://localhost:8000/${props.currentDataType}/${userId}`;
+  const url = `${apiUrl}/${props.currentDataType}/${userId}`;
   try {
     const response = await fetch(url, {
       method: "DELETE",
@@ -314,7 +316,7 @@ const deleteRow = async () => {
 
 const fetchUniverses = async () => {
   try {
-    const response = await fetch("http://localhost:8000/universes", {
+    const response = await fetch(`${apiUrl}/universes`, {
       method: "GET",
     });
     if (!response.ok) {
@@ -344,7 +346,7 @@ const confirmDeleteSelected = () => {
 const deleteSelectedRows = async () => {
   try {
     for (const id of selectedRows.value) {
-      const url = `http://localhost:8000/${props.currentDataType}/${id}`;
+      const url = `${apiUrl}/${props.currentDataType}/${id}`;
       const response = await fetch(url, {
         method: "DELETE",
         headers: {

@@ -29,7 +29,8 @@ const changePassword = async () => {
   }
 
   try {
-    const response = await fetch('http://localhost:8000/auth/change-password', {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${apiUrl}/auth/change-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

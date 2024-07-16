@@ -11,7 +11,9 @@ export const useUniversesStore = defineStore('universe', {
             this.loading = true;
             this.error = null;
             try {
-                const response = await fetch('http://localhost:8000/universes');
+                const apiUrl = import.meta.env.VITE_API_URL;
+
+                const response = await fetch(`${apiUrl}/universes`);
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

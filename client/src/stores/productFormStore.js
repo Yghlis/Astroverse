@@ -4,8 +4,10 @@ import { z } from 'zod';
 import useFlashMessageStore from '../composables/useFlashMessageStore';
 
 function ensureAbsoluteUrl(url) {
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
-    return `http://localhost:8000/uploads/${url.split('/').pop()}`;
+    return `${apiUrl}/uploads/${url.split('/').pop()}`;
   }
   return url;
 }
@@ -198,8 +200,9 @@ export const useProductFormStore = defineStore('productForm', () => {
       validate();
 
       console.log('Form data after validation:', formData);
+      const apiUrl = import.meta.env.VITE_API_URL;
 
-      const url = `http://localhost:8000/products/${formData.id}`;
+      const url = `${apiUrl}/products/${formData.id}`;
       const method = 'PUT';
 
       const formDataToSend = new FormData();
@@ -279,8 +282,9 @@ export const useProductFormStore = defineStore('productForm', () => {
       validate();
 
       console.log('Form data after validation:', formData);
+      const apiUrl = import.meta.env.VITE_API_URL;
 
-      const url = 'http://localhost:8000/products';
+      const url = `${apiUrl}/products`;
       const method = 'POST';
 
       const formDataToSend = new FormData();

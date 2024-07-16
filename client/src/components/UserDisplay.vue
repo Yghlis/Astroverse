@@ -126,8 +126,9 @@ const loginHandler = async () => {
     );
     return;
   }
+  const apiUrl = import.meta.env.VITE_API_URL;
   // Appel API pour connexion
-  const response = await fetch("http://localhost:8000/auth/login", {
+  const response = await fetch(`${apiUrl}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -159,8 +160,10 @@ const closeAlert = () => {
 const resetPasswordChangeReminder = async () => {
   const userId = localStorage.getItem("userId");
   try {
+    const apiUrl = import.meta.env.VITE_API_URL;
+
     const response = await fetch(
-      `http://localhost:8000/users/${userId}/password-reminder-reset`,
+      `${apiUrl}/users/${userId}/password-reminder-reset`,
       {
         // Mise à jour de l'URL
         method: "PUT",
@@ -219,8 +222,9 @@ const sendResetEmail = async () => {
     setFlashMessage("Veuillez entrer votre email.");
     return;
   }
+  const apiUrl = import.meta.env.VITE_API_URL;
 
-  const response = await fetch("http://localhost:8000/auth/forgot-password", {
+  const response = await fetch(`${apiUrl}/auth/forgot-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: userEmail.value }),
