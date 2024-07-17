@@ -8,6 +8,7 @@
       :getItemPrice="getItemPrice"
       :removeItem="removeItem"
     />
+    {{ cartItems }}
     <p>Total: {{ cartTotal }}€</p>
     <button @click="handleCheckout" class="call-to-action">
       Passer votre Commande

@@ -19,7 +19,7 @@ export const useCartStore = defineStore('cart', {
     async syncCart() {
       try {
         const apiUrl = import.meta.env.VITE_API_URL;
-
+    
         const response = await fetch(`${apiUrl}/basket`, {
           method: 'GET',
           headers: {
@@ -27,34 +27,31 @@ export const useCartStore = defineStore('cart', {
             'session-id': localStorage.getItem('sessionId'),
           },
         });
-
+    
         if (!response.ok) {
           const errorText = await response.text();
           console.error('Error syncing cart:', errorText);
           return;
         }
-
+    
         const data = await response.json();
         console.log('Data from server:', data);
-
-        this.cartItems = data.items.map(item => {
-          const product = item.product || item;
-          return {
-            productId: product.productId || product.id || product._id, // Assurez-vous que chaque article a un identifiant unique
-            title: product.title || 'Unknown title', // Assurez-vous que chaque article a un titre
-            price: product.price || 0, // Assurez-vous que chaque article a un prix
-            image_gallery: product.image_gallery || [], // Assurez-vous que chaque article a une galerie d'images
-            discounted_price: product.discounted_price || 0, // Ajout de discounted_price
-            is_promotion: product.is_promotion || false, // Ajout de is_promotion
-            quantity: item.quantity || 1 // Assurez-vous que la quantité est définie
-          };
-        });
-        console.log('Processed cartItems:', this.cartItems);
-        localStorage.setItem('cartStore', JSON.stringify(this.$state));
+    
+        // Extract the IDs from the server data
+        const serverIds = new Set(data.items.map(item => item.productId || item.id || item._id));
+    
+        // Filter out items from cartItems that are not in serverIds
+        this.cartItems = this.cartItems.filter(cartItem => serverIds.has(cartItem.productId || cartItem.id || cartItem._id));
+    
+        console.log('Filtered cartItems:', this.cartItems);
+    
+        // Optionally, save the updated cartItems to localStorage
+        localStorage.setItem('cartStore', JSON.stringify(this.cartItems));
       } catch (error) {
         console.error('Error syncing cart:', error);
       }
     },
+    
 
     async addItemToCart(item) {
       const existingItem = this.cartItems.find(cartItem => cartItem.productId === item.id);
@@ -119,6 +116,7 @@ export const useCartStore = defineStore('cart', {
             this.cartItems.push(newItem);
             console.log('New item added to cart:', newItem);
           }
+          console.log('Cart items:', this.cartItems);
           localStorage.setItem('cartStore', JSON.stringify(this.$state));
         } else {
           console.error('Stock insuffisant:', checkStockData.message);
