@@ -38,7 +38,7 @@ const removeItem = (itemId) => {
   cartStore.removeItemFromCart(itemId);
 };
 
-// Définir les événements
+
 const emit = defineEmits(["update:hideCartSideBar"]);
 
 // Fonction pour émettre l'événement
