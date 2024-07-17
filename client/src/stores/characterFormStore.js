@@ -129,7 +129,7 @@ export const useCharacterFormStore = defineStore("characterForm", () => {
         return;
       }
     isSubmitting.value = true;
-    const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
+    const apiUrl = import.meta.env.VITE_API_URL; 
     try {
       const url = `${apiUrl}/characters/${formData.id}`;
       console.log("Updating existing character with ID:", formData.id);
