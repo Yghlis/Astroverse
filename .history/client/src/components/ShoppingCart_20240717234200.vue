@@ -43,7 +43,7 @@ const getItemPrice = (item) => {
 
 const removeItem = async (itemId) => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/basket`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/basket/item`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

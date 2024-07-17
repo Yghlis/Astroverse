@@ -182,64 +182,7 @@ export const decrementFromBasket = async (req, res) => {
   }
 };
 
-export const removeFromBasket = async (req, res) => {
-  const { productId } = req.body;
-  const userId = req.user ? req.user.userId : null;
-  const sessionId = req.headers['session-id'];
 
-  if (!productId || !sessionId) {
-    return res.status(400).json({ message: 'Product ID and session ID are required.' });
-  }
-
-  try {
-    let basket;
-    if (userId) {
-      basket = await Basket.findOne({ where: { userId } });
-    } else {
-      basket = await Basket.findOne({ where: { sessionId } });
-    }
-
-    if (!basket) {
-      return res.status(404).json({ message: 'Basket not found.' });
-    }
-
-    const items = basket.items || [];
-    const itemIndex = items.findIndex(item => item.productId === productId);
-
-    if (itemIndex === -1) {
-      return res.status(404).json({ message: 'Product not found in basket.' });
-    }
-
-    const [removedItem] = items.splice(itemIndex, 1);
-
-    if (items.length === 0) {
-      basket.firstItemAddedAt = null;
-    }
-
-    basket.updatedAt = new Date();
-    await Basket.update(
-      { items: items, updatedAt: basket.updatedAt, firstItemAddedAt: basket.firstItemAddedAt },
-      { where: { id: basket.id } }
-    );
-
-    const product = await Product.findByPk(productId);
-    if (product) {
-      product.stock += removedItem.quantity;
-      await product.save();
-    }
-
-    const productMongo = await ProductMongo.findOne({ id: productId });
-    if (productMongo) {
-      productMongo.stock += removedItem.quantity;
-      await productMongo.save();
-    }
-
-    res.status(200).json({ message: 'Product removed from basket successfully.' });
-  } catch (error) {
-    console.error('Error removing product from basket:', error);
-    res.status(500).json({ message: 'Internal server error.' });
-  }
-};
 
 export const getBasket = async (req, res) => {
   const userId = req.user ? req.user.userId : null;

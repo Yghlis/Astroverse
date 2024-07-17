@@ -9,6 +9,7 @@ router.post('/', addToBasket);
 // Route pour décrémenter un produit du panier
 router.post('/decrement', decrementFromBasket);
 
+
 router.get('/', getBasket);
 
 // Route pour supprimer un produit du panier

@@ -19,7 +19,7 @@
 import { computed } from "vue";
 import { useRouter } from 'vue-router';
 import { useCartStore } from "../stores/cartStore";
-import useFlashMessageStore from "@composables/useFlashMessageStore";
+import useFlashMessageStore from '../composables/useFlashMessageStore'; // Import du store des messages flash
 import ShopCart from '../ui/ShopCart.vue';
 
 const cartStore = useCartStore();
@@ -28,11 +28,8 @@ const { setFlashMessage } = useFlashMessageStore(); // Utilisation du store des 
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
-const incrementItemQuantity = async (itemId) => {
-  const item = cartItems.value.find(cartItem => cartItem.productId === itemId);
-  if (item) {
-    await cartStore.addItemToCart(item, true); // Passez true pour indiquer que c'est une incrémentation
-  }
+const incrementItemQuantity = (itemId) => {
+  cartStore.incrementItemQuantity(itemId);
 };
 const decrementItemQuantity = (itemId) => {
   cartStore.decrementItemQuantity(itemId);
@@ -41,31 +38,8 @@ const getItemPrice = (item) => {
   return cartStore.getItemPrice(item);
 };
 
-const removeItem = async (itemId) => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/basket`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'session-id': localStorage.getItem('sessionId'),
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-      },
-      body: JSON.stringify({ productId: itemId })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Error removing item:', errorText);
-      setFlashMessage('Erreur lors de la suppression de l\'article.', 'error');
-      return;
-    }
-
-    cartStore.removeItemFromCart(itemId);
-    setFlashMessage('Article supprimé avec succès.', 'success');
-  } catch (error) {
-    console.error('Error removing item:', error);
-    setFlashMessage('Erreur lors de la suppression de l\'article.', 'error');
-  }
+const removeItem = (itemId) => {
+  cartStore.removeItemFromCart(itemId);
 };
 
 // Définir les événements

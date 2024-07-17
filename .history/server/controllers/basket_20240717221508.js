@@ -182,6 +182,7 @@ export const decrementFromBasket = async (req, res) => {
   }
 };
 
+// Supprimer un produit du panier
 export const removeFromBasket = async (req, res) => {
   const { productId } = req.body;
   const userId = req.user ? req.user.userId : null;
@@ -192,16 +193,16 @@ export const removeFromBasket = async (req, res) => {
   }
 
   try {
-    let basket;
-    if (userId) {
-      basket = await Basket.findOne({ where: { userId } });
-    } else {
+    let basket = await Basket.findOne({ where: { userId } });
+    if (!basket) {
       basket = await Basket.findOne({ where: { sessionId } });
     }
 
     if (!basket) {
       return res.status(404).json({ message: 'Basket not found.' });
     }
+
+    await clearBasketIfExpired(basket);
 
     const items = basket.items || [];
     const itemIndex = items.findIndex(item => item.productId === productId);
@@ -217,10 +218,7 @@ export const removeFromBasket = async (req, res) => {
     }
 
     basket.updatedAt = new Date();
-    await Basket.update(
-      { items: items, updatedAt: basket.updatedAt, firstItemAddedAt: basket.firstItemAddedAt },
-      { where: { id: basket.id } }
-    );
+    await basket.save();
 
     const product = await Product.findByPk(productId);
     if (product) {
