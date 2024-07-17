@@ -1,23 +1,23 @@
 <template>
   <transition-group name="list" tag="ul">
-    <li v-for="item in cartItems" :key="item.productId">
+    <li v-for="item in cartItems" :key="item.id">
       <img v-if="item.image_gallery && item.image_gallery.length" :src="getImageUrl(item.image_gallery[0])" alt="item image" />
       {{ item.title }}
       <div class="right">
         <div class="quantity">
-          <button class="control" @click="decrementItemQuantity(item.productId)">-</button>
+          <button class="control" @click="decrementItemQuantity(item.id)">-</button>
           <span>{{ item.quantity }}</span>
-          <button class="control" @click="incrementItemQuantity(item.productId)">+</button>
+          <button class="control" @click="incrementItemQuantity(item.id)">+</button>
         </div>
         <span>{{ getItemPrice(item) * item.quantity }}€ </span>
-        <button @click="removeItem(item.productId)">Supprimer</button>
+        <button @click="removeItem(item.id)">Supprimer</button>
       </div>
     </li>
   </transition-group>
 </template>
 
 <script setup>
-import { defineProps, watch } from 'vue';
+import { defineProps } from 'vue';
 
 const props = defineProps({
   cartItems: {
@@ -43,22 +43,11 @@ const props = defineProps({
 });
 
 const getImageUrl = (absolutePath) => {
-  console.log("absolutePath:", absolutePath);
   if (!absolutePath) return '';
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
-  const fullUrl = `${apiUrl}/uploads/${relativePath}`;
-  console.log("fullUrl:", fullUrl);
-  return fullUrl;
+  return `${apiUrl}/uploads/${relativePath}`;
 };
-
-// Watcher pour loguer les changements dans cartItems
-watch(() => props.cartItems, (newVal) => {
-  console.log("Updated cartItems:", newVal);
-}, { deep: true });
-
-// Log initial des cartItems
-console.log("Initial cartItems:", props.cartItems);
 </script>
 
 <style lang="scss" scoped>
@@ -149,7 +138,15 @@ li {
   }
   img {
     width: 100px;
-    height: 100px;
+    height: 100px;Header.vue:78 [Vue warn]: <TransitionGroup> children must be keyed. 
+  at <TransitionGroup name="list" tag="ul" > 
+  at <ShopCart cartItems= [{…}] incrementItemQuantity=fn<incrementItemQuantity> decrementItemQuantity=fn<decrementItemQuantity>  ... > 
+  at <ShoppingCart key=1 onUpdate:hideCartSideBar=fn<toggleCart> > 
+  at <BaseTransition appear=false persisted=false mode=undefined  ... > 
+  at <Transition name="slide" > 
+  at <SideBar showSideBar=true type="cart" onUpdate:hideUserSideBar=fn<toggleUser>  ... > 
+  at <Header> 
+  at <App>
     object-fit: cover;
     margin-right: 10px;
   }

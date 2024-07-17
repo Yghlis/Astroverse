@@ -35,22 +35,15 @@ export const useCartStore = defineStore('cart', {
         }
 
         const data = await response.json();
-        console.log('Data from server:', data);
-
-        this.cartItems = data.items.map(item => {
-          const product = item.product || item;
-          return {
-            productId: product.productId || product.id || product._id, // Assurez-vous que chaque article a un identifiant unique
-            title: product.title || 'Unknown title', // Assurez-vous que chaque article a un titre
-            price: product.price || 0, // Assurez-vous que chaque article a un prix
-            image_gallery: product.image_gallery || [], // Assurez-vous que chaque article a une galerie d'images
-            discounted_price: product.discounted_price || 0, // Ajout de discounted_price
-            is_promotion: product.is_promotion || false, // Ajout de is_promotion
-            quantity: item.quantity || 1 // Assurez-vous que la quantité est définie
-          };
-        });
-        console.log('Processed cartItems:', this.cartItems);
+        this.cartItems = data.items.map(item => ({
+          ...item,
+          productId: item.productId || item.id || item._id, // Assurez-vous que chaque article a un identifiant unique
+          title: item.title || item.product?.title || 'Unknown title', // Assurez-vous que chaque article a un titre
+          price: item.price || item.product?.price || 0, // Assurez-vous que chaque article a un prix
+          image_gallery: item.image_gallery || item.product?.image_gallery || [], // Assurez-vous que chaque article a une galerie d'images
+        }));
         localStorage.setItem('cartStore', JSON.stringify(this.$state));
+        console.log('Synced cart:', this.cartItems);
       } catch (error) {
         console.error('Error syncing cart:', error);
       }
@@ -107,17 +100,22 @@ export const useCartStore = defineStore('cart', {
             existingItem.quantity++;
             console.log('Existing item quantity incremented:', existingItem.quantity);
           } else {
-            const newItem = {
-              productId: item.id,
-              price: price,
-              quantity: 1,
+            this.cartItems.push({ 
+              ...item, 
+              productId: item.id, 
+              price: price, 
+              quantity: 1, 
               title: item.title || 'Unknown title',
-              image_gallery: item.image_gallery || [],
-              discounted_price: item.discounted_price || 0,
-              is_promotion: item.is_promotion || false,
-            };
-            this.cartItems.push(newItem);
-            console.log('New item added to cart:', newItem);
+              image_gallery: item.image_gallery || [], 
+            });
+            console.log('New item added to cart:', { 
+              ...item, 
+              productId: item.id, 
+              price: price, 
+              quantity: 1, 
+              title: item.title || 'Unknown title',
+              image_gallery: item.image_gallery || [], 
+            });
           }
           localStorage.setItem('cartStore', JSON.stringify(this.$state));
         } else {
@@ -128,15 +126,6 @@ export const useCartStore = defineStore('cart', {
         await this.syncCart();
       } catch (error) {
         console.error('Error checking stock or adding to basket:', error);
-      }
-    },
-
-    async incrementItemQuantity(productId) {
-      const item = this.cartItems.find(cartItem => cartItem.productId === productId);
-      if (item) {
-        item.quantity++;
-        localStorage.setItem('cartStore', JSON.stringify(this.$state));
-        console.log('Existing item quantity incremented:', item.quantity);
       }
     },
 

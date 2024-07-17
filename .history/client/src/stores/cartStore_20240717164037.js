@@ -35,8 +35,6 @@ export const useCartStore = defineStore('cart', {
         }
 
         const data = await response.json();
-        console.log('Data from server:', data);
-
         this.cartItems = data.items.map(item => {
           const product = item.product || item;
           return {
@@ -49,8 +47,8 @@ export const useCartStore = defineStore('cart', {
             quantity: item.quantity || 1 // Assurez-vous que la quantité est définie
           };
         });
-        console.log('Processed cartItems:', this.cartItems);
         localStorage.setItem('cartStore', JSON.stringify(this.$state));
+        console.log('Synced cart:', this.cartItems);
       } catch (error) {
         console.error('Error syncing cart:', error);
       }
@@ -107,17 +105,24 @@ export const useCartStore = defineStore('cart', {
             existingItem.quantity++;
             console.log('Existing item quantity incremented:', existingItem.quantity);
           } else {
-            const newItem = {
-              productId: item.id,
-              price: price,
-              quantity: 1,
+            this.cartItems.push({ 
+              productId: item.id, 
+              price: price, 
+              quantity: 1, 
               title: item.title || 'Unknown title',
-              image_gallery: item.image_gallery || [],
+              image_gallery: item.image_gallery || [], 
               discounted_price: item.discounted_price || 0,
               is_promotion: item.is_promotion || false,
-            };
-            this.cartItems.push(newItem);
-            console.log('New item added to cart:', newItem);
+            });
+            console.log('New item added to cart:', { 
+              productId: item.id, 
+              price: price, 
+              quantity: 1, 
+              title: item.title || 'Unknown title',
+              image_gallery: item.image_gallery || [], 
+              discounted_price: item.discounted_price || 0,
+              is_promotion: item.is_promotion || false,
+            });
           }
           localStorage.setItem('cartStore', JSON.stringify(this.$state));
         } else {

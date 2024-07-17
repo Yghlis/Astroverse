@@ -9,9 +9,9 @@
       :removeItem="removeItem"
     />
     <p>Total: {{ cartTotal }}€</p>
-    <button @click="handleCheckout" class="call-to-action">
-      Passer votre Commande
-    </button>
+    <RouterLink @click.prevent="handleCheckout" to="/cart-checkout" class="call-to-action"
+      >Passer votre Commande</RouterLink
+    >
   </div>
 </template>
 
@@ -49,7 +49,8 @@ const toggle = () => {
 };
 
 // Fonction pour gérer le passage à la caisse
-const handleCheckout = async () => {
+const handleCheckout = async (event) => {
+  event.preventDefault();
   const apiUrl = import.meta.env.VITE_API_URL;
 
   try {
