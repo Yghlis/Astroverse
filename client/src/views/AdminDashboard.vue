@@ -1,32 +1,64 @@
 <template>
   <div class="admin-container">
     <SideAdmin :showSideBar="showSideBar" @update:hideSideBarAdmin="toggleNav">
-      <h2>Admin Options</h2>
       <div class="admin-options">
         <button
-          :class="{ active: currentDataType === 'products' }"
+          :class="{
+            active: currentDataType === 'products',
+            mini: !showSideBar,
+          }"
           @click="fetchData('products')"
         >
-          Produits
+          <span class="material-symbols-outlined"> store </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Produits</span>
+          </transition>
         </button>
         <button
-          :class="{ active: currentDataType === 'users' }"
+          :class="{ active: currentDataType === 'users', mini: !showSideBar }"
           @click="fetchData('users')"
         >
-          Utilisateurs
+          <span class="material-symbols-outlined"> person </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Utilisateurs</span>
+          </transition>
         </button>
         <button
-          :class="{ active: currentDataType === 'universes' }"
+          :class="{
+            active: currentDataType === 'universes',
+            mini: !showSideBar,
+          }"
           @click="fetchData('universes')"
         >
-          Univers
+          <span class="material-symbols-outlined"> category </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Univers</span>
+          </transition>
         </button>
         <button
-          :class="{ active: currentDataType === 'characters' }"
+          :class="{
+            active: currentDataType === 'characters',
+            mini: !showSideBar,
+          }"
           @click="fetchData('characters')"
         >
-          Personnages
+          <span class="material-symbols-outlined"> directions_walk </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Personnages</span>
+          </transition>
         </button>
+        <RouterLink
+          :class="{
+            active: currentDataType === 'characters',
+            mini: !showSideBar,
+          }"
+          class="exit"
+          to="/form"
+          ><span class="material-symbols-outlined"> move_item </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Sortir</span>
+          </transition></RouterLink
+        >
       </div>
     </SideAdmin>
     <div class="admin-content" :class="{ active: showSideBar }">
@@ -47,7 +79,6 @@
 import SideAdmin from "../ui/SideAdmin.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
 import { ref, onMounted, provide } from "vue";
-
 
 const showSideBar = ref(true);
 const tableData = ref([]);
@@ -193,13 +224,20 @@ const handleRowDeleted = (id) => {
     flex-direction: column;
     margin: 0;
     width: 100%;
+    height: 100%;
     gap: 10px;
     font-family: "Montserrat", sans-serif;
-    button {
+    button,
+    a {
+      text-decoration: none;
       width: 100%;
-      padding: 20px 10px;
+      padding: 20px 20px 20px 50px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
       background-color: white;
-      color: black;
+      color: #808080;
       border: none;
       font-size: 26px;
       font-family: "Montserrat", sans-serif;
@@ -210,16 +248,47 @@ const handleRowDeleted = (id) => {
         background-color: black;
         color: white;
       }
+      &.mini {
+        justify-content: flex-end;
+      }
+      &.exit {
+        margin-top: auto;
+        background-color: #ff0000;
+        color: white;
+        &:hover {
+          background-color: #ff3333;
+        }
+      }
     }
   }
 
   .admin-content {
-    width: 100%;
+    width: calc(100% - 75px);
     min-height: 100vh;
     transition: all 0.3s ease;
     &.active {
-      width: calc(100% - 250px);
+      width: calc(100% - 300px);
     }
   }
+}
+
+.material-symbols-outlined {
+  font-size: 35px;
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
+  transition: transform 0.5s ease;
+  &.alt {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+  }
+}
+
+.fade-translate-enter-active,
+.fade-translate-leave-active {
+  transition: opacity 0.5s ease, transform 0.3s ease;
+}
+
+.fade-translate-enter,
+.fade-translate-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
 }
 </style>

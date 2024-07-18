@@ -2,7 +2,7 @@
   <Transition name="fade">
     <header v-if="!isAdminRoute">
       <div class="logo">
-        <img :src="logo" alt="Logo" class="logo" />
+        <img :src="logoPath" alt="Logo" class="logo" />
         <h1>Astroverse</h1>
       </div>
       <div class="divider"></div>
@@ -62,7 +62,7 @@ const isAdminRoute = computed(() => route.path === "/admin");
 
 const sidebarStore = useSidebarStore();
 
-const logo = ref(logoPath);
+
 const userClicked = ref(false);
 const cartClicked = ref(false);
 const favoriteClicked = ref(false);
