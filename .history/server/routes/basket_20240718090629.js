@@ -1,6 +1,5 @@
 import express from 'express';
-import { addToBasket, decrementFromBasket, removeFromBasket, getBasket,checkBasketItems } from '../controllers/basket.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { addToBasket, decrementFromBasket, removeFromBasket, getBasket } from '../controllers/basket.js';
 
 const router = express.Router();
 

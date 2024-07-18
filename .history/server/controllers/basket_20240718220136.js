@@ -9,7 +9,7 @@ const FIFTEEN_MINUTES = 15 * 60 * 1000;
 
 const clearBasketIfExpired = async (basket) => {
   const now = new Date();
-  if (basket.firstItemAddedAt && now - new Date(basket.firstItemAddedAt) > FIFTEEN_MINUTES) {
+  if (basket.firstItemjeAddedAt && now - new Date(basket.firstItemAddedAt) > FIFTEEN_MINUTES) {
     // Réincrémenter les stocks des produits dans le panier avant de le vider
     for (const item of basket.items) {
       // Mettre à jour le stock du produit dans PostgreSQL

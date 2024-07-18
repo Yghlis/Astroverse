@@ -1,6 +1,6 @@
 import Basket from '../models/Basket.js';
 import Product from '../models/Product.js';
-import ProductMongo from '../models/ProductMongo.js'; // Importer le modèle MongoDB
+import ProductMongo from '../models/ProductMongo.js';
 import { v4 as uuidv4 } from 'uuid';
 import { Op } from 'sequelize';
 import sequelize from '../config/database.js';
@@ -10,23 +10,18 @@ const FIFTEEN_MINUTES = 15 * 60 * 1000;
 const clearBasketIfExpired = async (basket) => {
   const now = new Date();
   if (basket.firstItemAddedAt && now - new Date(basket.firstItemAddedAt) > FIFTEEN_MINUTES) {
-    // Réincrémenter les stocks des produits dans le panier avant de le vider
     for (const item of basket.items) {
-      // Mettre à jour le stock du produit dans PostgreSQL
       const product = await Product.findByPk(item.productId);
       if (product) {
         product.stock += item.quantity;
         await product.save();
       }
-
-      // Mettre à jour le stock du produit dans MongoDB
       const productMongo = await ProductMongo.findOne({ id: item.productId });
       if (productMongo) {
         productMongo.stock += item.quantity;
         await productMongo.save();
       }
     }
-
     basket.items = [];
     basket.firstItemAddedAt = null;
     await basket.save();
@@ -38,7 +33,6 @@ const clearBasketIfExpired = async (basket) => {
 export const addToBasket = async (req, res) => {
   const { productId } = req.body;
   const sessionId = req.headers['session-id'];
-
   console.log('Request body:', req.body);
 
   if (!productId || !sessionId) {
@@ -46,18 +40,15 @@ export const addToBasket = async (req, res) => {
   }
 
   try {
-    // Vérifier si le produit existe et a suffisamment de stock
     const product = await Product.findByPk(productId);
     if (!product || product.stock < 1) {
       console.log('Insufficient stock or product not found.');
       return res.status(400).json({ message: 'Insufficient stock or product not found.' });
     }
 
-    // Vérifier si un panier existe pour cette session
     let basket = await Basket.findOne({ where: { sessionId } });
 
     if (!basket) {
-      // Créer un nouveau panier
       basket = await Basket.create({
         id: uuidv4(),
         sessionId,
@@ -67,8 +58,6 @@ export const addToBasket = async (req, res) => {
       console.log('New basket created with item:', basket.items);
     } else {
       await clearBasketIfExpired(basket);
-
-      // Mettre à jour le panier existant
       const items = basket.items || [];
       const existingItem = items.find(item => item.productId === productId);
       if (existingItem) {
@@ -83,7 +72,6 @@ export const addToBasket = async (req, res) => {
         basket.firstItemAddedAt = new Date();
       }
 
-      // Mettre à jour le champ items avec le tableau modifié
       await Basket.update(
         { items: items, updatedAt: new Date(), firstItemAddedAt: basket.firstItemAddedAt },
         { where: { id: basket.id } }
@@ -91,15 +79,12 @@ export const addToBasket = async (req, res) => {
       console.log('Basket updated with new items:', items);
     }
 
-    // Vérifiez que les modifications sont bien sauvegardées
     const updatedBasket = await Basket.findOne({ where: { id: basket.id } });
     console.log('Verified updated basket:', updatedBasket.items);
 
-    // Mettre à jour le stock du produit
     product.stock -= 1;
     await product.save();
 
-    // Mettre à jour le stock du produit dans MongoDB
     const productMongo = await ProductMongo.findOne({ id: productId });
     if (productMongo) {
       productMongo.stock -= 1;

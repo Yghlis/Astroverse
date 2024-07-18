@@ -2,7 +2,7 @@
   <div class="checkout">
     <div class="checkout-content">
       <h2>Finalisation de la commande</h2>
-      <form @submit.prevent="handleSubmit">
+      <form @submit.prevent="">
         <div class="address-section">
           <label for="address">Adresse de livraison</label>
           <input
@@ -84,23 +84,19 @@
           <span>TVA 20%</span>
           <span>Total: {{ cartTotal * 1.2 }}€ /TTC</span>
         </div>
-        <button type="submit" class="call-to-action">
-          Passer au paiement
-        </button>
+        <button @click="handleSubmit">Passer au paiement</button>
       </form>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue';
-import { useRouter } from 'vue-router';
-import { useCartStore } from '../stores/cartStore';
-import ShopCart from '../ui/ShopCart.vue';
-import TheLoader from '../ui/TheLoader.vue';
+import { ref, computed, reactive } from "vue";
+import { useCartStore } from "../stores/cartStore";
+import ShopCart from "../ui/ShopCart.vue";
+import TheLoader from "../ui/TheLoader.vue";
 
 const cartStore = useCartStore();
-const router = useRouter();
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
@@ -118,14 +114,14 @@ const removeItem = (itemId) => {
   cartStore.removeItemFromCart(itemId);
 };
 
-const address = ref('');
+const address = ref("");
 const fullAddress = reactive({});
 const saveAddressForLater = ref(false);
 const sameAddressForPayment = ref(true);
 const addressForPayment = reactive({});
-const city = ref('');
-const street = ref('');
-const postalCode = ref('');
+const city = ref("");
+const street = ref("");
+const postalCode = ref("");
 const suggestions = ref([]);
 const loading = ref(false);
 let debounceTimeout = null;
@@ -134,15 +130,17 @@ const fetchSuggestions = async (query) => {
   const apiUrl = import.meta.env.VITE_API_URL;
   loading.value = true;
   try {
-    const response = await fetch(`${apiUrl}/geocode?address=${encodeURIComponent(query)}`);
+    const response = await fetch(
+      `${apiUrl}/geocode?address=${encodeURIComponent(query)}`
+    );
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error("Network response was not ok");
     }
     const data = await response.json();
     suggestions.value = data.results;
     loading.value = false;
   } catch (error) {
-    console.error('Error fetching geocoded data:', error);
+    console.error("Error fetching geocoded data:", error);
     loading.value = false;
   }
 };
@@ -164,39 +162,8 @@ const selectSuggestion = (suggestion) => {
   suggestions.value = [];
 };
 
-const handleSubmit = async () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
-
-  // Vérifier si l'utilisateur est connecté
-  const jwt = localStorage.getItem('jwt');
-  if (!jwt) {
-    alert('Veuillez vous connecter');
-    return;
-  }
-
-  // Vérifier si le panier contient des produits
-  try {
-    const response = await fetch(`${apiUrl}/basket/check-items`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'session-id': localStorage.getItem('sessionId'),
-        'Authorization': `Bearer ${jwt}`
-      },
-    });
-
-    const data = await response.json();
-    if (!data.hasItems) {
-      alert('Votre panier est vide');
-      return;
-    }
-  } catch (error) {
-    console.error('Error checking basket items:', error);
-    alert('Erreur lors de la vérification du panier');
-    return;
-  }
-
-  if (sameAddressForPayment.value) {
+const handleSubmit = () => {
+  if (sameAddressForPayment.value == true) {
     Object.assign(addressForPayment, fullAddress);
   } else {
     addressForPayment.city = city.value;
@@ -214,7 +181,6 @@ const handleSubmit = async () => {
 
   // Ajoutez ici la logique pour traiter l'adresse de livraison et la sauvegarde de l'adresse
 };
-
 </script>
 
 <style scoped lang="scss">

@@ -2,8 +2,6 @@ import Basket from '../models/Basket.js';
 import Product from '../models/Product.js';
 import ProductMongo from '../models/ProductMongo.js'; // Importer le modèle MongoDB
 import { v4 as uuidv4 } from 'uuid';
-import { Op } from 'sequelize';
-import sequelize from '../config/database.js';
 
 const FIFTEEN_MINUTES = 15 * 60 * 1000;
 
@@ -37,6 +35,7 @@ const clearBasketIfExpired = async (basket) => {
 // Ajouter ou mettre à jour un produit dans le panier
 export const addToBasket = async (req, res) => {
   const { productId } = req.body;
+  const userId = req.user ? req.user.userId : null; // Récupérer l'ID utilisateur du token JWT si disponible
   const sessionId = req.headers['session-id'];
 
   console.log('Request body:', req.body);
@@ -53,13 +52,17 @@ export const addToBasket = async (req, res) => {
       return res.status(400).json({ message: 'Insufficient stock or product not found.' });
     }
 
-    // Vérifier si un panier existe pour cette session
-    let basket = await Basket.findOne({ where: { sessionId } });
+    // Vérifier si un panier existe pour cet utilisateur ou cette session
+    let basket = await Basket.findOne({ where: { userId } });
+    if (!basket) {
+      basket = await Basket.findOne({ where: { sessionId } });
+    }
 
     if (!basket) {
       // Créer un nouveau panier
       basket = await Basket.create({
         id: uuidv4(),
+        userId,
         sessionId,
         items: [{ productId, quantity: 1 }],
         firstItemAddedAt: new Date()
@@ -116,6 +119,7 @@ export const addToBasket = async (req, res) => {
 // Décrémenter ou supprimer un produit dans le panier
 export const decrementFromBasket = async (req, res) => {
   const { productId } = req.body;
+  const userId = req.user ? req.user.userId : null;
   const sessionId = req.headers['session-id'];
 
   if (!productId || !sessionId) {
@@ -123,7 +127,10 @@ export const decrementFromBasket = async (req, res) => {
   }
 
   try {
-    let basket = await Basket.findOne({ where: { sessionId } });
+    let basket = await Basket.findOne({ where: { userId } });
+    if (!basket) {
+      basket = await Basket.findOne({ where: { sessionId } });
+    }
 
     if (!basket) {
       return res.status(404).json({ message: 'Basket not found.' });
@@ -177,6 +184,7 @@ export const decrementFromBasket = async (req, res) => {
 
 export const removeFromBasket = async (req, res) => {
   const { productId } = req.body;
+  const userId = req.user ? req.user.userId : null;
   const sessionId = req.headers['session-id'];
 
   if (!productId || !sessionId) {
@@ -184,7 +192,12 @@ export const removeFromBasket = async (req, res) => {
   }
 
   try {
-    let basket = await Basket.findOne({ where: { sessionId } });
+    let basket;
+    if (userId) {
+      basket = await Basket.findOne({ where: { userId } });
+    } else {
+      basket = await Basket.findOne({ where: { sessionId } });
+    }
 
     if (!basket) {
       return res.status(404).json({ message: 'Basket not found.' });
@@ -229,6 +242,7 @@ export const removeFromBasket = async (req, res) => {
 };
 
 export const getBasket = async (req, res) => {
+  const userId = req.user ? req.user.userId : null;
   const sessionId = req.headers['session-id'];
 
   if (!sessionId) {
@@ -236,7 +250,10 @@ export const getBasket = async (req, res) => {
   }
 
   try {
-    let basket = await Basket.findOne({ where: { sessionId } });
+    let basket = await Basket.findOne({ where: { userId } });
+    if (!basket) {
+      basket = await Basket.findOne({ where: { sessionId } });
+    }
 
     if (!basket) {
       return res.status(404).json({ message: 'Basket not found.' });
@@ -248,38 +265,5 @@ export const getBasket = async (req, res) => {
   } catch (error) {
     console.error('Error fetching basket:', error);
     res.status(500).json({ message: 'Internal server error.' });
-  }
-};
-
-export const checkBasketItems = async (req, res) => {
-  try {
-    const sessionId = req.headers['session-id'];
-    console.log('Received session ID:', sessionId, 'Length:', sessionId.length, 'Type:', typeof sessionId);
-
-    if (!sessionId) {
-      console.log('Session ID is missing');
-      return res.status(400).json({ message: 'Session ID is required' });
-    }
-
-    const basket = await Basket.findOne({ where: { sessionId } });
-    console.log('Basket found:', basket);
-
-    if (!basket) {
-      console.log('No basket found for the given session ID');
-      return res.status(200).json({ hasItems: false });
-    }
-
-    console.log('Basket items:', basket.items);
-
-    if (!basket.items || basket.items.length === 0) {
-      console.log('Basket is empty');
-      return res.status(200).json({ hasItems: false });
-    }
-
-    console.log('Basket has items');
-    return res.status(200).json({ hasItems: true });
-  } catch (error) {
-    console.error('Error checking basket items:', error);
-    res.status(500).json({ message: 'Internal server error' });
   }
 };

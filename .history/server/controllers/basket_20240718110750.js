@@ -37,6 +37,7 @@ const clearBasketIfExpired = async (basket) => {
 // Ajouter ou mettre à jour un produit dans le panier
 export const addToBasket = async (req, res) => {
   const { productId } = req.body;
+  const userId = req.user ? req.user.userId : null; // Récupérer l'ID utilisateur du token JWT si disponible
   const sessionId = req.headers['session-id'];
 
   console.log('Request body:', req.body);
@@ -53,13 +54,17 @@ export const addToBasket = async (req, res) => {
       return res.status(400).json({ message: 'Insufficient stock or product not found.' });
     }
 
-    // Vérifier si un panier existe pour cette session
-    let basket = await Basket.findOne({ where: { sessionId } });
+    // Vérifier si un panier existe pour cet utilisateur ou cette session
+    let basket = await Basket.findOne({ where: { userId } });
+    if (!basket) {
+      basket = await Basket.findOne({ where: { sessionId } });
+    }
 
     if (!basket) {
       // Créer un nouveau panier
       basket = await Basket.create({
         id: uuidv4(),
+        userId,
         sessionId,
         items: [{ productId, quantity: 1 }],
         firstItemAddedAt: new Date()
@@ -116,6 +121,7 @@ export const addToBasket = async (req, res) => {
 // Décrémenter ou supprimer un produit dans le panier
 export const decrementFromBasket = async (req, res) => {
   const { productId } = req.body;
+  const userId = req.user ? req.user.userId : null;
   const sessionId = req.headers['session-id'];
 
   if (!productId || !sessionId) {
@@ -123,7 +129,10 @@ export const decrementFromBasket = async (req, res) => {
   }
 
   try {
-    let basket = await Basket.findOne({ where: { sessionId } });
+    let basket = await Basket.findOne({ where: { userId } });
+    if (!basket) {
+      basket = await Basket.findOne({ where: { sessionId } });
+    }
 
     if (!basket) {
       return res.status(404).json({ message: 'Basket not found.' });
@@ -177,6 +186,7 @@ export const decrementFromBasket = async (req, res) => {
 
 export const removeFromBasket = async (req, res) => {
   const { productId } = req.body;
+  const userId = req.user ? req.user.userId : null;
   const sessionId = req.headers['session-id'];
 
   if (!productId || !sessionId) {
@@ -184,7 +194,12 @@ export const removeFromBasket = async (req, res) => {
   }
 
   try {
-    let basket = await Basket.findOne({ where: { sessionId } });
+    let basket;
+    if (userId) {
+      basket = await Basket.findOne({ where: { userId } });
+    } else {
+      basket = await Basket.findOne({ where: { sessionId } });
+    }
 
     if (!basket) {
       return res.status(404).json({ message: 'Basket not found.' });
@@ -229,6 +244,7 @@ export const removeFromBasket = async (req, res) => {
 };
 
 export const getBasket = async (req, res) => {
+  const userId = req.user ? req.user.userId : null;
   const sessionId = req.headers['session-id'];
 
   if (!sessionId) {
@@ -236,7 +252,10 @@ export const getBasket = async (req, res) => {
   }
 
   try {
-    let basket = await Basket.findOne({ where: { sessionId } });
+    let basket = await Basket.findOne({ where: { userId } });
+    if (!basket) {
+      basket = await Basket.findOne({ where: { sessionId } });
+    }
 
     if (!basket) {
       return res.status(404).json({ message: 'Basket not found.' });
@@ -261,8 +280,17 @@ export const checkBasketItems = async (req, res) => {
       return res.status(400).json({ message: 'Session ID is required' });
     }
 
-    const basket = await Basket.findOne({ where: { sessionId } });
-    console.log('Basket found:', basket);
+    // Vérification directe via SQL pour s'assurer que la table et les colonnes sont correctement référencées
+    const [results] = await sequelize.query(
+      'SELECT * FROM baskets WHERE "sessionId" = :sessionId',
+      {
+        replacements: { sessionId },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const basket = results.length > 0 ? results[0] : null;
+    console.log('Basket found via SQL:', basket);
 
     if (!basket) {
       console.log('No basket found for the given session ID');

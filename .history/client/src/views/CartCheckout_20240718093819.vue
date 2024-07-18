@@ -42,7 +42,7 @@
             id="sameAddressForPayment"
           />
           <label for="sameAddressForPayment"
-            >si l'adresse de facturation = adresse de livraison</label
+            >Si l'adresse de facturation = adresse de livraison</label
           >
         </div>
         <div v-if="!sameAddressForPayment" class="payment-address">
@@ -214,7 +214,6 @@ const handleSubmit = async () => {
 
   // Ajoutez ici la logique pour traiter l'adresse de livraison et la sauvegarde de l'adresse
 };
-
 </script>
 
 <style scoped lang="scss">

@@ -386,4 +386,5 @@ export default {
     resetPasswordGet,
     postChangePassword,
     checkAuth,
+    authenticateToken,
 };

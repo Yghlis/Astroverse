@@ -165,56 +165,49 @@ const selectSuggestion = (suggestion) => {
 };
 
 const handleSubmit = async () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
-
-  // Vérifier si l'utilisateur est connecté
   const jwt = localStorage.getItem('jwt');
   if (!jwt) {
-    alert('Veuillez vous connecter');
+    alert('Connectez-vous');
     return;
   }
 
-  // Vérifier si le panier contient des produits
   try {
-    const response = await fetch(`${apiUrl}/basket/check-items`, {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${apiUrl}/auth/check-auth`, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${jwt}`,
         'Content-Type': 'application/json',
-        'session-id': localStorage.getItem('sessionId'),
-        'Authorization': `Bearer ${jwt}`
       },
     });
 
-    const data = await response.json();
-    if (!data.hasItems) {
-      alert('Votre panier est vide');
-      return;
+    if (!response.ok) {
+      throw new Error('Invalid token');
     }
+
+    // Traitement de la soumission du formulaire ici
+    if (sameAddressForPayment.value) {
+      Object.assign(addressForPayment, fullAddress);
+    } else {
+      addressForPayment.city = city.value;
+      addressForPayment.street = street.value;
+      addressForPayment.postal_code = postalCode.value;
+      addressForPayment.country = 'France';
+    }
+
+    console.log('Adresse de livraison courte:', address.value);
+    console.log('Adresse de livraison complète:', fullAddress);
+    console.log('Sauvegarder l\'adresse:', saveAddressForLater.value);
+    console.log('Adresse de facturation:', addressForPayment);
+    console.log('panier:', cartItems.value);
+    console.log('TotalPrice avec tax:', cartTotal.value * 1.2);
+    console.log('User From localStorage', localStorage.getItem('userId'));
+
   } catch (error) {
-    console.error('Error checking basket items:', error);
-    alert('Erreur lors de la vérification du panier');
-    return;
+    console.error('User is not authenticated:', error);
+    alert('Connectez-vous');
   }
-
-  if (sameAddressForPayment.value) {
-    Object.assign(addressForPayment, fullAddress);
-  } else {
-    addressForPayment.city = city.value;
-    addressForPayment.street = street.value;
-    addressForPayment.postal_code = postalCode.value;
-    addressForPayment.country = "France";
-  }
-  console.log("Adresse de livraison courte:", address.value);
-  console.log("Adresse de livraison complète:", fullAddress);
-  console.log("Sauvegarder l'adresse:", saveAddressForLater.value);
-  console.log("Adresse de facturation:", addressForPayment);
-  console.log("panier:", cartItems.value);
-  console.log("TotalPrice avec tax:", cartTotal.value * 1.2);
-  console.log("User From localStorage", localStorage.getItem("userId"));
-
-  // Ajoutez ici la logique pour traiter l'adresse de livraison et la sauvegarde de l'adresse
 };
-
 </script>
 
 <style scoped lang="scss">
