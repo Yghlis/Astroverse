@@ -1,47 +1,49 @@
 <template>
-  <header>
-    <div class="logo">
-      <img :src="logo" alt="Logo" class="logo" />
-      <h1>Astroverse</h1>
-    </div>
-    <div class="divider"></div>
-    <NavBar />
-    <div class="right-btn">
-      <button class="btn" @click="toggleFavorite">
-        <span class="material-symbols-outlined alt"> favorite </span>
-      </button>
-      <button class="btn" @click="toggleUser">
-        <span class="material-symbols-outlined">account_circle</span>
-      </button>
-      <button class="btn" @click="toggleCart" ref="numberItems">
-        <span class="material-symbols-outlined alt"> shopping_cart </span>
-        <div v-if="NombreDeItems" class="number-filtre">
-          <span>{{ NombreDeItems }}</span>
-        </div>
-      </button>
-    </div>
-    <SideBar
-      :showSideBar="userClicked || cartClicked || favoriteClicked"
-      :type="type"
-      @update:hideUserSideBar="toggleUser"
-      @update:hideCartSideBar="toggleCart"
-      @update:hideFavoriteSideBar="toggleFavorite"
-    >
-      <UserDisplay
-        v-if="userClicked"
+  <Transition name="fade">
+    <header v-if="!isAdminRoute">
+      <div class="logo">
+        <img :src="logo" alt="Logo" class="logo" />
+        <h1>Astroverse</h1>
+      </div>
+      <div class="divider"></div>
+      <NavBar />
+      <div class="right-btn">
+        <button class="btn" @click="toggleFavorite">
+          <span class="material-symbols-outlined alt"> favorite </span>
+        </button>
+        <button class="btn" @click="toggleUser">
+          <span class="material-symbols-outlined">account_circle</span>
+        </button>
+        <button class="btn" @click="toggleCart" ref="numberItems">
+          <span class="material-symbols-outlined alt"> shopping_cart </span>
+          <div v-if="NombreDeItems" class="number-filtre">
+            <span>{{ NombreDeItems }}</span>
+          </div>
+        </button>
+      </div>
+      <SideBar
+        :showSideBar="userClicked || cartClicked || favoriteClicked"
+        :type="type"
         @update:hideUserSideBar="toggleUser"
-      ></UserDisplay>
-      <ShoppingCart
-        v-if="cartClicked"
         @update:hideCartSideBar="toggleCart"
-      ></ShoppingCart>
-      <TheFavorite
-        v-if="favoriteClicked"
         @update:hideFavoriteSideBar="toggleFavorite"
       >
-      </TheFavorite>
-    </SideBar>
-  </header>
+        <UserDisplay
+          v-if="userClicked"
+          @update:hideUserSideBar="toggleUser"
+        ></UserDisplay>
+        <ShoppingCart
+          v-if="cartClicked"
+          @update:hideCartSideBar="toggleCart"
+        ></ShoppingCart>
+        <TheFavorite
+          v-if="favoriteClicked"
+          @update:hideFavoriteSideBar="toggleFavorite"
+        >
+        </TheFavorite>
+      </SideBar>
+    </header>
+  </Transition>
 </template>
 
 <script setup>
@@ -53,6 +55,10 @@ import { computed, ref, watch, onMounted, nextTick } from "vue";
 import logoPath from "../assets/images/logo.png";
 import { useSidebarStore } from "../stores/sidebarStore";
 import TheFavorite from "./TheFavorite.vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+const isAdminRoute = computed(() => route.path === "/admin");
 
 const sidebarStore = useSidebarStore();
 
@@ -201,5 +207,14 @@ header {
       }
     }
   }
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

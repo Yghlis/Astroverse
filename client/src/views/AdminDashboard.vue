@@ -48,6 +48,7 @@ import SideAdmin from "../ui/SideAdmin.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
 import { ref, onMounted, provide } from "vue";
 
+
 const showSideBar = ref(true);
 const tableData = ref([]);
 const tableColumns = ref([]);
@@ -177,6 +178,7 @@ const handleRowDeleted = (id) => {
 .admin-container {
   display: flex;
   justify-content: flex-end;
+  margin: 0;
   h2 {
     margin: 0;
     padding: 20px;
