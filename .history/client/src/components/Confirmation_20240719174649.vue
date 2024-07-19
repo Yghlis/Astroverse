@@ -18,17 +18,20 @@
           <p>Prix total: {{ order.totalPrice }}€</p>
         </div>
         <router-link to="/" @click.native="clearCart">Retour à la page d'accueil</router-link>
+        <button @click="cancelOrder">Annuler la commande</button> <!-- Bouton pour annuler la commande -->
       </div>
     </div>
   </template>
   
   <script setup>
   import { ref, onMounted } from 'vue';
-  import { useCartStore } from '../stores/cartStore'; // Assurez-vous que le chemin est correct
+  import { useCartStore } from '../stores/cart'; // Assurez-vous que le chemin est correct
+  import { useRouter } from 'vue-router'; // Importer useRouter pour la redirection
   
   const order = ref({});
   const apiUrl = import.meta.env.VITE_API_URL; // Récupérer l'URL de l'API
-  const cartStore = useCartStore(); // Access the cart store
+  const cartStore = useCartStore(); // Accéder au store du panier
+  const router = useRouter(); // Initialiser le router
   
   const fetchOrderDetails = async (paymentIntent) => {
     try {
@@ -65,6 +68,34 @@
   
   const clearCart = () => {
     cartStore.clearCart(); // Utiliser l'action clearCart du store
+  };
+  
+  const cancelOrder = async () => {
+    if (!order.value.id) {
+      console.error('No order ID found');
+      return;
+    }
+  
+    try {
+      const response = await fetch(`${apiUrl}/orders/${order.value.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
+        },
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error cancelling order:', errorText);
+        throw new Error('Failed to cancel order');
+      }
+  
+      console.log('Order cancelled successfully');
+      clearCart(); // Vider le panier localement
+      router.push('/'); // Rediriger vers la page d'accueil
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+    }
   };
   
   onMounted(() => {
@@ -135,6 +166,20 @@
         text-decoration: none;
         &:hover {
           background-color: #55af00;
+        }
+      }
+      button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #e74c3c;
+        color: white;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        margin-top: 20px;
+        &:hover {
+          background-color: #c0392b;
         }
       }
     }

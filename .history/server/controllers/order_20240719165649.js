@@ -11,14 +11,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export const createOrder = async (req, res) => {
   const userId = req.user.userId; // Récupérer l'ID utilisateur du token JWT
   const sessionId = req.headers['session-id'];
-  const { shippingAddress, billingAddress, saveAddress } = req.body; // Récupérer saveAddress du corps de la requête
+  const { shippingAddress, billingAddress } = req.body;
 
   try {
     console.log('User ID:', userId);
     console.log('Session ID:', sessionId);
     console.log('Shipping Address:', shippingAddress);
     console.log('Billing Address:', billingAddress);
-    console.log('Save Address:', saveAddress);
 
     // Récupérer les informations de l'utilisateur
     const user = await User.findByPk(userId);
@@ -97,8 +96,6 @@ export const createOrder = async (req, res) => {
     await order.save();
 
     console.log('Order updated with Stripe Payment Intent ID:', order.stripePaymentIntentId);
-
-   
 
     res.status(201).json({ orderId: order.id, clientSecret: paymentIntent.client_secret });
   } catch (error) {

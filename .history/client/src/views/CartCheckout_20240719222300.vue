@@ -109,7 +109,6 @@ import { useCartStore } from '../stores/cartStore';
 import ShopCart from '../ui/ShopCart.vue';
 import TheLoader from '../ui/TheLoader.vue';
 import { loadStripe } from '@stripe/stripe-js';
-import jwtDecode from 'jwt-decode';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -187,28 +186,7 @@ onMounted(async () => {
 const updateUserAddress = async (address) => {
   const jwt = localStorage.getItem('jwt');
   const apiUrl = import.meta.env.VITE_API_URL;
-
-  if (!jwt) {
-    console.error('No JWT found');
-    return;
-  }
-
-  let userId;
-  try {
-    const decodedJwt = jwtDecode(jwt);
-    userId = decodedJwt.userId; // Assurez-vous que l'ID utilisateur est correctement décodé
-  } catch (error) {
-    console.error('Failed to decode JWT:', error);
-    return;
-  }
-
-  // Extraire les informations pertinentes
-  const simplifiedAddress = {
-    city: address.city,
-    street: `${address.housenumber || ''} ${address.street || ''}`.trim(),
-    country: address.country || address.country_code,
-    postal_code: address.postal_code || address.postcode,
-  };
+  const userId = 'USER_ID'; // Remplacez par l'ID utilisateur actuel
 
   try {
     const response = await fetch(`${apiUrl}/users/${userId}`, {
@@ -217,7 +195,7 @@ const updateUserAddress = async (address) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${jwt}`,
       },
-      body: JSON.stringify({ address: simplifiedAddress }),
+      body: JSON.stringify({ address }),
     });
 
     if (!response.ok) {

@@ -98,7 +98,19 @@ export const createOrder = async (req, res) => {
 
     console.log('Order updated with Stripe Payment Intent ID:', order.stripePaymentIntentId);
 
-   
+    // Si l'utilisateur a choisi de sauvegarder l'adresse
+    if (saveAddress) {
+      const addressParts = billingAddress.split(', ');
+      const address = {
+        street: addressParts[0],
+        city: addressParts[1],
+        postal_code: addressParts[2],
+        country: 'France'
+      };
+
+      await user.update({ address });
+      console.log('User address updated:', user.address);
+    }
 
     res.status(201).json({ orderId: order.id, clientSecret: paymentIntent.client_secret });
   } catch (error) {

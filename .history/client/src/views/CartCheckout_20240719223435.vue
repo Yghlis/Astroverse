@@ -202,14 +202,6 @@ const updateUserAddress = async (address) => {
     return;
   }
 
-  // Extraire les informations pertinentes
-  const simplifiedAddress = {
-    city: address.city,
-    street: `${address.housenumber || ''} ${address.street || ''}`.trim(),
-    country: address.country || address.country_code,
-    postal_code: address.postal_code || address.postcode,
-  };
-
   try {
     const response = await fetch(`${apiUrl}/users/${userId}`, {
       method: 'PUT',
@@ -217,7 +209,7 @@ const updateUserAddress = async (address) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${jwt}`,
       },
-      body: JSON.stringify({ address: simplifiedAddress }),
+      body: JSON.stringify({ address }),
     });
 
     if (!response.ok) {

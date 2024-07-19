@@ -24,7 +24,7 @@
   
   <script setup>
   import { ref, onMounted } from 'vue';
-  import { useCartStore } from '../stores/cartStore'; // Assurez-vous que le chemin est correct
+  import { useCartStore } from '../stores/cartStores/cart'; // Assurez-vous que le chemin est correct
   
   const order = ref({});
   const apiUrl = import.meta.env.VITE_API_URL; // Récupérer l'URL de l'API

@@ -205,7 +205,7 @@ const updateUserAddress = async (address) => {
   // Extraire les informations pertinentes
   const simplifiedAddress = {
     city: address.city,
-    street: `${address.housenumber || ''} ${address.street || ''}`.trim(),
+    street: address.street || address.housenumber + ' ' + address.street, // Prendre en compte le numéro de maison
     country: address.country || address.country_code,
     postal_code: address.postal_code || address.postcode,
   };

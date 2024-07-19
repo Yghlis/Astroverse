@@ -17,18 +17,17 @@
           <p>Taxe: {{ order.tax }}€</p>
           <p>Prix total: {{ order.totalPrice }}€</p>
         </div>
-        <router-link to="/" @click.native="clearCart">Retour à la page d'accueil</router-link>
+        <router-link to="/" @click.native="clearBasket">Retour à la page d'accueil</router-link>
       </div>
     </div>
   </template>
-  
   <script setup>
   import { ref, onMounted } from 'vue';
-  import { useCartStore } from '../stores/cartStore'; // Assurez-vous que le chemin est correct
+  import { useBasketStore } from '../store/basketStore'; // Assuming you have a Vuex store
   
   const order = ref({});
   const apiUrl = import.meta.env.VITE_API_URL; // Récupérer l'URL de l'API
-  const cartStore = useCartStore(); // Access the cart store
+  const basketStore = useBasketStore(); // Access the basket store
   
   const fetchOrderDetails = async (paymentIntent) => {
     try {
@@ -63,8 +62,8 @@
     return `${apiUrl}${sanitizedPath}`;
   };
   
-  const clearCart = () => {
-    cartStore.clearCart(); // Utiliser l'action clearCart du store
+  const clearBasket = () => {
+    basketStore.clearBasket(); // Assuming you have an action to clear the basket
   };
   
   onMounted(() => {
@@ -79,65 +78,66 @@
       console.log('Payment succeeded:', paymentIntent);
       // Fetch the order details using the paymentIntent ID
       fetchOrderDetails(paymentIntent);
-      clearCart();
+      clearBasket();
     } else {
       console.error('Payment failed or canceled:', redirectStatus);
     }
   });
   </script>
-  
-  <style scoped>
-  .confirmation {
-    background-color: #ccc;
-    &-content {
-      padding: 20px;
-      max-width: 700px;
-      margin: 50px auto;
-      background-color: white;
+
+<style scoped>
+.confirmation {
+  background-color: #ccc;
+  &-content {
+    padding: 20px;
+    max-width: 700px;
+    margin: 50px auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+
+    h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    p {
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-  
-      h2 {
-        margin-bottom: 20px;
-        font-size: 24px;
-      }
-  
-      p {
-        margin-bottom: 20px;
-        font-size: 18px;
-      }
-  
-      img {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 8px;
-      }
-  
-      ul {
-        list-style-type: none;
-        padding: 0;
-      }
-  
-      li {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-  
-      a {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #41c902;
-        color: white;
-        border-radius: 4px;
-        text-decoration: none;
-        &:hover {
-          background-color: #55af00;
-        }
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #41c902;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      &:hover {
+        background-color: #55af00;
       }
     }
   }
-  </style>
+}
+</style>
+
   

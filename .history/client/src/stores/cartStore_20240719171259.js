@@ -19,7 +19,7 @@ export const useCartStore = defineStore('cart', {
     async syncCart() {
       try {
         const apiUrl = import.meta.env.VITE_API_URL;
-
+    
         const response = await fetch(`${apiUrl}/basket`, {
           method: 'GET',
           headers: {
@@ -27,24 +27,24 @@ export const useCartStore = defineStore('cart', {
             'session-id': localStorage.getItem('sessionId'),
           },
         });
-
+    
         if (!response.ok) {
           const errorText = await response.text();
           console.error('Error syncing cart:', errorText);
           return;
         }
-
+    
         const data = await response.json();
         console.log('Data from server:', data);
-
+    
         // Extract the IDs from the server data
         const serverIds = new Set(data.items.map(item => item.productId || item.id || item._id));
-
+    
         // Filter out items from cartItems that are not in serverIds
         this.cartItems = this.cartItems.filter(cartItem => serverIds.has(cartItem.productId || cartItem.id || cartItem._id));
-
+    
         console.log('Filtered cartItems:', this.cartItems);
-
+    
         // Optionally, save the updated cartItems to localStorage
         localStorage.setItem('cartStore', JSON.stringify(this.cartItems));
       } catch (error) {
@@ -211,11 +211,6 @@ export const useCartStore = defineStore('cart', {
           console.error('Error removing from basket:', error);
         }
       }
-    },
-
-    clearCart() {
-      this.cartItems = [];
-      localStorage.removeItem('cartStore');
     },
 
     getItemPrice(item) {
