@@ -326,8 +326,6 @@ const handleSubmit = async () => {
 
   if (saveAddressForLater.value) {
     await updateUserAddress(addressForPayment);
-  } else if (address.value !== `${fullAddress.street}, ${fullAddress.city}, ${fullAddress.postal_code}, ${fullAddress.country}`) {
-    await updateUserAddress(fullAddress);
   }
 
   try {

@@ -109,7 +109,7 @@ import { useCartStore } from '../stores/cartStore';
 import ShopCart from '../ui/ShopCart.vue';
 import TheLoader from '../ui/TheLoader.vue';
 import { loadStripe } from '@stripe/stripe-js';
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from 'jwt-decode';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -326,8 +326,6 @@ const handleSubmit = async () => {
 
   if (saveAddressForLater.value) {
     await updateUserAddress(addressForPayment);
-  } else if (address.value !== `${fullAddress.street}, ${fullAddress.city}, ${fullAddress.postal_code}, ${fullAddress.country}`) {
-    await updateUserAddress(fullAddress);
   }
 
   try {

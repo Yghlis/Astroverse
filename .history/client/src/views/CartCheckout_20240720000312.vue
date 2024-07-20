@@ -109,7 +109,7 @@ import { useCartStore } from '../stores/cartStore';
 import ShopCart from '../ui/ShopCart.vue';
 import TheLoader from '../ui/TheLoader.vue';
 import { loadStripe } from '@stripe/stripe-js';
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from 'jwt-decode';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
