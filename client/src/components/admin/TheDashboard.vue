@@ -1,13 +1,25 @@
 <template>
   <div class="dashboard">
     <h2>Tableau de Bord</h2>
-    <div class="widget-area">
+    <transition-group
+      name="list"
+      tag="div"
+      class="widget-area"
+      ref="widgetArea"
+    >
       <div
         v-for="(card, index) in cards"
         :key="card.id"
         class="card"
         :style="{ backgroundColor: card.backgroundColor }"
+        :data-index="index"
+        draggable="true"
+        @dragstart="onDragStart($event, index)"
+        @dragover.prevent
+        @dragenter="onDragEnter($event, index)"
+        @dragend="onDragEnd"
       >
+        <span class="material-symbols-outlined option"> more_vert </span>
         <span class="material-symbols-outlined"> {{ card.icon }} </span>
         <h3>{{ card.title }}</h3>
         <div class="card-values">
@@ -21,45 +33,102 @@
           </div>
         </div>
       </div>
-    </div>
+    </transition-group>
   </div>
 </template>
+
 <script setup>
-import { reactive, ref, onMounted } from "vue";
-import { animate } from "motion";
+import { reactive, ref} from "vue";
 
 const cards = reactive([
   {
     id: 1,
-    title: "KPI 1",
+    title: "Total Des Utilisateurs",
     backgroundColor: "#e5e1f8",
     icon: "group",
-    title: "Total Des Utilisateurs",
     valueA: 2450,
     valueB: 15,
     type: "up",
   },
   {
     id: 2,
-    title: "KPI 2",
+    title: "Croissance des Ventes",
     backgroundColor: "#f9f0e1",
     icon: "trending_up",
-    title: "Croissance des Ventes",
     valueA: 1200,
     valueB: 10,
     type: "down",
   },
   {
     id: 3,
-    title: "KPI 3",
+    title: "Nouveaux Achats",
     backgroundColor: "#cef3fc",
     icon: "shopping_cart",
-    title: "Nouveaux Achats",
     valueA: 890,
     valueB: 5,
     type: "up",
   },
+  {
+    id: 4,
+    title: "Taux de Satisfaction",
+    backgroundColor: "#e1f8e5",
+    icon: "thumb_up",
+    valueA: 1500,
+    valueB: 20,
+    type: "up",
+  },
+  {
+    id: 5,
+    title: "Revenus Totaux",
+    backgroundColor: "#f8e5e1",
+    icon: "account_balance",
+    valueA: 3400,
+    valueB: 8,
+    type: "down",
+  },
+  {
+    id: 6,
+    title: "Temps Moyen",
+    backgroundColor: "#e5f4f8",
+    icon: "access_time",
+    valueA: 400,
+    valueB: 12,
+    type: "up",
+  },
+  {
+    id: 7,
+    title: "Nouveaux Utilisateurs",
+    backgroundColor: "#f3e1f8",
+    icon: "people",
+    valueA: 500,
+    valueB: 18,
+    type: "up",
+  },
 ]);
+
+const draggedIndex = ref(null);
+let canSwap = true;
+
+const onDragStart = (event, index) => {
+  draggedIndex.value = index;
+};
+
+const onDragEnter = (event, index) => {
+  if (index !== draggedIndex.value && canSwap) {
+    canSwap = false;
+    const temp = cards[draggedIndex.value];
+    cards.splice(draggedIndex.value, 1);
+    cards.splice(index, 0, temp);
+    draggedIndex.value = index;
+    setTimeout(() => {
+      canSwap = true;
+    }, 300);
+  }
+};
+
+const onDragEnd = () => {
+  draggedIndex.value = null;
+};
 </script>
 
 <style scoped lang="scss">
@@ -87,8 +156,8 @@ const cards = reactive([
     flex-wrap: wrap;
     gap: 20px;
     width: 100%;
-    height: 100%;
     .card {
+      user-select: none;
       width: 30%;
       max-width: 500px;
       height: 250px;
@@ -99,8 +168,15 @@ const cards = reactive([
       flex-direction: column;
       gap: 10px;
       padding: 35px 20px;
+      position: relative;
+      .option {
+        position: absolute;
+        top: 35px;
+        right: 20px;
+        cursor: pointer;
+      }
       .material-symbols-outlined {
-        font-size: 38px;
+        font-size: 44px;
         font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
       }
       h3 {
@@ -116,7 +192,7 @@ const cards = reactive([
         gap: 10px;
         width: 100%;
         p {
-          font-family: 'Montserrat', sans-serif;
+          font-family: "Montserrat", sans-serif;
           margin: 0;
           font-size: 50px;
           font-weight: bold;
@@ -135,7 +211,7 @@ const cards = reactive([
             font-weight: bold;
           }
           p {
-            font-family: 'Montserrat', sans-serif;
+            font-family: "Montserrat", sans-serif;
             margin: 0;
             font-size: 22px;
             font-weight: bold;
@@ -147,5 +223,15 @@ const cards = reactive([
       cursor: grab;
     }
   }
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
 }
 </style>
