@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import useFlashMessageStore from "../composables/useFlashMessageStore";
 
 export const useCartStore = defineStore('cart', {
   state: () => {
@@ -179,7 +180,7 @@ export const useCartStore = defineStore('cart', {
     },
 
     async removeItemFromCart(productId) {
-      const item = this.cartItems.find(cartItem => cartItem.id === productId);
+      const item = this.cartItems.find(cartItem => cartItem.productId === productId);
       if (item) {
         try {
           const response = await fetch(`${import.meta.env.VITE_API_URL}/basket`, {
@@ -195,13 +196,22 @@ export const useCartStore = defineStore('cart', {
           if (!response.ok) {
             const errorText = await response.text();
             console.error('Error removing item:', errorText);
-           
+            setFlashMessage(
+              "Une erreur s'est produite lors de la suppression de l'article du panier",
+              "error"
+            );
             return;
           }
-          this.cartItems = this.cartItems.filter(cartItem => cartItem.id !== item.id);
+          this.cartItems = this.cartItems.filter(cartItem => cartItem.productId !== item.productId);
           localStorage.setItem('cartStore', JSON.stringify(this.$state));
+          setFlashMessage("Le produit a été retiré du panier", "success");
+          return "Le produit a été retiré du panier";
         } catch (error) {
           console.error('Error removing item:', error);
+          setFlashMessage(
+            "Une erreur s'est produite lors de la suppression de l'article du panier",
+            "error"
+          );
          
         }
       }

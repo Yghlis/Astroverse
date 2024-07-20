@@ -42,9 +42,7 @@ const getItemPrice = (item) => {
 };
 
 const removeItem = async (itemId) => {
-  
     cartStore.removeItemFromCart(itemId);
-  
 };
 
 // Définir les événements
