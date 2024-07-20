@@ -13,9 +13,7 @@
     </div>
     <div class="divider"></div>
     <div class="control">
-
-        <h3 v-if="showSideBar">Administration</h3>
- 
+      <h3 v-if="showSideBar">Administration</h3>
       <button v-if="showSideBar" class="btn close" @click="toggleNav">
         <span class="material-symbols-outlined"> arrow_circle_left </span>
       </button>
@@ -23,6 +21,7 @@
         <span class="material-symbols-outlined"> arrow_circle_right </span>
       </button>
     </div>
+    <div v-if="!showSideBar" class="divider"></div>
 
     <div class="slot-content">
       <slot>
@@ -33,7 +32,7 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from "vue";
+import { ref, watch, nextTick, onMounted } from "vue";
 import { animate } from "motion";
 import logoPath from "../assets/images/logo.png";
 
@@ -54,28 +53,32 @@ const toggleNav = () => {
   }
 };
 
+const animateSidebar = async (newVal) => {
+  await nextTick();
+  if (!sidebar.value) {
+    //le if pour fix the bug of the first render
+    return;
+  }
+  isAnimating.value = true;
+  if (newVal) {
+    animate(sidebar.value, { width: "300px" }, { duration: 0.5 }).finished.then(
+      () => {
+        isAnimating.value = false;
+      }
+    );
+  } else {
+    animate(sidebar.value, { width: "75px" }, { duration: 0.5 }).finished.then(
+      () => {
+        isAnimating.value = false;
+      }
+    );
+  }
+};
+
 watch(
   () => props.showSideBar,
   async (newVal) => {
-    await nextTick();
-    isAnimating.value = true;
-    if (newVal) {
-      animate(
-        sidebar.value,
-        { width: "300px" },
-        { duration: 0.5 }
-      ).finished.then(() => {
-        isAnimating.value = false;
-      });
-    } else {
-      animate(
-        sidebar.value,
-        { width: "75px" },
-        { duration: 0.5 }
-      ).finished.then(() => {
-        isAnimating.value = false;
-      });
-    }
+    animateSidebar(newVal);
   },
   { immediate: true }
 );
@@ -178,11 +181,11 @@ watch(
 }
 .fade-translate-enter-active,
 .fade-translate-leave-active {
-  transition: opacity 0.5s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.fade-translate-enter,
-.fade-translate-leave-to  {
+.fade-translate-enter-from,
+.fade-translate-leave-to {
   opacity: 0;
   transform: translateX(-30px);
 }

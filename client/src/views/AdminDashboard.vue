@@ -4,6 +4,18 @@
       <div class="admin-options">
         <button
           :class="{
+            active: currentDataType === 'dashboard',
+            mini: !showSideBar,
+          }"
+          @click="goToDashboard"
+        >
+          <span class="material-symbols-outlined"> dashboard </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Dashboard</span>
+          </transition>
+        </button>
+        <button
+          :class="{
             active: currentDataType === 'products',
             mini: !showSideBar,
           }"
@@ -53,7 +65,7 @@
             mini: !showSideBar,
           }"
           class="exit"
-          to="/form"
+          to="/"
           ><span class="material-symbols-outlined"> move_item </span>
           <transition name="fade-translate">
             <span v-if="showSideBar">Sortir</span>
@@ -62,28 +74,33 @@
       </div>
     </SideAdmin>
     <div class="admin-content" :class="{ active: showSideBar }">
-      <AdminTable
-        :data="tableData"
-        :columns="tableColumns"
-        :currentDataType="currentDataType"
-        @edit="handleEdit"
-        @view="handleView"
-        @row-deleted="handleRowDeleted"
-        v-if="reloadTable"
-      />
+      <TheDashboard v-if="currentDataType === 'dashboard'"></TheDashboard>
+      <transition name="slide" mode="out-in">
+        <AdminTable
+          :key="currentDataType"
+          :data="tableData"
+          :columns="tableColumns"
+          :currentDataType="currentDataType"
+          @edit="handleEdit"
+          @view="handleView"
+          @row-deleted="handleRowDeleted"
+          v-if="reloadTable && currentDataType !== 'dashboard'"
+        />
+      </transition>
     </div>
   </div>
 </template>
 
 <script setup>
 import SideAdmin from "../ui/SideAdmin.vue";
+import TheDashboard from "../components/admin/TheDashboard.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
 import { ref, onMounted, provide } from "vue";
 
 const showSideBar = ref(true);
 const tableData = ref([]);
 const tableColumns = ref([]);
-const currentDataType = ref("");
+const currentDataType = ref("dashboard");
 const reloadTable = ref(true);
 
 const handleReloadTable = () => {
@@ -102,9 +119,9 @@ const toggleNav = (newState) => {
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-onMounted(() => {
-  fetchData("products");
-});
+const goToDashboard = () => {
+  currentDataType.value = "dashboard";
+};
 
 const fetchData = async (type) => {
   let url = "";
@@ -210,6 +227,7 @@ const handleRowDeleted = (id) => {
   display: flex;
   justify-content: flex-end;
   margin: 0;
+  overflow: hidden;
   h2 {
     margin: 0;
     padding: 20px;
@@ -222,10 +240,9 @@ const handleRowDeleted = (id) => {
   .admin-options {
     display: flex;
     flex-direction: column;
-    margin: 0;
+    margin: 10px 0 0 0;
     width: 100%;
     height: 100%;
-    gap: 10px;
     font-family: "Montserrat", sans-serif;
     button,
     a {
@@ -265,7 +282,7 @@ const handleRowDeleted = (id) => {
   .admin-content {
     width: calc(100% - 75px);
     min-height: 100vh;
-    transition: all 0.3s ease;
+    transition: width 0.5s ease;
     &.active {
       width: calc(100% - 300px);
     }
@@ -281,14 +298,30 @@ const handleRowDeleted = (id) => {
   }
 }
 
+//transtions fade-translate
 .fade-translate-enter-active,
 .fade-translate-leave-active {
-  transition: opacity 0.5s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.fade-translate-enter,
+.fade-translate-enter-from,
 .fade-translate-leave-to {
   opacity: 0;
   transform: translateX(-30px);
 }
+
+/* Transitions slide */
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+
+
 </style>
