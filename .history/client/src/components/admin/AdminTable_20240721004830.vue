@@ -564,7 +564,7 @@ const changeOrderStatus = async (orderId) => {
     }
     setFlashMessage("Statut de la commande mis à jour avec succès", "success");
     emit("reload:table");
-    statusDropdownVisible.value = null; // Hide the dropdown after update
+    statusDropdownVisible.value = null;
   } catch (error) {
     console.error("Erreur lors de la mise à jour du statut:", error.message);
     setFlashMessage("Erreur lors de la mise à jour du statut", "error");
@@ -576,7 +576,6 @@ const downloadInvoice = (row) => {
   console.log("Downloading invoice for order:", row);
 };
 </script>
-
 
 
 <style lang="scss" scoped>

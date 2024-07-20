@@ -206,26 +206,6 @@ export const handleStripeWebhook = async (req, res) => {
   res.json({ received: true });
 };
 
-export const updateOrderStatus = async (req, res) => {
-    const { orderId } = req.params;
-    const { status } = req.body;
-  
-    try {
-      const order = await Order.findByPk(orderId);
-      if (!order) {
-        return res.status(404).json({ message: 'Order not found' });
-      }
-  
-      order.status = status;
-      await order.save();
-  
-      res.status(200).json({ message: 'Order status updated successfully', order });
-    } catch (error) {
-      console.error('Error updating order status:', error.message);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
-    }
-  };
-
 // Planifier une vérification des commandes en attente toutes les minutes
 cron.schedule('* * * * *', async () => {
   console.log('Vérification des commandes en attente');

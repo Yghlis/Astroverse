@@ -112,7 +112,7 @@ const fetchData = async (type) => {
       break;
     case "orders":
       url = `${apiUrl}/orders`;
-      columns = ["id", "utilisateur", "email", "shippingAddress", "billingAddress", "totalPrice", "status"];
+      columns = ["numéro de commande", "utilisateur", "email", "shippingAddress", "billingAddress", "totalPrice", "status"];
       break;
     default:
       return;
@@ -195,7 +195,6 @@ const handleRowDeleted = (id) => {
   tableData.value = tableData.value.filter((row) => row.id !== id);
 };
 </script>
-
 
 
 

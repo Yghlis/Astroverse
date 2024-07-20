@@ -1,5 +1,5 @@
 import express from 'express';
-import { createOrder,deleteOrder,getOrderByPaymentIntent,handleStripeWebhook, getAllOrders,updateOrderStatus } from '../controllers/order.js';
+import { createOrder,deleteOrder,getOrderByPaymentIntent,handleStripeWebhook, get } from '../controllers/order.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -15,7 +15,5 @@ router.post('/webhook', express.raw({ type: 'application/json' }), handleStripeW
 
 // Route pour récupérer toutes les commandes
 router.get('/', authenticateToken, getAllOrders);
-
-router.patch('/:orderId', authenticateToken, updateOrderStatus); 
 
 export default router;

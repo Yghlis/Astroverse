@@ -77,17 +77,7 @@
           <td>
             <template v-if="currentDataType === 'orders'">
               <button class="view" @click="viewOrder(row)">Voir</button>
-              <button class="edit" @click="toggleStatusDropdown(row.id)">Changer le status</button>
-              <div v-if="row.id === statusDropdownVisible" class="status-dropdown">
-                <select v-model="newStatus" @change="changeOrderStatus(row.id)">
-                  <option value="En cours">En cours</option>
-                  <option value="Expédiée">Expédiée</option>
-                  <option value="Livrée">Livrée</option>
-                  <option value="Échouée">Échouée</option>
-                  <option value="Retour reçue">Retour reçue</option>
-                  <option value="Remboursée">Remboursée</option>
-                </select>
-              </div>
+              <button class="edit" @click="changeOrderStatus(row)">Changer le status</button>
               <button class="download" @click="downloadInvoice(row)">Télécharger la facture</button>
             </template>
             <template v-else>
@@ -171,7 +161,6 @@
 </template>
 
 
-
 <script setup>
 import { ref, computed, onMounted, defineProps, defineEmits } from "vue";
 import Pagination from "./Pagination.vue";
@@ -193,6 +182,7 @@ const props = defineProps({
 const emit = defineEmits(["edit", "view", "row-deleted", "reload:table"]);
 const apiUrl = import.meta.env.VITE_API_URL;
 
+
 const searchQuery = ref("");
 const currentPage = ref(1);
 const rowsPerPage = ref(10);
@@ -208,9 +198,6 @@ const selectedRow = ref(null);
 const selectedRows = ref([]);
 const universes = ref([]);
 const showConfirmDeleteSelectedModal = ref(false);
-
-const statusDropdownVisible = ref(null); // ID of the order for which the dropdown is visible
-const newStatus = ref("");
 
 const universeFormStore = useUniverseFormStore();
 const characterFormStore = useCharacterFormStore();
@@ -240,8 +227,6 @@ const tableTitle = computed(() => {
     return "Univers";
   } else if (props.currentDataType === "characters") {
     return "Personnages";
-  } else if (props.currentDataType === "orders") {
-    return "Commandes";
   }
 });
 
@@ -533,51 +518,7 @@ const closeCreateModal = () => {
 const closeConsultModal = () => {
   showConsultModal.value = false;
 };
-
-const viewOrder = (row) => {
-  // Logic to view order details
-  console.log("Viewing order:", row);
-};
-
-const toggleStatusDropdown = (orderId) => {
-  if (statusDropdownVisible.value === orderId) {
-    statusDropdownVisible.value = null;
-  } else {
-    statusDropdownVisible.value = orderId;
-  }
-};
-
-const changeOrderStatus = async (orderId) => {
-  const url = `${apiUrl}/orders/${orderId}`;
-  try {
-    const response = await fetch(url, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-      },
-      body: JSON.stringify({ status: newStatus.value }),
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(`Erreur: ${response.status} - ${errorMessage}`);
-    }
-    setFlashMessage("Statut de la commande mis à jour avec succès", "success");
-    emit("reload:table");
-    statusDropdownVisible.value = null; // Hide the dropdown after update
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour du statut:", error.message);
-    setFlashMessage("Erreur lors de la mise à jour du statut", "error");
-  }
-};
-
-const downloadInvoice = (row) => {
-  // Logic to download invoice
-  console.log("Downloading invoice for order:", row);
-};
 </script>
-
-
 
 <style lang="scss" scoped>
 .tab-container {
@@ -855,15 +796,6 @@ const downloadInvoice = (row) => {
 
         &:hover {
           background-color: #c82333;
-        }
-      }
-
-      &.download {
-        background-color: #17a2b8;
-        color: white;
-
-        &:hover {
-          background-color: #138496;
         }
       }
     }

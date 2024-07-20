@@ -112,7 +112,7 @@ const fetchData = async (type) => {
       break;
     case "orders":
       url = `${apiUrl}/orders`;
-      columns = ["id", "utilisateur", "email", "shippingAddress", "billingAddress", "totalPrice", "status"];
+      columns = ["id", "firstName", "lastName", "shippingAddress", "billingAddress", "totalPrice", "status"];
       break;
     default:
       return;
@@ -129,30 +129,18 @@ const fetchData = async (type) => {
     if (!response.ok) {
       throw new Error(`Erreur: ${response.status}`);
     }
-    let data = await response.json();
+    const data = await response.json();
 
-    if (type === "orders") {
-      const userResponses = await Promise.all(data.map(order => fetch(`${apiUrl}/users/${order.userId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        },
-      })));
-
-      const users = await Promise.all(userResponses.map(res => res.json()));
-
-      data = data.map((order, index) => ({
-        ...order,
-        utilisateur: `${order.firstName} ${order.lastName}`,
-        email: users[index].email,
-      }));
-    } else if (type === "users") {
-      data = data.map((user) => ({
+    // Transform user data to include 'username'
+    if (type === "users") {
+      tableData.value = data.map((user) => ({
         ...user,
         username: `${user.first_name} ${user.last_name}`,
       }));
+    } else {
+      tableData.value = data;
     }
 
-    tableData.value = data;
     tableColumns.value = columns;
   } catch (error) {
     console.error("Erreur lors de la récupération des données:", error);
@@ -195,8 +183,6 @@ const handleRowDeleted = (id) => {
   tableData.value = tableData.value.filter((row) => row.id !== id);
 };
 </script>
-
-
 
 
 

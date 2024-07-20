@@ -77,17 +77,7 @@
           <td>
             <template v-if="currentDataType === 'orders'">
               <button class="view" @click="viewOrder(row)">Voir</button>
-              <button class="edit" @click="toggleStatusDropdown(row.id)">Changer le status</button>
-              <div v-if="row.id === statusDropdownVisible" class="status-dropdown">
-                <select v-model="newStatus" @change="changeOrderStatus(row.id)">
-                  <option value="En cours">En cours</option>
-                  <option value="Expédiée">Expédiée</option>
-                  <option value="Livrée">Livrée</option>
-                  <option value="Échouée">Échouée</option>
-                  <option value="Retour reçue">Retour reçue</option>
-                  <option value="Remboursée">Remboursée</option>
-                </select>
-              </div>
+              <button class="edit" @click="changeOrderStatus(row)">Changer le status</button>
               <button class="download" @click="downloadInvoice(row)">Télécharger la facture</button>
             </template>
             <template v-else>
@@ -171,7 +161,6 @@
 </template>
 
 
-
 <script setup>
 import { ref, computed, onMounted, defineProps, defineEmits } from "vue";
 import Pagination from "./Pagination.vue";
@@ -209,9 +198,6 @@ const selectedRows = ref([]);
 const universes = ref([]);
 const showConfirmDeleteSelectedModal = ref(false);
 
-const statusDropdownVisible = ref(null); // ID of the order for which the dropdown is visible
-const newStatus = ref("");
-
 const universeFormStore = useUniverseFormStore();
 const characterFormStore = useCharacterFormStore();
 const productFormStore = useProductFormStore();
@@ -240,8 +226,6 @@ const tableTitle = computed(() => {
     return "Univers";
   } else if (props.currentDataType === "characters") {
     return "Personnages";
-  } else if (props.currentDataType === "orders") {
-    return "Commandes";
   }
 });
 
@@ -539,36 +523,9 @@ const viewOrder = (row) => {
   console.log("Viewing order:", row);
 };
 
-const toggleStatusDropdown = (orderId) => {
-  if (statusDropdownVisible.value === orderId) {
-    statusDropdownVisible.value = null;
-  } else {
-    statusDropdownVisible.value = orderId;
-  }
-};
-
-const changeOrderStatus = async (orderId) => {
-  const url = `${apiUrl}/orders/${orderId}`;
-  try {
-    const response = await fetch(url, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-      },
-      body: JSON.stringify({ status: newStatus.value }),
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(`Erreur: ${response.status} - ${errorMessage}`);
-    }
-    setFlashMessage("Statut de la commande mis à jour avec succès", "success");
-    emit("reload:table");
-    statusDropdownVisible.value = null; // Hide the dropdown after update
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour du statut:", error.message);
-    setFlashMessage("Erreur lors de la mise à jour du statut", "error");
-  }
+const changeOrderStatus = (row) => {
+  // Logic to change order status
+  console.log("Changing order status:", row);
 };
 
 const downloadInvoice = (row) => {
@@ -576,8 +533,6 @@ const downloadInvoice = (row) => {
   console.log("Downloading invoice for order:", row);
 };
 </script>
-
-
 
 <style lang="scss" scoped>
 .tab-container {
