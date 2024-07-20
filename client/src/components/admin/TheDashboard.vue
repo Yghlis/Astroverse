@@ -1,119 +1,151 @@
 <template>
   <div class="dashboard">
-    <div
-      v-for="(card, index) in cards"
-      :key="card.id"
-      :ref="'card-' + index"
-      class="card"
-      @mousedown="startDrag(card, index, $event)"
-    >
-      <div class="card-content">
-        {{ card.title }}
+    <h2>Tableau de Bord</h2>
+    <div class="widget-area">
+      <div
+        v-for="(card, index) in cards"
+        :key="card.id"
+        class="card"
+        :style="{ backgroundColor: card.backgroundColor }"
+      >
+        <span class="material-symbols-outlined"> {{ card.icon }} </span>
+        <h3>{{ card.title }}</h3>
+        <div class="card-values">
+          <p>{{ card.valueA }}</p>
+          <div class="valueB">
+            <span class="material-symbols-outlined">
+              {{ card.type == "up" ? "arrow_upward" : "arrow_downward" }}</span
+            >
+            <p>{{ card.valueB }}</p>
+            <span>%</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 <script setup>
 import { reactive, ref, onMounted } from "vue";
 import { animate } from "motion";
 
 const cards = reactive([
-  { id: 1, title: "KPI 1" },
-  { id: 2, title: "KPI 2" },
-  { id: 3, title: "KPI 3" },
-  // Ajoutez plus de cartes si nécessaire
+  {
+    id: 1,
+    title: "KPI 1",
+    backgroundColor: "#e5e1f8",
+    icon: "group",
+    title: "Total Des Utilisateurs",
+    valueA: 2450,
+    valueB: 15,
+    type: "up",
+  },
+  {
+    id: 2,
+    title: "KPI 2",
+    backgroundColor: "#f9f0e1",
+    icon: "trending_up",
+    title: "Croissance des Ventes",
+    valueA: 1200,
+    valueB: 10,
+    type: "down",
+  },
+  {
+    id: 3,
+    title: "KPI 3",
+    backgroundColor: "#cef3fc",
+    icon: "shopping_cart",
+    title: "Nouveaux Achats",
+    valueA: 890,
+    valueB: 5,
+    type: "up",
+  },
 ]);
-
-const startDrag = (card, index, event) => {
-  const draggedElement = event.target;
-  const originalIndex = index;
-  let currentIndex = index;
-
-  const onMouseMove = (e) => {
-    draggedElement.style.position = "absolute";
-    draggedElement.style.zIndex = 1000;
-    draggedElement.style.left = e.pageX - draggedElement.offsetWidth / 2 + "px";
-    draggedElement.style.top = e.pageY - draggedElement.offsetHeight / 2 + "px";
-
-    const newIndex = getNewIndex(e.clientX, e.clientY);
-
-    if (newIndex !== -1 && newIndex !== currentIndex) {
-      moveCard(originalIndex, newIndex);
-      currentIndex = newIndex;
-    }
-  };
-
-  const onMouseUp = () => {
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
-    resetCardStyles();
-  };
-
-  document.addEventListener("mousemove", onMouseMove);
-  document.addEventListener("mouseup", onMouseUp);
-};
-
-const getNewIndex = (x, y) => {
-  let newIndex = -1;
-  cards.forEach((card, index) => {
-    const cardElement = document.querySelector(`.card:nth-child(${index + 1})`);
-    const rect = cardElement.getBoundingClientRect();
-    if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
-      newIndex = index;
-    }
-  });
-  return newIndex;
-};
-
-const moveCard = (fromIndex, toIndex) => {
-  if (fromIndex !== toIndex) {
-    const movedCard = cards.splice(fromIndex, 1)[0];
-    cards.splice(toIndex, 0, movedCard);
-  }
-};
-
-const resetCardStyles = () => {
-  const cardElements = document.querySelectorAll(".card");
-  cardElements.forEach((card) => {
-    card.style.position = "";
-    card.style.zIndex = "";
-    card.style.left = "";
-    card.style.top = "";
-  });
-};
 </script>
 
 <style scoped lang="scss">
 .dashboard {
+  padding: 30px 0 0 30px;
+  width: 100%;
+  height: 100%;
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.card {
-  width: 200px;
-  height: 150px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s;
-  cursor: grab;
-
-  &:active {
-    cursor: grabbing;
-  }
-
-  &.dragging {
-    opacity: 0.8;
-  }
-
-  .card-content {
-    font-size: 1.2rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 20px;
+  background-color: rgb(63, 63, 63);
+  h2 {
+    color: black;
+    font-family: "Montserrat", sans-serif;
+    font-size: 36px;
     font-weight: bold;
+  }
+
+  .widget-area {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+    .card {
+      width: 30%;
+      max-width: 500px;
+      height: 250px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 10px;
+      padding: 35px 20px;
+      .material-symbols-outlined {
+        font-size: 38px;
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+      }
+      h3 {
+        font-family: "Montserrat", sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        margin: auto 0 0 0;
+      }
+      .card-values {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        p {
+          font-family: 'Montserrat', sans-serif;
+          margin: 0;
+          font-size: 50px;
+          font-weight: bold;
+        }
+        .valueB {
+          margin-left: auto;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          gap: 5px;
+          border: 1px solid black;
+          padding: 5px 10px;
+          border-radius: 25px;
+          span {
+            font-size: 22px;
+            font-weight: bold;
+          }
+          p {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            font-size: 22px;
+            font-weight: bold;
+          }
+        }
+      }
+
+      transition: transform 0.3s;
+      cursor: grab;
+    }
   }
 }
 </style>

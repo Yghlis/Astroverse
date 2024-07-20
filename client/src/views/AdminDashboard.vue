@@ -74,8 +74,9 @@
       </div>
     </SideAdmin>
     <div class="admin-content" :class="{ active: showSideBar }">
-      <TheDashboard v-if="currentDataType === 'dashboard'"></TheDashboard>
+  
       <transition name="slide" mode="out-in">
+        <TheDashboard v-if="currentDataType === 'dashboard'"></TheDashboard>
         <AdminTable
           :key="currentDataType"
           :data="tableData"
@@ -84,7 +85,7 @@
           @edit="handleEdit"
           @view="handleView"
           @row-deleted="handleRowDeleted"
-          v-if="reloadTable && currentDataType !== 'dashboard'"
+          v-else-if="reloadTable && currentDataType !== 'dashboard'"
         />
       </transition>
     </div>
@@ -321,7 +322,4 @@ const handleRowDeleted = (id) => {
   transform: translateX(100%);
   opacity: 0;
 }
-
-
-
 </style>
