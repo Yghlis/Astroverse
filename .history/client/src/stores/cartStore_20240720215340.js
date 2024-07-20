@@ -179,30 +179,36 @@ export const useCartStore = defineStore('cart', {
     },
 
     async removeItemFromCart(productId) {
-      const item = this.cartItems.find(cartItem => cartItem.id === productId);
+      const item = this.cartItems.find(cartItem => cartItem.productId === productId);
       if (item) {
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/basket`, {
-            method: 'DELETE',
+          const apiUrl = import.meta.env.VITE_API_URL;
+
+          const removeItemResponse = await fetch(`${apiUrl}/basket/remove`, {
+            method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'session-id': localStorage.getItem('sessionId'),
               'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             },
-            body: JSON.stringify({ productId: productId })
+            body: JSON.stringify({ productId: item.productId })
           });
-      
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error removing item:', errorText);
-           
+
+          if (!removeItemResponse.ok) {
+            const errorText = await removeItemResponse.text();
+            console.error('Error removing product from basket:', errorText);
             return;
           }
-          this.cartItems = this.cartItems.filter(cartItem => cartItem.id !== item.id);
+
+          console.log('Product removed from basket successfully');
+
+          this.cartItems = this.cartItems.filter(cartItem => cartItem.productId !== item.productId);
           localStorage.setItem('cartStore', JSON.stringify(this.$state));
+
+          // Synchroniser le panier après chaque suppression
+          await this.syncCart();
         } catch (error) {
-          console.error('Error removing item:', error);
-         
+          console.error('Error removing from basket:', error);
         }
       }
     },

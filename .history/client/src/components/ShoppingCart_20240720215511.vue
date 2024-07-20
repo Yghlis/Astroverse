@@ -43,6 +43,7 @@ const getItemPrice = (item) => {
 
 const removeItem = async (itemId) => {
   
+
     cartStore.removeItemFromCart(itemId);
   
 };

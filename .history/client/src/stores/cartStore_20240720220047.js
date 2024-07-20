@@ -179,7 +179,7 @@ export const useCartStore = defineStore('cart', {
     },
 
     async removeItemFromCart(productId) {
-      const item = this.cartItems.find(cartItem => cartItem.id === productId);
+      const item = this.cartItems.find(cartItem => cartItem.productId === productId);
       if (item) {
         try {
           const response = await fetch(`${import.meta.env.VITE_API_URL}/basket`, {
@@ -198,8 +198,7 @@ export const useCartStore = defineStore('cart', {
            
             return;
           }
-          this.cartItems = this.cartItems.filter(cartItem => cartItem.id !== item.id);
-          localStorage.setItem('cartStore', JSON.stringify(this.$state));
+        
         } catch (error) {
           console.error('Error removing item:', error);
          

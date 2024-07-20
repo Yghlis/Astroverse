@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import useFlashMessageStore from "@composables/useFlashMessageStore";
 
 export const useCartStore = defineStore('cart', {
   state: () => {
@@ -179,7 +180,7 @@ export const useCartStore = defineStore('cart', {
     },
 
     async removeItemFromCart(productId) {
-      const item = this.cartItems.find(cartItem => cartItem.id === productId);
+      const item = this.cartItems.find(cartItem => cartItem.productId === productId);
       if (item) {
         try {
           const response = await fetch(`${import.meta.env.VITE_API_URL}/basket`, {
@@ -189,20 +190,19 @@ export const useCartStore = defineStore('cart', {
               'session-id': localStorage.getItem('sessionId'),
               'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             },
-            body: JSON.stringify({ productId: productId })
+            body: JSON.stringify({ productId: itemId })
           });
       
           if (!response.ok) {
             const errorText = await response.text();
             console.error('Error removing item:', errorText);
-           
+            setFlashMessage('Erreur lors de la suppression de l\'article.', 'error');
             return;
           }
-          this.cartItems = this.cartItems.filter(cartItem => cartItem.id !== item.id);
-          localStorage.setItem('cartStore', JSON.stringify(this.$state));
+          setFlashMessage('Article supprimé avec succès.', 'success');
         } catch (error) {
           console.error('Error removing item:', error);
-         
+          setFlashMessage('Erreur lors de la suppression de l\'article.', 'error');
         }
       }
     },
