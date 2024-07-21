@@ -48,9 +48,6 @@
         Mettre à jour le profil
       </button>
       <p @click="sendResetEmail">Modifier le mot de passe</p>
-      <button type="button" @click="deleteAccount" class="delete-account">
-        Supprimer mon compte
-      </button>
     </form>
     <h2>Mes produits suivis</h2>
     <TheCarousel>
@@ -449,32 +446,6 @@ const fetchProductDetails = async (productId) => {
     return null;
   }
 };
-
-// Nouvelle méthode pour supprimer le compte
-const deleteAccount = async () => {
-  if (confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.")) {
-    try {
-      const response = await fetch(`${apiUrl}/users/${userData.value.user_id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erreur lors de la suppression du compte: ${errorText}`);
-      }
-
-      alert("Votre compte a été supprimé avec succès.");
-      // Logique de déconnexion ou de redirection après suppression du compte
-    } catch (error) {
-      console.error("Erreur lors de la suppression du compte:", error);
-      alert("Une erreur est survenue lors de la suppression de votre compte. Veuillez réessayer.");
-    }
-  }
-};
 </script>
 
 <style scoped lang="scss">
@@ -595,27 +566,6 @@ const deleteAccount = async () => {
       transition: all 0.3s ease;
       &:hover {
         color: red;
-      }
-    }
-    .delete-account {
-      margin-top: 10px;
-      padding: 15px;
-      border: none;
-      border-radius: 25px;
-      background-color: red;
-      color: white;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background-color: darkred;
-      }
-
-      &:focus {
-        outline: none;
-        background-color: darkred;
       }
     }
   }

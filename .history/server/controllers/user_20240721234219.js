@@ -264,7 +264,7 @@ export const deleteUser = async (req, res) => {
       first_name: 'Anonyme',
       last_name: 'Utilisateur',
       email: `deleted_${user.user_id}@example.com`,
-      password_hash: '',
+      password_hash: null,
       phone_number: null,
       address: {},
       isEmailVerified: false,
