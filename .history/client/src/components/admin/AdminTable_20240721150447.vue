@@ -184,7 +184,6 @@ import useFlashMessageStore from "../../composables/useFlashMessageStore";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-
 const props = defineProps({
   data: Array,
   columns: Array,
@@ -211,7 +210,7 @@ const universes = ref([]);
 const showConfirmDeleteSelectedModal = ref(false);
 
 const statusDropdownVisible = ref(null); // ID of the order for which the dropdown is visible
-const newStatus = ref("");
+const newStatus = ref("En cours");
 
 const universeFormStore = useUniverseFormStore();
 const characterFormStore = useCharacterFormStore();
@@ -559,13 +558,13 @@ const toggleStatusDropdown = (orderId) => {
     statusDropdownVisible.value = null;
   } else {
     statusDropdownVisible.value = orderId;
+    newStatus.value = "En cours"; // Réinitialise le statut par défaut lorsque le menu déroulant est ouvert
   }
 };
 
 const changeOrderStatus = async (orderId) => {
   const url = `${apiUrl}/orders/${orderId}`;
   try {
-    console.log(`Changing status of order ${orderId} to ${newStatus.value}`);
     const response = await fetch(url, {
       method: "PATCH",
       headers: {
@@ -579,39 +578,12 @@ const changeOrderStatus = async (orderId) => {
       throw new Error(`Erreur: ${response.status} - ${errorMessage}`);
     }
     setFlashMessage("Statut de la commande mis à jour avec succès", "success");
-
-    if (newStatus.value === "Remboursée") {
-      console.log('Initiating refund process');
-      await refundOrder(orderId);
-    }
-
     emit("reload:table");
     statusDropdownVisible.value = null; // Hide the dropdown after update
+    newStatus.value = "En cours"; // Réinitialise le statut après la mise à jour
   } catch (error) {
     console.error("Erreur lors de la mise à jour du statut:", error.message);
     setFlashMessage("Erreur lors de la mise à jour du statut", "error");
-  }
-};
-
-const refundOrder = async (orderId) => {
-  try {
-    console.log(`Refunding order ${orderId}`);
-    const response = await fetch(`${apiUrl}/orders/refund/${orderId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-      },
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(`Erreur de remboursement: ${response.status} - ${errorMessage}`);
-    }
-    setFlashMessage("Remboursement effectué avec succès", "success");
-    console.log('Refund process completed successfully');
-  } catch (error) {
-    console.error("Erreur lors du remboursement:", error.message);
-    setFlashMessage("Erreur lors du remboursement", "error");
   }
 };
 
@@ -701,6 +673,326 @@ const fetchProductDetails = async (productId) => {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.tab-container {
+  padding: 10px;
+  h1 {
+    margin: 20px 0;
+    font-size: 32px;
+  }
+  p {
+    margin-top: 0px;
+    margin-bottom: 20px;
+    font-size: 26px;
+    padding-left: 1px;
+  }
+  .table-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+
+      &::placeholder {
+        color: #adb5bd;
+      }
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &.export {
+        background-color: #28a745;
+        color: white;
+
+        &:hover {
+          background-color: #218838;
+        }
+      }
+
+      &.create {
+        background-color: #007bff;
+        color: white;
+
+        &:hover {
+          background-color: #0056b3;
+        }
+      }
+
+      &.delete {
+        background-color: #dc3545;
+        color: white;
+
+        &:hover {
+          background-color: #c82333;
+        }
+
+        &:disabled {
+          background-color: #e0aeb2;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+    border: 1px solid #e5e8ed;
+    border-radius: 5px;
+    thead {
+      background-color: #f9fafc;
+      border-radius: 5px;
+      th {
+        padding: 13px 15px;
+        color: #697387;
+        border-bottom: 2px solid #e5e8ed;
+        cursor: pointer;
+        &:first-child {
+          width: 50px;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 2px solid #e5e8ed;
+        &:hover {
+          background-color: #f1f3f5;
+        }
+      }
+
+      td {
+        padding: 12px 15px;
+        &:first-child {
+          width: 50px;
+        }
+
+        &:nth-child(2) {
+          font-weight: bold;
+        }
+
+        .color-cell {
+          font-weight: bold;
+          font-size: 20px;
+          position: relative;
+          display: inline-block;
+          padding: 5px 7px;
+          border-radius: 7px;
+        }
+
+        &.bordered-cell {
+          span {
+            border: 1px solid #ced4da;
+          }
+        }
+
+        &.high-price {
+          span {
+            color: #38a279;
+            background-color: #e2f0ec;
+            font-weight: bold;
+            font-size: 20px;
+            position: relative;
+            display: inline-block;
+            padding: 5px 0;
+            border-radius: 7px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            max-width: 100px;
+            &::after {
+              content: "€";
+              font-size: 20px;
+              color: #38a279;
+            }
+          }
+        }
+
+        &.low-price {
+          span {
+            color: #cb554c;
+            background-color: #fdf2f1;
+            font-weight: bold;
+            font-size: 20px;
+            position: relative;
+            display: inline-block;
+            padding: 5px 0;
+            border-radius: 7px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            max-width: 100px;
+            &::after {
+              content: "€";
+              font-size: 20px;
+              color: #cb554c;
+            }
+          }
+        }
+      }
+    }
+
+    input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      background-color: white;
+      border: 2px solid #ccc;
+      border-radius: 7px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:checked {
+        background-color: #2196f3;
+        border-color: #2196f3;
+
+        &::after {
+          content: "";
+          position: absolute;
+          left: 6px;
+          top: 2px;
+          width: 6px;
+          height: 12px;
+          border: solid white;
+          border-width: 0 3px 3px 0;
+          transform: rotate(45deg);
+          display: block;
+        }
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 2px;
+        width: 6px;
+        height: 12px;
+        border: solid transparent;
+        border-width: 0 3px 3px 0;
+        transform: rotate(45deg);
+        transition: all 0.2s;
+      }
+    }
+
+    button {
+      padding: 6px 12px;
+      margin: 5px 5px 5px 0;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #0056b3;
+        color: white;
+      }
+
+      &.view {
+        background-color: #007bff;
+        color: white;
+
+        &:hover {
+          background-color: #0056b3;
+        }
+      }
+
+      &.edit {
+        background-color: #ffc107;
+        color: black;
+
+        &:hover {
+          background-color: #e0a800;
+        }
+      }
+
+      &.delete {
+        background-color: #dc3545;
+        color: white;
+
+        &:hover {
+          background-color: #c82333;
+        }
+      }
+
+      &.download {
+        background-color: #17a2b8;
+        color: white;
+
+        &:hover {
+          background-color: #138496;
+        }
+      }
+    }
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+.flash-message {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  transition: opacity 0.3s ease;
+}
+.flash-message.success {
+  background-color: #d4edda;
+  color: #155724;
+}
+.flash-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.flash-message.active {
+  opacity: 1;
+}
+.flash-message:not(.active) {
+  opacity: 0;
+}
+</style>
+
 
 <style lang="scss" scoped>
 .tab-container {

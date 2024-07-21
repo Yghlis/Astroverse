@@ -538,7 +538,7 @@ const closeConsultModal = () => {
 const viewOrder = async (row) => {
   try {
     console.log(`Fetching details for order ID: ${row.id}`);
-    const response = await fetch(`${apiUrl}/orders/${row.id}`, {
+    const response = await fetch(`${apiUrl}/orders/${row.id}`, { // Changez cette ligne
       headers: {
         Authorization: `Bearer ${localStorage.getItem("jwt")}`,
       },
@@ -554,6 +554,8 @@ const viewOrder = async (row) => {
   }
 };
 
+
+
 const toggleStatusDropdown = (orderId) => {
   if (statusDropdownVisible.value === orderId) {
     statusDropdownVisible.value = null;
@@ -565,7 +567,6 @@ const toggleStatusDropdown = (orderId) => {
 const changeOrderStatus = async (orderId) => {
   const url = `${apiUrl}/orders/${orderId}`;
   try {
-    console.log(`Changing status of order ${orderId} to ${newStatus.value}`);
     const response = await fetch(url, {
       method: "PATCH",
       headers: {
@@ -579,39 +580,11 @@ const changeOrderStatus = async (orderId) => {
       throw new Error(`Erreur: ${response.status} - ${errorMessage}`);
     }
     setFlashMessage("Statut de la commande mis à jour avec succès", "success");
-
-    if (newStatus.value === "Remboursée") {
-      console.log('Initiating refund process');
-      await refundOrder(orderId);
-    }
-
     emit("reload:table");
     statusDropdownVisible.value = null; // Hide the dropdown after update
   } catch (error) {
     console.error("Erreur lors de la mise à jour du statut:", error.message);
     setFlashMessage("Erreur lors de la mise à jour du statut", "error");
-  }
-};
-
-const refundOrder = async (orderId) => {
-  try {
-    console.log(`Refunding order ${orderId}`);
-    const response = await fetch(`${apiUrl}/orders/refund/${orderId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-      },
-    });
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      throw new Error(`Erreur de remboursement: ${response.status} - ${errorMessage}`);
-    }
-    setFlashMessage("Remboursement effectué avec succès", "success");
-    console.log('Refund process completed successfully');
-  } catch (error) {
-    console.error("Erreur lors du remboursement:", error.message);
-    setFlashMessage("Erreur lors du remboursement", "error");
   }
 };
 
@@ -700,6 +673,8 @@ const fetchProductDetails = async (productId) => {
     return null;
   }
 };
+
+
 </script>
 
 <style lang="scss" scoped>

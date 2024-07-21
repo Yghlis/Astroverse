@@ -565,7 +565,6 @@ const toggleStatusDropdown = (orderId) => {
 const changeOrderStatus = async (orderId) => {
   const url = `${apiUrl}/orders/${orderId}`;
   try {
-    console.log(`Changing status of order ${orderId} to ${newStatus.value}`);
     const response = await fetch(url, {
       method: "PATCH",
       headers: {
@@ -581,6 +580,7 @@ const changeOrderStatus = async (orderId) => {
     setFlashMessage("Statut de la commande mis à jour avec succès", "success");
 
     if (newStatus.value === "Remboursée") {
+      alert('Initiating refund process')
       console.log('Initiating refund process');
       await refundOrder(orderId);
     }
@@ -595,7 +595,6 @@ const changeOrderStatus = async (orderId) => {
 
 const refundOrder = async (orderId) => {
   try {
-    console.log(`Refunding order ${orderId}`);
     const response = await fetch(`${apiUrl}/orders/refund/${orderId}`, {
       method: "POST",
       headers: {
@@ -614,7 +613,6 @@ const refundOrder = async (orderId) => {
     setFlashMessage("Erreur lors du remboursement", "error");
   }
 };
-
 const downloadInvoice = async (row) => {
   const doc = new jsPDF();
 

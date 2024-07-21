@@ -295,27 +295,25 @@ export const updateOrderStatus = async (req, res) => {
     try {
       const order = await Order.findByPk(orderId);
       if (!order) {
-        console.log('Order not found');
         return res.status(404).send({ error: 'Order not found' });
       }
   
-      console.log(`Initiating refund for Payment Intent ID: ${order.stripePaymentIntentId}`);
+      if (order.paymentStatus !== 'succeeded') {
+        return res.status(400).send({ error: 'Only succeeded payments can be refunded' });
+      }
   
       const refund = await stripe.refunds.create({
-        payment_intent: order.stripePaymentIntentId,
+        payment_intent: order.paymentIntentId,
       });
   
       if (refund.status === 'succeeded') {
         order.paymentStatus = 'refunded';
         await order.save();
-        console.log('Refund succeeded');
         return res.status(200).send({ success: true });
       } else {
-        console.log('Refund failed');
         return res.status(500).send({ error: 'Failed to refund the payment' });
       }
     } catch (error) {
-      console.error('Error during refund:', error.message);
       return res.status(500).send({ error: error.message });
     }
   };

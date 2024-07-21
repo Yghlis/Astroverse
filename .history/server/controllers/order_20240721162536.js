@@ -299,6 +299,11 @@ export const updateOrderStatus = async (req, res) => {
         return res.status(404).send({ error: 'Order not found' });
       }
   
+      if (order.paymentStatus !== 'succeeded') {
+        console.log('Payment not succeeded');
+        return res.status(400).send({ error: 'Only succeeded payments can be refunded' });
+      }
+  
       console.log(`Initiating refund for Payment Intent ID: ${order.stripePaymentIntentId}`);
   
       const refund = await stripe.refunds.create({
