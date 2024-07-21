@@ -60,7 +60,7 @@
 
     <!-- Section des commandes -->
     <h2>Mes Commandes</h2>
-    <input v-model="orderSearchQuery" class="search-bar" placeholder="Rechercher une commande..." />
+    <input v-model="orderSearchQuery" placeholder="Rechercher une commande..." />
     <div v-for="order in filteredOrders" :key="order.id" class="order-container">
       <div class="order-header">
         <div>
@@ -90,7 +90,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import TheLoader from "../ui/TheLoader.vue";
@@ -575,7 +574,7 @@ const fetchProductDetails = async (productId) => {
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    width: 80%; /* Ajuster la largeur */
+    width: 25%; /* Adjust the width here */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
     .order-header {
@@ -647,25 +646,6 @@ const fetchProductDetails = async (productId) => {
       }
     }
   }
-
-  .search-bar {
-    width: 100%;
-    padding: 15px;
-    font-size: 20px;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
-    
-    &::placeholder {
-      color: #ccc;
-    }
-
-    &:focus {
-      outline: none;
-      border-color: #8b8b8b;
-    }
-  }
 }
 
 @media (max-width: 768px) {
@@ -677,7 +657,7 @@ const fetchProductDetails = async (productId) => {
       width: 90%;
     }
     .order-container {
-      width: 100%; /* Ajuster la largeur pour les mobiles */
+      width: 60%; /* Adjust the width for mobile view */
     }
   }
 }
