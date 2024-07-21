@@ -62,13 +62,8 @@
     <h2>Mes Commandes</h2>
     <div v-for="order in orders" :key="order.id" class="order-container">
       <div class="order-header">
-        <div>
-          <p>Commande effectuée le {{ new Date(order.createdAt).toLocaleDateString() }}</p>
-          <p>Livraison à {{ order.shippingAddress }}</p>
-        </div>
-        <div>
-          <p>Status de la commande: {{ order.status }}</p>
-        </div>
+        <p>Commande effectuée le {{ new Date(order.createdAt).toLocaleDateString() }}</p>
+        <p>Livraison à {{ order.shippingAddress }}</p>
       </div>
       <div class="order-items">
         <div v-for="item in order.products" :key="item.productId" class="order-item">
@@ -79,9 +74,11 @@
           </div>
         </div>
       </div>
-      <p class="order-total">Total : {{ order.totalPrice }} €</p>
+      <div class="order-footer">
+        <p>Total : {{ order.totalPrice }} €</p>
+      </div>
       <div class="order-actions">
-        <button :disabled="order.status !== 'Livrée'" @click="refundOrder(order.id)">Demander un remboursement</button>
+        <button @click="refundOrder(order.id)">Demander un remboursement</button>
         <button @click="reorder(item.productId)">Acheter à nouveau</button>
         <button @click="viewOrder(order.id)">Consulter la commande</button>
       </div>
@@ -284,33 +281,8 @@ const sendResetEmail = async () => {
 };
 
 const refundOrder = async (orderId) => {
-  try {
-    const response = await fetch(`${apiUrl}/orders/${orderId}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ status: "Retour demandée" })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erreur lors de la demande de remboursement: ${errorText}`);
-    }
-
-    const updatedOrder = await response.json();
-
-    // Mise à jour de l'état local des commandes
-    const orderIndex = orders.value.findIndex(order => order.id === orderId);
-    if (orderIndex !== -1) {
-      orders.value[orderIndex].status = updatedOrder.order.status;
-    }
-
-    console.log("Remboursement demandé avec succès:", updatedOrder);
-  } catch (error) {
-    console.error("Erreur lors de la demande de remboursement:", error);
-  }
+  console.log(`Demander un remboursement pour la commande ID: ${orderId}`);
+  // Ajouter ici la logique pour demander un remboursement
 };
 
 const reorder = async (productId) => {
@@ -451,7 +423,7 @@ const viewOrder = async (orderId) => {
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    width: 25%; /* Adjust the width here */
+    width: 80%; /* Adjust the width here */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
     .order-header {
@@ -461,7 +433,7 @@ const viewOrder = async (orderId) => {
 
       p {
         margin: 0;
-        font-size: 24px;
+        font-size: 20px; /* Adjust the font size here */
       }
     }
 
@@ -475,22 +447,26 @@ const viewOrder = async (orderId) => {
         margin-bottom: 10px;
 
         .product-image {
-          width: 60px;
-          height: 60px;
+          width: 80px; /* Adjust the image size here */
+          height: 80px; /* Adjust the image size here */
           margin-right: 20px;
         }
 
         .product-details {
           p {
             margin: 0;
-            font-size: 24px;
+            font-size: 20px; /* Adjust the font size here */
           }
         }
       }
     }
 
-    .order-total {
-      font-size: 24px;
+    .order-footer {
+      margin-top: 10px;
+      p {
+        margin: 0;
+        font-size: 20px; /* Adjust the font size here */
+      }
     }
 
     .order-actions {
@@ -515,11 +491,6 @@ const viewOrder = async (orderId) => {
         &:focus {
           outline: none;
         }
-
-        &:disabled {
-          background-color: grey;
-          cursor: not-allowed;
-        }
       }
     }
   }
@@ -534,7 +505,7 @@ const viewOrder = async (orderId) => {
       width: 90%;
     }
     .order-container {
-      width: 60%; /* Adjust the width for mobile view */
+      width: 100%; /* Adjust the width for mobile view */
     }
   }
 }

@@ -46,7 +46,7 @@ export const getAllOrders = async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   };
-  
+Z  
 
 export const createOrder = async (req, res) => {
   const userId = req.user.userId; // Récupérer l'ID utilisateur du token JWT

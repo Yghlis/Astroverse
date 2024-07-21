@@ -64,26 +64,25 @@
       <div class="order-header">
         <div>
           <p>Commande effectuée le {{ new Date(order.createdAt).toLocaleDateString() }}</p>
-          <p>Livraison à {{ order.shippingAddress }}</p>
+          <p>Total : {{ order.totalPrice }} €</p>
         </div>
         <div>
-          <p>Status de la commande: {{ order.status }}</p>
+          <p>Livraison à {{ order.shippingAddress }}</p>
         </div>
       </div>
       <div class="order-items">
         <div v-for="item in order.products" :key="item.productId" class="order-item">
-          <img :src="getImageUrl(item.image_preview)" alt="product image" class="product-image" />
+          <img :src="item.imageUrl" alt="product image" class="product-image" />
           <div class="product-details">
             <p>{{ item.title }}</p>
             <p>{{ item.quantity }} x {{ item.price }} €</p>
           </div>
         </div>
       </div>
-      <p class="order-total">Total : {{ order.totalPrice }} €</p>
       <div class="order-actions">
-        <button :disabled="order.status !== 'Livrée'" @click="refundOrder(order.id)">Demander un remboursement</button>
-        <button @click="reorder(item.productId)">Acheter à nouveau</button>
-        <button @click="viewOrder(order.id)">Consulter la commande</button>
+        <button>Demander un remboursement</button>
+        <button>Afficher votre article</button>
+        <button>Suivre votre colis</button>
       </div>
     </div>
   </div>
@@ -98,13 +97,10 @@ import { useUserStore } from "../stores/userStore";
 import { useProductStore } from "../stores/useProductStore";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
 
-const { flashMessage, flashMessageType, setFlashMessage } =
-  useFlashMessageStore();
+const { flashMessage, flashMessageType, setFlashMessage } = useFlashMessageStore();
 
 const userStore = useUserStore();
 const productStore = useProductStore();
-
-const apiUrl = "http://localhost:8000"; // Base URL pour les images
 
 onMounted(() => {
   const id = localStorage.getItem("userId");
@@ -130,45 +126,35 @@ const initialAddress = ref("");
 const addressSelected = ref(true);
 
 // Watcher pour mettre à jour les valeurs des champs lorsque les données utilisateur changent
-watch(
-  userData,
-  (newVal) => {
-    firstName.value = newVal.first_name || "";
-    lastName.value = newVal.last_name || "";
-    email.value = newVal.email || "";
-    phoneNumber.value = newVal.phone_number || "";
+watch(userData, (newVal) => {
+  firstName.value = newVal.first_name || "";
+  lastName.value = newVal.last_name || "";
+  email.value = newVal.email || "";
+  phoneNumber.value = newVal.phone_number || "";
 
-    const addressData = newVal.address || {};
-    const formattedAddress = `${addressData.street || ""} ${
-      addressData.city || ""
-    } ${addressData.postal_code || ""} ${addressData.country || ""}`.trim();
-    address.value = formattedAddress;
-    initialAddress.value = formattedAddress;
-  },
-  { immediate: true }
-);
+  const addressData = newVal.address || {};
+  const formattedAddress = `${addressData.street || ""} ${addressData.city || ""} ${addressData.postal_code || ""} ${addressData.country || ""}`.trim();
+  address.value = formattedAddress;
+  initialAddress.value = formattedAddress;
+}, { immediate: true });
 
 const displayProducts = ref([]);
 
 // Watcher pour mettre à jour les produits suivis affichés lorsque les données changent
-watch(
-  followedProducts,
-  (newVal) => {
-    displayProducts.value = newVal;
-  },
-  { immediate: true }
-);
+watch(followedProducts, (newVal) => {
+  displayProducts.value = newVal;
+}, { immediate: true });
 
 const orders = ref([]);
 
 // Méthode pour récupérer les commandes de l'utilisateur
 const fetchUserOrders = async (userId) => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  console.log(`API URL: ${apiUrl}/orders?userId=${userId}`); // Ajoutez cette ligne pour vérifier l'URL complète
+  console.log(`API URL: ${apiUrl}/orders?userId=${userId}`); // Vérification de l'URL complète
   try {
     const response = await fetch(`${apiUrl}/orders?userId=${userId}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+        'Authorization': `Bearer ${localStorage.getItem("jwt")}`,
         'Content-Type': 'application/json' // Ajout du Content-Type
       },
     });
@@ -180,12 +166,6 @@ const fetchUserOrders = async (userId) => {
   } catch (error) {
     console.error("Erreur lors de la récupération des commandes:", error);
   }
-};
-
-const getImageUrl = (imagePath) => {
-  // Retirer '/home/node' du chemin si présent
-  const cleanPath = imagePath.replace('/home/node', '');
-  return cleanPath.startsWith("http") ? cleanPath : `${apiUrl}${cleanPath}`;
 };
 
 const fullAddress = ref({});
@@ -242,8 +222,7 @@ const updateProfile = () => {
 
   if (address.value !== initialAddress.value) {
     const formattedAddress = {
-      street:
-        fullAddress.value.housenumber + " " + fullAddress.value.street || "",
+      street: fullAddress.value.housenumber + " " + fullAddress.value.street || "",
       city: fullAddress.value.city || "",
       postal_code: fullAddress.value.postcode || "",
       country: fullAddress.value.country || "",
@@ -284,33 +263,8 @@ const sendResetEmail = async () => {
 };
 
 const refundOrder = async (orderId) => {
-  try {
-    const response = await fetch(`${apiUrl}/orders/${orderId}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ status: "Retour demandée" })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erreur lors de la demande de remboursement: ${errorText}`);
-    }
-
-    const updatedOrder = await response.json();
-
-    // Mise à jour de l'état local des commandes
-    const orderIndex = orders.value.findIndex(order => order.id === orderId);
-    if (orderIndex !== -1) {
-      orders.value[orderIndex].status = updatedOrder.order.status;
-    }
-
-    console.log("Remboursement demandé avec succès:", updatedOrder);
-  } catch (error) {
-    console.error("Erreur lors de la demande de remboursement:", error);
-  }
+  console.log(`Demander un remboursement pour la commande ID: ${orderId}`);
+  // Ajouter ici la logique pour demander un remboursement
 };
 
 const reorder = async (productId) => {
@@ -451,7 +405,7 @@ const viewOrder = async (orderId) => {
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    width: 25%; /* Adjust the width here */
+    width: 80%;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
     .order-header {
@@ -461,7 +415,7 @@ const viewOrder = async (orderId) => {
 
       p {
         margin: 0;
-        font-size: 24px;
+        font-size: 16px;
       }
     }
 
@@ -483,14 +437,10 @@ const viewOrder = async (orderId) => {
         .product-details {
           p {
             margin: 0;
-            font-size: 24px;
+            font-size: 14px;
           }
         }
       }
-    }
-
-    .order-total {
-      font-size: 24px;
     }
 
     .order-actions {
@@ -499,8 +449,7 @@ const viewOrder = async (orderId) => {
       margin-top: 10px;
 
       button {
-        padding: 20px;
-        font-size: 18px;
+        padding: 10px;
         border: none;
         border-radius: 5px;
         background-color: #007bff;
@@ -514,11 +463,6 @@ const viewOrder = async (orderId) => {
 
         &:focus {
           outline: none;
-        }
-
-        &:disabled {
-          background-color: grey;
-          cursor: not-allowed;
         }
       }
     }
@@ -534,7 +478,7 @@ const viewOrder = async (orderId) => {
       width: 90%;
     }
     .order-container {
-      width: 60%; /* Adjust the width for mobile view */
+      width: 100%;
     }
   }
 }

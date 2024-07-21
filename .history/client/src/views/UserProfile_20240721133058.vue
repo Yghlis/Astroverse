@@ -81,7 +81,7 @@
       </div>
       <p class="order-total">Total : {{ order.totalPrice }} €</p>
       <div class="order-actions">
-        <button :disabled="order.status !== 'Livrée'" @click="refundOrder(order.id)">Demander un remboursement</button>
+        <button @click="refundOrder(order.id)">Demander un remboursement</button>
         <button @click="reorder(item.productId)">Acheter à nouveau</button>
         <button @click="viewOrder(order.id)">Consulter la commande</button>
       </div>
@@ -284,33 +284,8 @@ const sendResetEmail = async () => {
 };
 
 const refundOrder = async (orderId) => {
-  try {
-    const response = await fetch(`${apiUrl}/orders/${orderId}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ status: "Retour demandée" })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erreur lors de la demande de remboursement: ${errorText}`);
-    }
-
-    const updatedOrder = await response.json();
-
-    // Mise à jour de l'état local des commandes
-    const orderIndex = orders.value.findIndex(order => order.id === orderId);
-    if (orderIndex !== -1) {
-      orders.value[orderIndex].status = updatedOrder.order.status;
-    }
-
-    console.log("Remboursement demandé avec succès:", updatedOrder);
-  } catch (error) {
-    console.error("Erreur lors de la demande de remboursement:", error);
-  }
+  console.log(`Demander un remboursement pour la commande ID: ${orderId}`);
+  // Ajouter ici la logique pour demander un remboursement
 };
 
 const reorder = async (productId) => {
@@ -514,11 +489,6 @@ const viewOrder = async (orderId) => {
 
         &:focus {
           outline: none;
-        }
-
-        &:disabled {
-          background-color: grey;
-          cursor: not-allowed;
         }
       }
     }

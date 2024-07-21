@@ -57,38 +57,36 @@
         :product="item.Product"
       ></shopCard>
     </TheCarousel>
-
+    
     <!-- Section des commandes -->
     <h2>Mes Commandes</h2>
     <div v-for="order in orders" :key="order.id" class="order-container">
       <div class="order-header">
         <div>
           <p>Commande effectuée le {{ new Date(order.createdAt).toLocaleDateString() }}</p>
-          <p>Livraison à {{ order.shippingAddress }}</p>
+          <p>Total : {{ order.totalPrice }} €</p>
         </div>
         <div>
-          <p>Status de la commande: {{ order.status }}</p>
+          <p>Livraison à {{ order.shippingAddress }}</p>
         </div>
       </div>
       <div class="order-items">
         <div v-for="item in order.products" :key="item.productId" class="order-item">
-          <img :src="getImageUrl(item.image_preview)" alt="product image" class="product-image" />
+          <img :src="item.product.imageUrl" alt="product image" class="product-image" />
           <div class="product-details">
-            <p>{{ item.title }}</p>
+            <p>{{ item.product.title }}</p>
             <p>{{ item.quantity }} x {{ item.price }} €</p>
           </div>
         </div>
       </div>
-      <p class="order-total">Total : {{ order.totalPrice }} €</p>
       <div class="order-actions">
-        <button :disabled="order.status !== 'Livrée'" @click="refundOrder(order.id)">Demander un remboursement</button>
+        <button @click="refundOrder(order.id)">Demander un remboursement</button>
         <button @click="reorder(item.productId)">Acheter à nouveau</button>
         <button @click="viewOrder(order.id)">Consulter la commande</button>
       </div>
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import TheLoader from "../ui/TheLoader.vue";
@@ -103,8 +101,6 @@ const { flashMessage, flashMessageType, setFlashMessage } =
 
 const userStore = useUserStore();
 const productStore = useProductStore();
-
-const apiUrl = "http://localhost:8000"; // Base URL pour les images
 
 onMounted(() => {
   const id = localStorage.getItem("userId");
@@ -164,28 +160,15 @@ const orders = ref([]);
 // Méthode pour récupérer les commandes de l'utilisateur
 const fetchUserOrders = async (userId) => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  console.log(`API URL: ${apiUrl}/orders?userId=${userId}`); // Ajoutez cette ligne pour vérifier l'URL complète
   try {
-    const response = await fetch(`${apiUrl}/orders?userId=${userId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        'Content-Type': 'application/json' // Ajout du Content-Type
-      },
-    });
+    const response = await fetch(`${apiUrl}/orders?userId=${userId}`);
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erreur lors de la récupération des commandes: ${errorText}`);
+      throw new Error("Erreur lors de la récupération des commandes");
     }
     orders.value = await response.json();
   } catch (error) {
     console.error("Erreur lors de la récupération des commandes:", error);
   }
-};
-
-const getImageUrl = (imagePath) => {
-  // Retirer '/home/node' du chemin si présent
-  const cleanPath = imagePath.replace('/home/node', '');
-  return cleanPath.startsWith("http") ? cleanPath : `${apiUrl}${cleanPath}`;
 };
 
 const fullAddress = ref({});
@@ -284,33 +267,8 @@ const sendResetEmail = async () => {
 };
 
 const refundOrder = async (orderId) => {
-  try {
-    const response = await fetch(`${apiUrl}/orders/${orderId}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ status: "Retour demandée" })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erreur lors de la demande de remboursement: ${errorText}`);
-    }
-
-    const updatedOrder = await response.json();
-
-    // Mise à jour de l'état local des commandes
-    const orderIndex = orders.value.findIndex(order => order.id === orderId);
-    if (orderIndex !== -1) {
-      orders.value[orderIndex].status = updatedOrder.order.status;
-    }
-
-    console.log("Remboursement demandé avec succès:", updatedOrder);
-  } catch (error) {
-    console.error("Erreur lors de la demande de remboursement:", error);
-  }
+  console.log(`Demander un remboursement pour la commande ID: ${orderId}`);
+  // Ajouter ici la logique pour demander un remboursement
 };
 
 const reorder = async (productId) => {
@@ -324,218 +282,3 @@ const viewOrder = async (orderId) => {
 };
 </script>
 
-<style scoped lang="scss">
-.profile-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  margin-bottom: 50px;
-
-  h2 {
-    margin-bottom: 20px;
-    font-size: 45px;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    min-width: 300px;
-    width: 500px;
-    border: 1px solid #ccc;
-    padding: 25px;
-    border-radius: 25px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
-    .form-group {
-      margin-bottom: 15px;
-
-      label {
-        display: block;
-        margin-bottom: 10px;
-        font-weight: bold;
-        font-size: 20px;
-      }
-
-      input,
-      textarea {
-        width: 100%;
-        padding: 15px;
-        font-size: 20px;
-        border: 1px solid #ccc;
-        border-radius: 25px;
-        transition: all 0.3s ease;
-
-        &::placeholder {
-          color: #ccc;
-        }
-
-        &:focus {
-          outline: none;
-          border-color: #8b8b8b;
-        }
-      }
-
-      span {
-        color: red;
-      }
-    }
-
-    .address-section {
-      display: flex;
-      flex-direction: column;
-
-      ul {
-        margin-top: 10px;
-        padding: 0;
-        list-style: none;
-
-        li {
-          background: #fff;
-          padding: 8px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          margin-bottom: 4px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          &:hover {
-            background-color: #e7e7e7;
-          }
-        }
-      }
-    }
-
-    button {
-      margin-top: 30px;
-      padding: 15px;
-      border: none;
-      border-radius: 25px;
-      background-color: black;
-      color: white;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background-color: #333;
-      }
-
-      &:focus {
-        outline: none;
-        background-color: #9b9b9b;
-      }
-
-      &:disabled {
-        background-color: grey;
-        cursor: not-allowed;
-      }
-    }
-    p {
-      margin-top: 25px;
-      margin-bottom: 0;
-      font-size: 20px;
-      color: #333;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.3s ease;
-      &:hover {
-        color: red;
-      }
-    }
-  }
-
-  .order-container {
-    margin: 20px 0;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    width: 25%; /* Adjust the width here */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-
-      p {
-        margin: 0;
-        font-size: 24px;
-      }
-    }
-
-    .order-items {
-      display: flex;
-      flex-direction: column;
-
-      .order-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-
-        .product-image {
-          width: 60px;
-          height: 60px;
-          margin-right: 20px;
-        }
-
-        .product-details {
-          p {
-            margin: 0;
-            font-size: 24px;
-          }
-        }
-      }
-    }
-
-    .order-total {
-      font-size: 24px;
-    }
-
-    .order-actions {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-
-      button {
-        padding: 20px;
-        font-size: 18px;
-        border: none;
-        border-radius: 5px;
-        background-color: #007bff;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-
-        &:hover {
-          background-color: #0056b3;
-        }
-
-        &:focus {
-          outline: none;
-        }
-
-        &:disabled {
-          background-color: grey;
-          cursor: not-allowed;
-        }
-      }
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .profile-container {
-    h2 {
-      font-size: 30px;
-    }
-    form {
-      width: 90%;
-    }
-    .order-container {
-      width: 60%; /* Adjust the width for mobile view */
-    }
-  }
-}
-</style>

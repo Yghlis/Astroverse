@@ -21,32 +21,11 @@ export const getAllOrders = async (req, res) => {
         orders = await Order.findAll();
       }
   
-      // Inclure les détails des produits
-      const detailedOrders = await Promise.all(
-        orders.map(async (order) => {
-          const productsDetails = await Promise.all(
-            order.products.map(async (item) => {
-              const product = await Product.findByPk(item.productId);
-              return {
-                ...item,
-                title: product.title,
-                image_preview: product.image_preview,
-              };
-            })
-          );
-          return {
-            ...order.toJSON(),
-            products: productsDetails,
-          };
-        })
-      );
-  
-      res.status(200).json(detailedOrders);
+      res.status(200).json(orders);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
   };
-  
 
 export const createOrder = async (req, res) => {
   const userId = req.user.userId; // Récupérer l'ID utilisateur du token JWT

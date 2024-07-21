@@ -57,35 +57,6 @@
         :product="item.Product"
       ></shopCard>
     </TheCarousel>
-
-    <!-- Section des commandes -->
-    <h2>Mes Commandes</h2>
-    <div v-for="order in orders" :key="order.id" class="order-container">
-      <div class="order-header">
-        <div>
-          <p>Commande effectuée le {{ new Date(order.createdAt).toLocaleDateString() }}</p>
-          <p>Livraison à {{ order.shippingAddress }}</p>
-        </div>
-        <div>
-          <p>Status de la commande: {{ order.status }}</p>
-        </div>
-      </div>
-      <div class="order-items">
-        <div v-for="item in order.products" :key="item.productId" class="order-item">
-          <img :src="getImageUrl(item.image_preview)" alt="product image" class="product-image" />
-          <div class="product-details">
-            <p>{{ item.title }}</p>
-            <p>{{ item.quantity }} x {{ item.price }} €</p>
-          </div>
-        </div>
-      </div>
-      <p class="order-total">Total : {{ order.totalPrice }} €</p>
-      <div class="order-actions">
-        <button :disabled="order.status !== 'Livrée'" @click="refundOrder(order.id)">Demander un remboursement</button>
-        <button @click="reorder(item.productId)">Acheter à nouveau</button>
-        <button @click="viewOrder(order.id)">Consulter la commande</button>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -104,13 +75,10 @@ const { flashMessage, flashMessageType, setFlashMessage } =
 const userStore = useUserStore();
 const productStore = useProductStore();
 
-const apiUrl = "http://localhost:8000"; // Base URL pour les images
-
 onMounted(() => {
   const id = localStorage.getItem("userId");
   userStore.getUserById(id);
   productStore.getFollowedProducts(id);
-  fetchUserOrders(id); // Appel pour récupérer les commandes de l'utilisateur
 });
 
 const userData = computed(() => userStore.userData);
@@ -158,35 +126,6 @@ watch(
   },
   { immediate: true }
 );
-
-const orders = ref([]);
-
-// Méthode pour récupérer les commandes de l'utilisateur
-const fetchUserOrders = async (userId) => {
-  const apiUrl = import.meta.env.VITE_API_URL;
-  console.log(`API URL: ${apiUrl}/orders?userId=${userId}`); // Ajoutez cette ligne pour vérifier l'URL complète
-  try {
-    const response = await fetch(`${apiUrl}/orders?userId=${userId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        'Content-Type': 'application/json' // Ajout du Content-Type
-      },
-    });
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erreur lors de la récupération des commandes: ${errorText}`);
-    }
-    orders.value = await response.json();
-  } catch (error) {
-    console.error("Erreur lors de la récupération des commandes:", error);
-  }
-};
-
-const getImageUrl = (imagePath) => {
-  // Retirer '/home/node' du chemin si présent
-  const cleanPath = imagePath.replace('/home/node', '');
-  return cleanPath.startsWith("http") ? cleanPath : `${apiUrl}${cleanPath}`;
-};
 
 const fullAddress = ref({});
 
@@ -281,46 +220,6 @@ const sendResetEmail = async () => {
     );
     setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
   }
-};
-
-const refundOrder = async (orderId) => {
-  try {
-    const response = await fetch(`${apiUrl}/orders/${orderId}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ status: "Retour demandée" })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erreur lors de la demande de remboursement: ${errorText}`);
-    }
-
-    const updatedOrder = await response.json();
-
-    // Mise à jour de l'état local des commandes
-    const orderIndex = orders.value.findIndex(order => order.id === orderId);
-    if (orderIndex !== -1) {
-      orders.value[orderIndex].status = updatedOrder.order.status;
-    }
-
-    console.log("Remboursement demandé avec succès:", updatedOrder);
-  } catch (error) {
-    console.error("Erreur lors de la demande de remboursement:", error);
-  }
-};
-
-const reorder = async (productId) => {
-  console.log(`Acheter à nouveau le produit ID: ${productId}`);
-  // Ajouter ici la logique de rachat du produit
-};
-
-const viewOrder = async (orderId) => {
-  console.log(`Consulter la commande ID: ${orderId}`);
-  // Ajouter ici la logique pour consulter la commande
 };
 </script>
 
@@ -445,84 +344,6 @@ const viewOrder = async (orderId) => {
       }
     }
   }
-
-  .order-container {
-    margin: 20px 0;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    width: 25%; /* Adjust the width here */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-
-      p {
-        margin: 0;
-        font-size: 24px;
-      }
-    }
-
-    .order-items {
-      display: flex;
-      flex-direction: column;
-
-      .order-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-
-        .product-image {
-          width: 60px;
-          height: 60px;
-          margin-right: 20px;
-        }
-
-        .product-details {
-          p {
-            margin: 0;
-            font-size: 24px;
-          }
-        }
-      }
-    }
-
-    .order-total {
-      font-size: 24px;
-    }
-
-    .order-actions {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-
-      button {
-        padding: 20px;
-        font-size: 18px;
-        border: none;
-        border-radius: 5px;
-        background-color: #007bff;
-        color: white;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-
-        &:hover {
-          background-color: #0056b3;
-        }
-
-        &:focus {
-          outline: none;
-        }
-
-        &:disabled {
-          background-color: grey;
-          cursor: not-allowed;
-        }
-      }
-    }
-  }
 }
 
 @media (max-width: 768px) {
@@ -532,9 +353,6 @@ const viewOrder = async (orderId) => {
     }
     form {
       width: 90%;
-    }
-    .order-container {
-      width: 60%; /* Adjust the width for mobile view */
     }
   }
 }

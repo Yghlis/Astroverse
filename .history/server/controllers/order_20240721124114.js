@@ -261,33 +261,36 @@ export const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     console.log(`Received request for Order ID: ${orderId}`);
     try {
-      const order = await Order.findByPk(orderId);
-  
-      if (!order) {
-        return res.status(404).json({ message: 'Order not found' });
-      }
-  
-      // Récupérer les détails des produits dans la commande
-      const productsDetails = await Promise.all(
-        order.products.map(async (item) => {
-          const product = await Product.findByPk(item.productId);
-          return {
-            ...item,
-            title: product.title,
-            image_preview: product.image_preview,
-          };
-        })
-      );
-  
-      res.status(200).json({
-        ...order.toJSON(),
-        products: productsDetails,
-      });
+        const order = await Order.findByPk(orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const baseURL = "http://localhost:8000/uploads/";
+
+        // Récupérer les détails des produits dans la commande
+        const productsDetails = await Promise.all(
+            order.products.map(async (item) => {
+                const product = await Product.findByPk(item.productId);
+                return {
+                    ...item,
+                    title: product.title,
+                    image_preview: product.image_preview.startsWith("http") ? product.image_preview : baseURL + product.image_preview,
+                };
+            })
+        );
+
+        res.status(200).json({
+            ...order.toJSON(),
+            products: productsDetails,
+        });
     } catch (error) {
-      console.error('Error fetching order by ID:', error.message);
-      res.status(500).json({ message: 'Internal server error' });
+        console.error('Error fetching order by ID:', error.message);
+        res.status(500).json({ message: 'Internal server error' });
     }
-  };
+};
+
   
   
   

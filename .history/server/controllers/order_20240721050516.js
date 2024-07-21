@@ -9,44 +9,23 @@ import { Op } from 'sequelize';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const getAllOrders = async (req, res) => {
-    try {
-      const { userId } = req.query;
-  
-      let orders;
-      if (userId) {
-        orders = await Order.findAll({
-          where: { userId },
-        });
-      } else {
-        orders = await Order.findAll();
-      }
-  
-      // Inclure les détails des produits
-      const detailedOrders = await Promise.all(
-        orders.map(async (order) => {
-          const productsDetails = await Promise.all(
-            order.products.map(async (item) => {
-              const product = await Product.findByPk(item.productId);
-              return {
-                ...item,
-                title: product.title,
-                image_preview: product.image_preview,
-              };
-            })
-          );
-          return {
-            ...order.toJSON(),
-            products: productsDetails,
-          };
-        })
-      );
-  
-      res.status(200).json(detailedOrders);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+  try {
+    const { userId } = req.query;
+
+    let orders;
+    if (userId) {
+      orders = await Order.findAll({
+        where: { userId },
+      });
+    } else {
+      orders = await Order.findAll();
     }
-  };
-  
+
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 export const createOrder = async (req, res) => {
   const userId = req.user.userId; // Récupérer l'ID utilisateur du token JWT
@@ -288,7 +267,6 @@ export const updateOrderStatus = async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   };
-  
   
   
   
