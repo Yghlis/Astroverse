@@ -39,7 +39,6 @@
         >
           Gestion de stock
         </button>
-        <!-- Nouveau bouton Newsletter -->
         <button
           :class="{ active: currentDataType === 'newsletters' }"
           @click="fetchData('newsletters')"

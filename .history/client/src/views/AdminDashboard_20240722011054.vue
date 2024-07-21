@@ -50,7 +50,7 @@
     </SideAdmin>
     <div class="admin-content" :class="{ active: showSideBar }">
       <AdminTable
-        v-if="currentDataType !== 'stock' && currentDataType !== 'newsletters' && reloadTable"
+        v-if="currentDataType !== 'stock' && reloadTable"
         :data="tableData"
         :columns="tableColumns"
         :currentDataType="currentDataType"
@@ -59,10 +59,9 @@
         @row-deleted="handleRowDeleted"
       />
       <StockManagement
-        v-else-if="currentDataType === 'stock'"
+        v-else
         :data="tableData"
       />
-      <NewsletterManagement v-else />
     </div>
   </div>
 </template>
@@ -71,7 +70,6 @@
 import SideAdmin from "../ui/SideAdmin.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
 import StockManagement from "../components/admin/StockManagement.vue";
-import NewsletterManagement from "../components/admin/NewsletterManagement.vue";
 import { ref, onMounted, provide } from "vue";
 
 const showSideBar = ref(true);

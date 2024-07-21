@@ -1,5 +1,5 @@
 import express from 'express';
-import { updateNewsletterPdf, upload, getNewsletterPdf } from '../controllers/newsletter.js';
+import { updateNewsletterPdf, upload } from '../controllers/newsletter.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();

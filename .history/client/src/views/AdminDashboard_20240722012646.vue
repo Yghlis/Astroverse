@@ -39,7 +39,6 @@
         >
           Gestion de stock
         </button>
-        <!-- Nouveau bouton Newsletter -->
         <button
           :class="{ active: currentDataType === 'newsletters' }"
           @click="fetchData('newsletters')"
@@ -84,7 +83,7 @@ const handleReloadTable = () => {
   fetchData(currentDataType.value);
   reloadTable.value = false;
   setTimeout(() => {
-    reloadTable.value = true;
+    reloadTable.value = true);
   }, 10);
 };
 
