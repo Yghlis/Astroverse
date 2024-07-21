@@ -20,27 +20,27 @@ export const getUsers = async (req, res) => {
     res.status(200).json(users);
   } catch (error) {
     console.log('Error retrieving users:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.sendStatus.json(500);
   }
 };
 
 // Récupérer un utilisateur par ID
 export const getUserById = async (req, res) => {
   const { id } = req.params;
-  const authenticatedUserId = req.user.userId;
+  const authenticatedUserId = req.user.userId;  
 
   if (id !== authenticatedUserId && req.user.role !== 'ROLE_ADMIN') {
-    return res.status(403).json({ error: 'Forbidden' });
+    return res.sendStatus.json(403); 
   }
 
   try {
     const user = await User.findByPk(id);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.sendStatus(404);
     }
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.sendStatus(500);
   }
 };
 
@@ -139,7 +139,7 @@ export const updateUser = async (req, res) => {
 
   // Vérifiez si l'utilisateur authentifié est soit l'utilisateur en question soit un administrateur
   if (id !== authenticatedUserId && req.user.role !== 'ROLE_ADMIN') {
-    return res.sendStatus(403);
+    return res.sendStatus(403); 
   }
 
   // Valider les données entrantes avec Zod
@@ -264,7 +264,7 @@ export const deleteUser = async (req, res) => {
       first_name: 'Anonyme',
       last_name: 'Utilisateur',
       email: `deleted_${user.user_id}@example.com`,
-      password_hash: '',
+      password_hash: null,
       phone_number: null,
       address: {},
       isEmailVerified: false,
