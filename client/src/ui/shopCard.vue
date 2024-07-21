@@ -34,8 +34,6 @@ const props = defineProps({
   product: Object,
 });
 
-
-
 const router = useRouter();
 
 const navigateToDetail = () => {
@@ -52,7 +50,6 @@ const getImageUrl = (absolutePath) => {
   const apiUrl = import.meta.env.VITE_API_URL;
   return `${apiUrl}/uploads/${relativePath}`;
 };
-
 
 const discountPercentage = computed(() => {
   if (
@@ -74,6 +71,7 @@ const cartStore = useCartStore();
 
 const addToCart = () => {
   cartStore.addItemToCart(props.product);
+
 };
 </script>
 
