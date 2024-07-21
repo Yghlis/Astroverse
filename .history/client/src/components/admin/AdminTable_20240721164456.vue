@@ -79,7 +79,7 @@
               <button class="view" @click="viewOrder(row)">Voir</button>
               <button class="edit" @click="toggleStatusDropdown(row.id)">Changer le status</button>
               <div v-if="row.id === statusDropdownVisible" class="status-dropdown">
-                <select v-model="newStatus" @change="confirmChangeOrderStatus(row.id)">
+                <select v-model="newStatus" @change="changeOrderStatus(row.id)">
                   <option value="En cours">En cours</option>
                   <option value="Expédiée">Expédiée</option>
                   <option value="Livrée">Livrée</option>
@@ -560,17 +560,6 @@ const toggleStatusDropdown = (orderId) => {
   } else {
     statusDropdownVisible.value = orderId;
   }
-};
-
-const confirmChangeOrderStatus = async (orderId) => {
-  if (newStatus.value === "Remboursée") {
-    const userConfirmed = confirm("Êtes-vous sûr de vouloir rembourser la commande ?");
-    if (!userConfirmed) {
-      return; // Si l'utilisateur annule, on arrête l'exécution de la fonction
-    }
-  }
-
-  await changeOrderStatus(orderId);
 };
 
 const changeOrderStatus = async (orderId) => {
