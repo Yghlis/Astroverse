@@ -43,17 +43,13 @@
     </SideAdmin>
     <div class="admin-content" :class="{ active: showSideBar }">
       <AdminTable
-        v-if="currentDataType !== 'stock' && reloadTable"
         :data="tableData"
         :columns="tableColumns"
         :currentDataType="currentDataType"
         @edit="handleEdit"
         @view="handleView"
         @row-deleted="handleRowDeleted"
-      />
-      <StockManagement
-        v-else
-        :data="tableData"
+        v-if="reloadTable"
       />
     </div>
   </div>
@@ -62,7 +58,6 @@
 <script setup>
 import SideAdmin from "../ui/SideAdmin.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
-import StockManagement from "../components/admin/StockManagement.vue";
 import { ref, onMounted, provide } from "vue";
 
 const showSideBar = ref(true);

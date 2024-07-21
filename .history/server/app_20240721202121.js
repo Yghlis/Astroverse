@@ -23,7 +23,6 @@ import newsletterRoutes from './routes/newsletter.js';
 import geocodeRoutes from './routes/geocode.js';
 import basketRoutes from './routes/basket.js'; 
 import orderRoutes from './routes/order.js';
-import kpiRoutes from './routes/kpi.js';
 
 
 dotenv.config();
