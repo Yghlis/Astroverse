@@ -309,42 +309,13 @@ const refundOrder = async (orderId) => {
 };
 
 const reorder = async (products) => {
-  const apiUrl = import.meta.env.VITE_API_URL;
-
   for (const product of products) {
     for (let i = 0; i < product.quantity; i++) {
-      try {
-        const checkStockResponse = await fetch(`${apiUrl}/products/check-stock`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'session-id': localStorage.getItem('sessionId'),
-          },
-          body: JSON.stringify({ productId: product.productId, quantity: 1 })
-        });
-
-        if (!checkStockResponse.ok) {
-          const errorText = await checkStockResponse.text();
-          throw new Error(`Erreur lors de la vérification du stock: ${errorText}`);
-        }
-
-        const checkStockData = await checkStockResponse.json();
-
-        if (checkStockData.available) {
-          await cartStore.addItemToCart(product);
-          await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay between each add
-        } else {
-          setFlashMessage("Stock indisponible pour commander à nouveau", "error");
-          return;
-        }
-      } catch (error) {
-        console.error("Erreur lors de la vérification du stock ou de l'ajout au panier:", error);
-        setFlashMessage("Stock indisponible pour commander à nouveau", "error");
-        return;
-      }
+      await cartStore.addItemToCart(product);
+      await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay between each add
     }
   }
-  setFlashMessage("Tous les produits ont été ajoutés au panier", "success");
+  flashMessage.value = "Tous les produits ont été ajoutés au panier";
 };
 
 const downloadInvoice = async (order) => {
@@ -433,7 +404,6 @@ const fetchProductDetails = async (productId) => {
   }
 };
 </script>
-
 
 <style scoped lang="scss">
 .profile-container {
