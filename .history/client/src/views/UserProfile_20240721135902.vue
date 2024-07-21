@@ -82,8 +82,8 @@
       <p class="order-total">Total : {{ order.totalPrice }} €</p>
       <div class="order-actions">
         <button :disabled="order.status !== 'Livrée'" @click="refundOrder(order.id)">Demander un remboursement</button>
-        <button @click="reorder(order.products)">Acheter à nouveau</button>
-        <button @click="downloadInvoice(order)">Télécharger la facture</button>
+        <button @click="reorder(item.productId)">Acheter à nouveau</button>
+        <button @click="viewOrder(order.id)">Téél</button>
       </div>
     </div>
   </div>
@@ -97,8 +97,6 @@ import shopCard from "../ui/shopCard.vue";
 import { useUserStore } from "../stores/userStore";
 import { useProductStore } from "../stores/useProductStore";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();
@@ -315,95 +313,14 @@ const refundOrder = async (orderId) => {
   }
 };
 
-const reorder = async (products) => {
-  console.log(`Acheter à nouveau les produits`, products);
-  // Logique pour ajouter les produits au panier
+const reorder = async (productId) => {
+  console.log(`Acheter à nouveau le produit ID: ${productId}`);
+  // Ajouter ici la logique de rachat du produit
 };
 
-const downloadInvoice = async (order) => {
-  const doc = new jsPDF();
-
-  // Add invoice title at the top
-  doc.setFontSize(18);
-  doc.text("Facture", 14, 15);
-
-  // Add company details on the left
-  doc.setFontSize(12);
-  doc.text("Astroverse", 14, 25);
-  doc.text("34 rue astrobouse, 75012 PARIS", 14, 30);
-  doc.text("0656554455", 14, 35);
-  doc.text("Astroverse-Admin@gmail.com", 14, 40);
-  doc.text("Numéro SIRET : 123 321 213", 14, 45);
-  doc.text("Numéro de TVA intracommunautaire : FR72 934 710 566", 14, 50);
-
-  // Add customer details on the right
-  doc.text(`Nom de l'acheteur :`, 140, 25);
-  doc.text(`${order.firstName} ${order.lastName}`, 140, 30);
-  const billingAddress = order.billingAddress.replace(/, /g, '\n');
-  doc.text(`Adresse de facturation :`, 140, 35);
-  doc.text(billingAddress, 140, 40);
-
-  // Add invoice details below company and customer details
-  doc.text(`Facture n° : ${order.id}`, 14, 60);
-  doc.text(`Date de facturation : ${new Date(order.createdAt).toLocaleDateString()}`, 14, 66);
-
-  // Add table with order items
-  const tableColumn = ["Produit", "Quantité", "Prix unitaire", "Total HT", "TVA (20%)", "Total TTC"];
-  const tableRows = [];
-
-  for (const product of order.products) {
-    const productDetails = await fetchProductDetails(product.productId);
-    const productTitle = productDetails ? productDetails.title : 'Produit sans titre';
-    const totalHT = product.quantity * product.price;
-    const tva = totalHT * 0.20;
-    const totalTTC = totalHT + tva;
-    const productData = [
-      productTitle,
-      product.quantity,
-      `${product.price} €`,
-      `${totalHT.toFixed(2)} €`,
-      `${tva.toFixed(2)} €`,
-      `${totalTTC.toFixed(2)} €`
-    ];
-    tableRows.push(productData);
-  }
-
-  doc.autoTable(tableColumn, tableRows, { startY: 75 });
-
-  // Calculate totals
-  const totalHT = order.products.reduce((acc, product) => acc + product.quantity * product.price, 0).toFixed(2);
-  const totalTVA = (totalHT * 0.20).toFixed(2);
-  const totalTTC = (parseFloat(totalHT) + parseFloat(totalTVA)).toFixed(2);
-
-  // Add totals
-  doc.text(`Total HT : ${totalHT} €`, 14, doc.autoTable.previous.finalY + 10);
-  doc.text(`Total TVA (20%) : ${totalTVA} €`, 14, doc.autoTable.previous.finalY + 16);
-  doc.text(`Total TTC : ${totalTTC} €`, 14, doc.autoTable.previous.finalY + 22);
-
-  // Add payment details
-  doc.text("Modalités de paiement : Stripe", 14, doc.autoTable.previous.finalY + 32);
-  doc.text("Méthode de paiement : Carte de crédit", 14, doc.autoTable.previous.finalY + 38);
-
-  // Save the PDF
-  doc.save(`facture_${order.id}.pdf`);
-};
-
-// Define the fetchProductDetails function
-const fetchProductDetails = async (productId) => {
-  try {
-    const response = await fetch(`${apiUrl}/products/${productId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Erreur lors de la récupération des détails du produit");
-    }
-    return await response.json();
-  } catch (error) {
-    console.error("Erreur:", error.message);
-    return null;
-  }
+const viewOrder = async (orderId) => {
+  console.log(`Consulter la commande ID: ${orderId}`);
+  // Ajouter ici la logique pour consulter la commande
 };
 </script>
 
