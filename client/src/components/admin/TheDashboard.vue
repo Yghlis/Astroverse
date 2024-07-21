@@ -9,6 +9,10 @@
         gs-auto-position="true"
         :gs-w="card.type === 'carte-3' ? 2 : 1"
         :gs-h="hightOfCard(card.type)"
+        :gs-min-w="card.type === 'carte-3' ? 2 : 1"
+        :gs-min-h="card.type === 'carte-3' ? 2 : 1"
+        :gs-max-w="card.type === 'carte-3' ? 2 : undefined"
+        :gs-max-h="card.type === 'carte-3' ? 3 : undefined"
       >
         <div
           class="grid-stack-item-content"
