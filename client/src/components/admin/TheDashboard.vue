@@ -1,137 +1,169 @@
 <template>
   <div class="dashboard">
     <h2>Tableau de Bord</h2>
-    <transition-group
-      name="list"
-      tag="div"
-      class="widget-area"
-      ref="widgetArea"
-    >
+    <div class="grid-stack">
       <div
         v-for="(card, index) in cards"
         :key="card.id"
-        class="card"
-        :style="{ backgroundColor: card.backgroundColor }"
-        :data-index="index"
-        draggable="true"
-        @dragstart="onDragStart($event, index)"
-        @dragover.prevent
-        @dragenter="onDragEnter($event, index)"
-        @dragend="onDragEnd"
+        class="grid-stack-item"
+        gs-auto-position="true"
+        :gs-w="1"
+        :gs-h="card.type === 'carte-2' ? 2 : 1"
       >
-        <span class="material-symbols-outlined option"> more_vert </span>
-        <span class="material-symbols-outlined"> {{ card.icon }} </span>
-        <h3>{{ card.title }}</h3>
-        <div class="card-values">
-          <p>{{ card.valueA }}</p>
-          <div class="valueB">
-            <span class="material-symbols-outlined">
-              {{ card.type == "up" ? "arrow_upward" : "arrow_downward" }}</span
-            >
-            <p>{{ card.valueB }}</p>
-            <span>%</span>
-          </div>
+        <div
+          class="grid-stack-item-content"
+          :style="{ backgroundColor: card.backgroundColor }"
+        >
+          <component :is="getComponentType(card.type)" :card="card" />
         </div>
       </div>
-    </transition-group>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref} from "vue";
+import { reactive, ref, onMounted, nextTick } from "vue";
+import { GridStack } from "gridstack";
+import "gridstack/dist/gridstack.min.css";
+import "gridstack/dist/gridstack-extra.min.css";
+import CardType1 from "../../ui/CardType1.vue";
+import CardType2 from "../../ui/CardType2.vue";
 
 const cards = reactive([
   {
     id: 1,
+    type: "carte-1",
     title: "Total Des Utilisateurs",
-    backgroundColor: "#e5e1f8",
     icon: "group",
     valueA: 2450,
     valueB: 15,
-    type: "up",
+    typeArrow: "up",
   },
   {
     id: 2,
+    type: "carte-1",
     title: "Croissance des Ventes",
-    backgroundColor: "#f9f0e1",
     icon: "trending_up",
     valueA: 1200,
     valueB: 10,
-    type: "down",
+    typeArrow: "down",
   },
   {
     id: 3,
+    type: "carte-1",
     title: "Nouveaux Achats",
-    backgroundColor: "#cef3fc",
     icon: "shopping_cart",
     valueA: 890,
     valueB: 5,
-    type: "up",
+    typeArrow: "up",
   },
   {
     id: 4,
+    type: "carte-1",
     title: "Taux de Satisfaction",
-    backgroundColor: "#e1f8e5",
     icon: "thumb_up",
     valueA: 1500,
     valueB: 20,
-    type: "up",
+    typeArrow: "up",
   },
   {
     id: 5,
+    type: "carte-1",
     title: "Revenus Totaux",
-    backgroundColor: "#f8e5e1",
     icon: "account_balance",
     valueA: 3400,
     valueB: 8,
-    type: "down",
+    typeArrow: "down",
   },
   {
     id: 6,
+    type: "carte-1",
     title: "Temps Moyen",
-    backgroundColor: "#e5f4f8",
     icon: "access_time",
     valueA: 400,
     valueB: 12,
-    type: "up",
+    typeArrow: "up",
   },
   {
     id: 7,
-    title: "Nouveaux Utilisateurs",
-    backgroundColor: "#f3e1f8",
-    icon: "people",
-    valueA: 500,
-    valueB: 18,
-    type: "up",
+    type: "carte-2",
+    title: "Les Produits les plus Vendus",
+    icon: "shopping_bag",
+    items: [
+      { name: "Produit 1", quantity: 120 },
+      { name: "Produit 2", quantity: 90 },
+      { name: "Produit 3", quantity: 80 },
+    ],
   },
 ]);
 
-const draggedIndex = ref(null);
-let canSwap = true;
+const colors = [
+  "#e5e1f8",
+  "#f9f0e1",
+  "#cef3fc",
+  "#e1f8e5",
+  "#f8e5e1",
+  "#e5f4f8",
+  "#f3e1f8",
+  "#f8e1e1",
+  "#e1f8f8",
+  "#e1e5f8",
+];
 
-const onDragStart = (event, index) => {
-  draggedIndex.value = index;
-};
+function assignColorsToCards(cards) {
+  const uniqueColors = [...colors];
+  const assignedColors = new Set();
+  let colorIndex = 0;
 
-const onDragEnter = (event, index) => {
-  if (index !== draggedIndex.value && canSwap) {
-    canSwap = false;
-    const temp = cards[draggedIndex.value];
-    cards.splice(draggedIndex.value, 1);
-    cards.splice(index, 0, temp);
-    draggedIndex.value = index;
-    setTimeout(() => {
-      canSwap = true;
-    }, 300);
+  cards.forEach((card) => {
+    if (assignedColors.size === uniqueColors.length) {
+      assignedColors.clear();
+    }
+
+    while (assignedColors.has(uniqueColors[colorIndex])) {
+      colorIndex = (colorIndex + 1) % uniqueColors.length;
+    }
+
+    card.backgroundColor = uniqueColors[colorIndex];
+    assignedColors.add(uniqueColors[colorIndex]);
+    colorIndex = (colorIndex + 1) % uniqueColors.length;
+  });
+}
+
+assignColorsToCards(cards);
+
+onMounted(async () => {
+  await nextTick();
+  const grid = GridStack.init({
+    float: true,
+    cellHeight: "250px",
+    margin: "10px",
+    column: 3,
+    disableOneColumnMode: true,
+    disableResize: false,
+    removable: true,
+    resizable: {
+      handles: "se",
+      minWidth: 500,
+      minHeight: 250,
+      gridSize: 50,
+    },
+  });
+});
+
+const getComponentType = (type) => {
+  switch (type) {
+    case "carte-1":
+      return CardType1;
+    case "carte-2":
+      return CardType2;
+    default:
+      return CardType1;
   }
-};
-
-const onDragEnd = () => {
-  draggedIndex.value = null;
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .dashboard {
   padding: 30px 0 0 30px;
   width: 100%;
@@ -141,7 +173,7 @@ const onDragEnd = () => {
   align-items: flex-start;
   flex-direction: column;
   gap: 20px;
-  background-color: rgb(63, 63, 63);
+
   h2 {
     color: black;
     font-family: "Montserrat", sans-serif;
@@ -149,89 +181,18 @@ const onDragEnd = () => {
     font-weight: bold;
   }
 
-  .widget-area {
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 20px;
+  .grid-stack {
     width: 100%;
-    .card {
-      user-select: none;
-      width: 30%;
-      max-width: 500px;
-      height: 250px;
-      border-radius: 8px;
-      display: flex;
-      justify-content: flex-start;
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 10px;
-      padding: 35px 20px;
-      position: relative;
-      .option {
-        position: absolute;
-        top: 35px;
-        right: 20px;
-        cursor: pointer;
-      }
-      .material-symbols-outlined {
-        font-size: 44px;
-        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
-      }
-      h3 {
-        font-family: "Montserrat", sans-serif;
-        font-size: 24px;
-        font-weight: bold;
-        margin: auto 0 0 0;
-      }
-      .card-values {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        p {
-          font-family: "Montserrat", sans-serif;
-          margin: 0;
-          font-size: 50px;
-          font-weight: bold;
-        }
-        .valueB {
-          margin-left: auto;
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          gap: 5px;
-          border: 1px solid black;
-          padding: 5px 10px;
-          border-radius: 25px;
-          span {
-            font-size: 22px;
-            font-weight: bold;
-          }
-          p {
-            font-family: "Montserrat", sans-serif;
-            margin: 0;
-            font-size: 22px;
-            font-weight: bold;
-          }
-        }
-      }
-
-      transition: transform 0.3s;
-      cursor: grab;
-    }
+    height: 100%;
   }
-}
 
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s;
-}
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(30px);
+  .grid-stack-item {
+    user-select: none;
+  }
+
+  .grid-stack-item-content {
+    border-radius: 8px;
+    cursor: grab;
+  }
 }
 </style>
