@@ -7,8 +7,8 @@
         :key="card.id"
         class="grid-stack-item"
         gs-auto-position="true"
-        :gs-w="1"
-        :gs-h="card.type === 'carte-2' ? 2 : 1"
+        :gs-w="card.type === 'carte-3' ? 2 : 1"
+        :gs-h="hightOfCard(card.type)"
       >
         <div
           class="grid-stack-item-content"
@@ -22,12 +22,13 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, nextTick } from "vue";
+import { reactive, ref, onMounted, nextTick, computed } from "vue";
 import { GridStack } from "gridstack";
 import "gridstack/dist/gridstack.min.css";
 import "gridstack/dist/gridstack-extra.min.css";
 import CardType1 from "../../ui/CardType1.vue";
 import CardType2 from "../../ui/CardType2.vue";
+import CardType3 from "../../ui/CardType3.vue";
 
 const cards = reactive([
   {
@@ -95,7 +96,27 @@ const cards = reactive([
       { name: "Produit 3", quantity: 80 },
     ],
   },
+  {
+    id: 8,
+    type: "carte-3",
+    title: "Total des Ventes",
+    icon: "monetization_on",
+    sales: {
+      day: 120,
+      month: 800,
+      year: 5000,
+      total: 15000,
+    },
+  },
 ]);
+
+const hightOfCard = (type) => {
+  if (type === "carte-3" || type === "carte-2") {
+    return 2;
+  } else {
+    return 1;
+  }
+};
 
 const colors = [
   "#e5e1f8",
@@ -157,6 +178,8 @@ const getComponentType = (type) => {
       return CardType1;
     case "carte-2":
       return CardType2;
+    case "carte-3":
+      return CardType3;
     default:
       return CardType1;
   }

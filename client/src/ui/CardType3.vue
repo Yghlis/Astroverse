@@ -1,51 +1,156 @@
 <template>
-    <div class="card" :style="{ backgroundColor: card.backgroundColor }">
-      <span class="material-symbols-outlined option"> more_vert </span>
+  <div
+    class="card"
+    :style="{ backgroundColor: card.backgroundColor }"
+    ref="cardElement"
+  >
+    <span class="material-symbols-outlined option" @click="test">
+      more_vert
+    </span>
+    <div class="title">
       <span class="material-symbols-outlined"> {{ card.icon }} </span>
       <h3>{{ card.title }}</h3>
-      <div class="card-values">
-        <p>{{ card.valueA }}</p>
-        <div class="valueB" v-if="card.valueB">
-          <span class="material-symbols-outlined">
-            {{ card.typeArrow == "up" ? "arrow_upward" : "arrow_downward" }}</span>
-          <p>{{ card.valueB }}</p>
-          <span>%</span>
+      <div class="data">
+        <div class="data-item">
+          <p class="label">Jour:</p>
+          <p class="value">{{ card.sales.day }}</p>
+        </div>
+        <div class="data-item">
+          <p class="label">Mois:</p>
+          <p class="value">{{ card.sales.month }}</p>
+        </div>
+        <div class="data-item">
+          <p class="label">Année:</p>
+          <p class="value">{{ card.sales.year }}</p>
+        </div>
+        <div class="data-item">
+          <p class="label">Total:</p>
+          <p class="value">{{ card.sales.total }}</p>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { defineProps } from 'vue';import 'gridstack/dist/gridstack.min.css';
+    <div class="canvas-container" :style="{ height: chartHeight }">
+      <canvas ref="salesChart" />
+    </div>
+  </div>
+</template>
 
-  
-  const props = defineProps({
-    card: {
-      type: Object,
-      required: true
-    }
+<script setup>
+import { defineProps, ref, onMounted, onBeforeUnmount, computed } from "vue";
+import { Chart, registerables } from "chart.js";
+Chart.register(...registerables);
+
+const props = defineProps({
+  card: {
+    type: Object,
+    required: true,
+  },
+});
+
+const salesChart = ref(null);
+const cardElement = ref(null);
+let chartInstance = null;
+
+const chartHeight = ref("370px");
+
+const updateChartHeight = () => {
+  if (cardElement.value) {
+    chartHeight.value = cardElement.value.offsetHeight < 730 ? "370px" : "740px";
+  }
+};
+
+const observer = new ResizeObserver(() => {
+  updateChartHeight();
+});
+
+onMounted(() => {
+  updateChartHeight();
+  if (cardElement.value) {
+    observer.observe(cardElement.value);
+  }
+
+  chartInstance = new Chart(salesChart.value, {
+    type: "line", 
+    data: {
+      labels: ["Jour", "Mois", "Année"],
+      datasets: [
+        {
+          label: "Ventes",
+          data: [
+            props.card.sales.day,
+            props.card.sales.month,
+            props.card.sales.year,
+          ],
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            font: {
+              size: 18,
+            },
+          },
+        },
+        x: {
+          ticks: {
+            font: {
+              size: 18,
+            },
+          },
+        },
+      },
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              size: 18,
+            },
+          },
+        },
+      },
+    },
   });
-  </script>
-  
-  <style scoped lang="scss">
-  .card {
-    user-select: none;
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
+});
+
+onBeforeUnmount(() => {
+  if (cardElement.value) {
+    observer.unobserve(cardElement.value);
+  }
+});
+</script>
+
+
+<style scoped lang="scss">
+.card {
+  user-select: none;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 20px;
+  position: relative;
+  .option {
+    position: absolute;
+    top: 35px;
+    right: 20px;
+    cursor: pointer;
+  }
+  .title {
     display: flex;
     justify-content: flex-start;
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
     gap: 10px;
-    padding: 35px 20px;
-    position: relative;
-    .option {
-      position: absolute;
-      top: 35px;
-      right: 20px;
-      cursor: pointer;
-    }
     .material-symbols-outlined {
       font-size: 44px;
       font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
@@ -54,41 +159,59 @@
       font-family: "Montserrat", sans-serif;
       font-size: 24px;
       font-weight: bold;
-      margin: auto 0 0 0;
     }
-    .card-values {
+    .data {
       display: flex;
       justify-content: flex-start;
       align-items: center;
-      gap: 10px;
-      width: 100%;
-      p {
-        font-family: "Montserrat", sans-serif;
-        margin: 0;
-        font-size: 50px;
-        font-weight: bold;
-      }
-      .valueB {
-        margin-left: auto;
+      margin-left: 50px;
+      gap: 20px;
+
+      .data-item {
         display: flex;
-        justify-content: flex-end;
+        flex-direction: column;
         align-items: center;
-        gap: 5px;
-        border: 1px solid black;
-        padding: 5px 10px;
-        border-radius: 25px;
-        span {
-          font-size: 22px;
-          font-weight: bold;
-        }
-        p {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 5px 20px;
+
+        .label {
           font-family: "Montserrat", sans-serif;
+          font-size: 18px;
+          font-weight: normal;
+          color: #888;
           margin: 0;
-          font-size: 22px;
+        }
+
+        .value {
+          font-family: "Montserrat", sans-serif;
+          font-size: 18px;
           font-weight: bold;
+          margin: 0;
+          color: #333;
         }
       }
     }
   }
-  </style>
-  
+  .canvas-container {
+    width: 100%;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  .totals {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    p {
+      font-family: "Montserrat", sans-serif;
+      margin: 0;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+}
+</style>
