@@ -165,28 +165,22 @@ export const followUniverse = async (req, res) => {
   console.log('Full req.body object:', req.body);
 
   if (userId !== req.user.userId) {
-    console.log('Unauthorized attempt to follow universe for another user');
     return res.status(403).json({ error: 'Unauthorized to follow universe for another user' });
   }
   try {
     const universe = await Universe.findByPk(universeId);
     if (!universe) {
-      console.log('Universe not found');
       return res.status(404).json({ error: 'Universe not found' });
     }
 
     const existingFollow = await Follow.findOne({ where: { userId, universeId } });
     if (existingFollow) {
-      console.log('Follow already exists');
-      return res.status(409).json({ error: 'Already following this universe' });
+      return res.sendStatus(409);
     }
-
     await Follow.create({ userId, universeId });
-    console.log('Follow created successfully');
     res.sendStatus(201);
   } catch (error) {
-    console.error('Error following universe:', error);
-    res.status(500).json({ error: 'Failed to follow universe' });
+    res.sendStatus(400);
   }
 };
 

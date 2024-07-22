@@ -7,7 +7,7 @@
       
       <!-- Tableau des utilisateurs abonnés à la newsletter -->
       <div class="tab-container">
-        <h1>Utilisateurs Abonnés à la Newsletter : {{ subscribedUsers.length }}</h1>
+        <h1>Utilisateurs Abonnés à la Newsletter</h1>
         <table>
           <thead>
             <tr>

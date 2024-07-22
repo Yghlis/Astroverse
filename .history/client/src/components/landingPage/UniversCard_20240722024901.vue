@@ -36,11 +36,10 @@ const props = defineProps({
 
 const universeStore = useUniversesStore();
 const isFollowed = computed(() => {
-  return universeStore.followedUniverses.includes(props.id);
+  return universeStore.followedUniverses?.includes(props.id) ?? false;
 });
 
 const toggleFollow = async () => {
-  console.log("Toggling follow status for universe:", props.id);
   if (isFollowed.value) {
     await universeStore.unfollowUniverse(props.id);
   } else {

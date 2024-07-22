@@ -23,7 +23,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useUniversesStore } from '../../stores/useUniversesStore';
+import { useUniversesStore } from '@/stores/useUniversesStore';
 
 const props = defineProps({
   title: String,
@@ -35,12 +35,9 @@ const props = defineProps({
 });
 
 const universeStore = useUniversesStore();
-const isFollowed = computed(() => {
-  return universeStore.followedUniverses.includes(props.id);
-});
+const isFollowed = computed(() => universeStore.followedUniverses.includes(props.id));
 
 const toggleFollow = async () => {
-  console.log("Toggling follow status for universe:", props.id);
   if (isFollowed.value) {
     await universeStore.unfollowUniverse(props.id);
   } else {

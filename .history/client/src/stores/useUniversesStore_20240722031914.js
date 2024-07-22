@@ -31,15 +31,9 @@ export const useUniversesStore = defineStore('universe', {
             const userId = localStorage.getItem('userId');
             console.log("User ID:", userId);
             console.log("API call to follow universe:", universeId);
-
-            if (this.followedUniverses.includes(universeId)) {
-                console.log("Already following this universe");
-                return; // Ne pas essayer de suivre à nouveau si déjà suivi
-            }
-
             try {
                 const apiUrl = import.meta.env.VITE_API_URL;
-                const response = await fetch(`${apiUrl}/universes/${universeId}/follow`, {
+                const response = await fetch(`http://localhost:8000/universes/${universeId}/follow`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
@@ -48,16 +42,10 @@ export const useUniversesStore = defineStore('universe', {
                     body: JSON.stringify({ userId: userId })
                 });
                 if (!response.ok) {
-                    if (response.status === 409) {
-                        console.log("Already following this universe, updating local state");
-                        this.followedUniverses.push(universeId); // Met à jour l'état local si déjà suivi
-                    } else {
-                        throw new Error('Failed to follow universe');
-                    }
-                } else {
-                    this.followedUniverses.push(universeId);
-                    console.log("Successfully followed universe:", universeId);
+                    throw new Error('Failed to follow universe');
                 }
+                this.followedUniverses.push(universeId);
+                console.log("Successfully followed universe:", universeId);
             } catch (error) {
                 this.error = error.message;
                 console.error("Error following universe:", error);
@@ -65,17 +53,14 @@ export const useUniversesStore = defineStore('universe', {
         },
 
         async unfollowUniverse(universeId) {
-            const userId = localStorage.getItem('userId');
             console.log("API call to unfollow universe:", universeId);
             try {
                 const apiUrl = import.meta.env.VITE_API_URL;
                 const response = await fetch(`${apiUrl}/universes/${universeId}/unfollow`, {
                     method: 'DELETE',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('jwt')}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ userId: userId })
+                        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+                    }
                 });
                 if (!response.ok) {
                     throw new Error('Failed to unfollow universe');

@@ -5,7 +5,6 @@
       <universCard
         v-for="univers in universes"
         :key="univers.id"
-        :id="univers.id"  
         :title="univers.name"
         :color1="univers.color1"
         :color2="univers.color2"
@@ -22,6 +21,7 @@ import universCard from './UniversCard.vue';
 import { useUniversesStore } from '../../stores/useUniversesStore';
 import { storeToRefs } from 'pinia';
 
+
 const universeStore = useUniversesStore();
 const { universes, loading, error } = storeToRefs(universeStore);
 
@@ -32,9 +32,11 @@ const fetchUniverses = () => {
 onMounted(() => {
   fetchUniverses();
 });
+ 
 </script>
 
 <style lang="scss" scoped>
+
 .univers {
   width: 80%;
   display: flex;
@@ -57,4 +59,5 @@ onMounted(() => {
     gap: 20px;
   }
 }
+
 </style>

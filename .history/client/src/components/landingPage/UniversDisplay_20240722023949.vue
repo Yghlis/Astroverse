@@ -5,7 +5,7 @@
       <universCard
         v-for="univers in universes"
         :key="univers.id"
-        :id="univers.id"  
+        :id="univers.id"  <!-- Ajout de l'ID -->
         :title="univers.name"
         :color1="univers.color1"
         :color2="univers.color2"
