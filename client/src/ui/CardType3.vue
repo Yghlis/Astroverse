@@ -218,6 +218,8 @@ watch(chartHeight, () => {
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     position: relative;
+    display: flex;
+    justify-content: center;
   }
   .totals {
     display: flex;
