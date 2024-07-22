@@ -2,10 +2,8 @@ import { Sequelize, Op, fn, col } from 'sequelize';
 import Product from '../models/Product.js';
 import Universe from '../models/Universe.js';
 import Follow from '../models/Follow.js';
-import Order from '../models/Order.js';
 import Favorite from '../models/Favorite.js';
-import Character from '../models/Character.js';
-import User from '../models/user.js';
+import
 import sequelize from '../config/database.js';
 
 // Récupérer les modifications de stock
@@ -82,7 +80,7 @@ const prepareChartData = (stockChanges) => {
   };
 };
 
-// Contrôleur pour récupérer les données de l'évolution des stocks
+// Contrôleur pour récupérer les données du graphique
 export const getStockEvolution = async (req, res) => {
   const { productId } = req.query;
 
@@ -97,9 +95,10 @@ export const getStockEvolution = async (req, res) => {
 };
 
 // Contrôleur pour obtenir le top 3 des ventes de produits
-export const getTotalProductSales = async () => {
+export const getTotalProductSales = async (req, res) => {
   try {
     const orders = await Order.findAll();
+
     const productSales = {};
 
     orders.forEach(order => {
@@ -132,15 +131,14 @@ export const getTotalProductSales = async () => {
 
     const topProductSales = detailedProductSales.sort((a, b) => b.quantity - a.quantity).slice(0, 3);
 
-    return { topProductSales };
+    res.status(200).json({ topProductSales });
   } catch (error) {
-    console.error('Error fetching total product sales:', error);
-    throw new Error('Internal server error');
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
 // Contrôleur pour obtenir le total des ventes par période
-export const getTotalSalesByPeriod = async () => {
+export const getTotalSalesByPeriod = async (req, res) => {
   try {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -170,20 +168,18 @@ export const getTotalSalesByPeriod = async () => {
       }
     });
 
-    return {
+    res.status(200).json({
       totalSales,
       dailySales,
       monthlySales,
       yearlySales
-    };
+    });
   } catch (error) {
-    console.error('Error fetching total sales by period:', error);
-    throw new Error('Internal server error');
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
-// Contrôleur pour obtenir le top 3 des catégories les plus vues
-export const getTopViewedCategories = async () => {
+export const getTopViewedCategories = async (req, res) => {
   try {
     // Obtenez le top 3 des univers par nombre de vues
     const topCategories = await Product.findAll({
@@ -217,15 +213,14 @@ export const getTopViewedCategories = async () => {
       totalViews: category.dataValues.total_views,
     }));
 
-    return result;
+    res.status(200).json(result);
   } catch (error) {
     console.error('Error fetching top viewed categories:', error);
-    throw new Error('Internal server error');
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
-// Contrôleur pour obtenir les produits les plus suivis
-export const getTopFollowedProducts = async () => {
+export const getTopFollowedProducts = async (req, res) => {
   try {
     // Récupérer le nombre de suivis pour chaque produit
     const follows = await Follow.findAll({
@@ -263,15 +258,15 @@ export const getTopFollowedProducts = async () => {
       };
     });
 
-    return result;
+    res.status(200).json(result);
   } catch (error) {
     console.error('Error fetching top followed products:', error);
-    throw new Error('Internal server error');
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
-// Contrôleur pour obtenir les produits les plus aimés
-export const getTopLikedProducts = async () => {
+
+export const getTopLikedProducts = async (req, res) => {
   try {
     // Récupérer le nombre de likes pour chaque produit
     const likes = await Favorite.findAll({
@@ -309,15 +304,14 @@ export const getTopLikedProducts = async () => {
       };
     });
 
-    return result;
+    res.status(200).json(result);
   } catch (error) {
     console.error('Error fetching top liked products:', error);
-    throw new Error('Internal server error');
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
-// Contrôleur pour obtenir le total des personnes inscrites à la newsletter
-export const getTotalNewsletterSubscribers = async () => {
+export const getTotalNewsletterSubscribers = async (req, res) => {
   try {
     // Compter le nombre d'utilisateurs inscrits à la newsletter
     const totalSubscribers = await User.count({
@@ -326,222 +320,9 @@ export const getTotalNewsletterSubscribers = async () => {
       }
     });
 
-    return { totalSubscribers };
+    res.status(200).json({ totalSubscribers });
   } catch (error) {
     console.error('Error fetching total newsletter subscribers:', error);
-    throw new Error('Internal server error');
-  }
-};
-
-// Contrôleur pour obtenir les statistiques des nouveaux abonnés à la newsletter
-export const getNewsletterSubscriptionStats = async () => {
-  try {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfThreeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-    // Fonction pour obtenir les stats pour une période donnée
-    const getStatsForPeriod = async (startDate) => {
-      // Nouveaux utilisateurs pour la période
-      const newUsers = await User.findAll({
-        where: {
-          created_at: {
-            [Op.gte]: startDate
-          }
-        },
-        attributes: ['user_id', 'isSubscribedToNewsletter']
-      });
-
-      const newUserCount = newUsers.length;
-      const subscribersCount = newUsers.filter(user => user.isSubscribedToNewsletter).length;
-      const subscriptionPercentage = newUserCount > 0 ? (subscribersCount / newUserCount) * 100 : 0;
-
-      return {
-        newUserCount,
-        subscribersCount,
-        subscriptionPercentage
-      };
-    };
-
-    const monthlyStats = await getStatsForPeriod(startOfMonth);
-    const threeMonthlyStats = await getStatsForPeriod(startOfThreeMonthsAgo);
-    const yearlyStats = await getStatsForPeriod(startOfYear);
-
-    return {
-      monthlyStats,
-      threeMonthlyStats,
-      yearlyStats
-    };
-  } catch (error) {
-    console.error('Error fetching newsletter subscription stats:', error);
-    throw new Error('Internal server error');
-  }
-};
-
-const calculateProfits = async (startDate, endDate) => {
-  const orders = await Order.findAll({
-    where: {
-      createdAt: {
-        [Op.gte]: startDate,
-        [Op.lte]: endDate
-      }
-    },
-    attributes: [
-      [fn('DATE_TRUNC', 'day', col('createdAt')), 'date'],
-      [fn('SUM', col('totalPrice')), 'totalPrice'],
-      [fn('SUM', col('tax')), 'tax']
-    ],
-    group: ['date'],
-    order: [['date', 'ASC']]
-  });
-
-  return orders.map(order => ({
-    date: order.getDataValue('date'),
-    profit: parseFloat(order.getDataValue('totalPrice')) - parseFloat(order.getDataValue('tax'))
-  }));
-};
-
-const calculateMonthlyProfits = async (startDate, endDate) => {
-  const orders = await Order.findAll({
-    where: {
-      createdAt: {
-        [Op.gte]: startDate,
-        [Op.lte]: endDate
-      }
-    },
-    attributes: [
-      [fn('DATE_TRUNC', 'month', col('createdAt')), 'month'],
-      [fn('SUM', col('totalPrice')), 'totalPrice'],
-      [fn('SUM', col('tax')), 'tax']
-    ],
-    group: ['month'],
-    order: [['month', 'ASC']]
-  });
-
-  return orders.map(order => ({
-    month: order.getDataValue('month'),
-    profit: parseFloat(order.getDataValue('totalPrice')) - parseFloat(order.getDataValue('tax'))
-  }));
-};
-
-// Contrôleur pour obtenir les données de bénéfices (jour / mois / année)
-export const getProfitData = async () => {
-  try {
-    const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-    // Total profits
-    const totalOrders = await Order.findAll();
-    const totalProfit = totalOrders.reduce((acc, order) => acc + (order.totalPrice - order.tax), 0);
-
-    // Daily profit for today
-    const dailyOrders = await Order.findAll({
-      where: {
-        createdAt: {
-          [Op.gte]: startOfDay
-        }
-      }
-    });
-    const dailyProfit = dailyOrders.reduce((acc, order) => acc + (order.totalPrice - order.tax), 0);
-
-    // Daily profits for the current month
-    const dailyProfitsForMonth = await calculateProfits(startOfMonth, now);
-
-    // Monthly profits for the current year
-    const monthlyProfitsForYear = await calculateMonthlyProfits(startOfYear, now);
-
-    return {
-      totalProfit,
-      dailyProfit,
-      dailyProfitsForMonth,
-      monthlyProfitsForYear
-    };
-  } catch (error) {
-    console.error('Error fetching profit data:', error);
-    throw new Error('Internal server error');
-  }
-};
-
-// Contrôleur pour obtenir le total des produits
-export const getTotalProducts = async () => {
-  try {
-    const totalProducts = await Product.count();
-    return { totalProducts };
-  } catch (error) {
-    console.error('Error fetching total products:', error);
-    throw new Error('Internal server error');
-  }
-};
-
-// Contrôleur pour obtenir le total des universes
-export const getTotalUniverses = async () => {
-  try {
-    const totalUniverses = await Universe.count();
-    return { totalUniverses };
-  } catch (error) {
-    console.error('Error fetching total universes:', error);
-    throw new Error('Internal server error');
-  }
-};
-
-// Contrôleur pour obtenir le total des personnages
-export const getTotalCharacters = async () => {
-  try {
-    const totalCharacters = await Character.count();
-    return { totalCharacters };
-  } catch (error) {
-    console.error('Error fetching total characters:', error);
-    throw new Error('Internal server error');
-  }
-};
-
-// Contrôleur pour obtenir toutes les données KPI
-export const getAllKpis = async (req, res) => {
-  try {
-    const [
-      totalProductSales,
-      salesByPeriod,
-      topViewedCategories,
-      topFollowedProducts,
-      topLikedProducts,
-      totalNewsletterSubscribers,
-      newsletterSubscriptionStats,
-      profitData,
-      totalProducts,
-      totalUniverses,
-      totalCharacters
-    ] = await Promise.all([
-      getTotalProductSales(),
-      getTotalSalesByPeriod(),
-      getTopViewedCategories(),
-      getTopFollowedProducts(),
-      getTopLikedProducts(),
-      getTotalNewsletterSubscribers(),
-      getNewsletterSubscriptionStats(),
-      getProfitData(),
-      getTotalProducts(),
-      getTotalUniverses(),
-      getTotalCharacters()
-    ]);
-
-    res.status(200).json({
-      totalProductSales,
-      salesByPeriod,
-      topViewedCategories,
-      topFollowedProducts,
-      topLikedProducts,
-      totalNewsletterSubscribers,
-      newsletterSubscriptionStats,
-      profitData,
-      totalProducts,
-      totalUniverses,
-      totalCharacters
-    });
-  } catch (error) {
-    console.error('Error fetching all KPIs:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };

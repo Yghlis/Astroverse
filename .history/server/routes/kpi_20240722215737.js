@@ -1,10 +1,9 @@
 import express from 'express';
 import {
-  getAllKpis, 
-  getStockEvolution, 
-  getTotalProductSales, 
-  getTotalSalesByPeriod, 
-  getTopViewedCategories, 
+  getStockEvolution,
+  getTotalProductSales,
+  getTotalSalesByPeriod,
+  getTopViewedCategories,
   getTopFollowedProducts,
   getTopLikedProducts,
   getTotalNewsletterSubscribers,
@@ -17,9 +16,6 @@ import {
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
-
-// Route pour récupérer toutes les données KPI
-router.get('/all-kpis', authenticateToken, requireRole('ROLE_ADMIN'), getAllKpis);
 
 // Route pour récupérer les données de l'évolution des stocks
 router.get('/stock-evolution', authenticateToken, requireRole('ROLE_ADMIN'), getStockEvolution);
@@ -46,15 +42,15 @@ router.get('/total-newsletter-subscribers', authenticateToken, getTotalNewslette
 router.get('/new-user-newsletter-stats', authenticateToken, getNewsletterSubscriptionStats);
 
 // Route pour obtenir les données de bénéfices (jour / mois / année)
-router.get('/profit-data', authenticateToken, getProfitData);
+router.get('/profit-data', getProfitData);
 
 // Route pour obtenir le total des produits
-router.get('/total-products', authenticateToken, getTotalProducts);
+router.get('/total-products', getTotalProducts);
 
 // Route pour obtenir le total des univers
-router.get('/total-universes', authenticateToken, getTotalUniverses);
+router.get('/total-universes', getTotalUniverses);
 
 // Route pour obtenir le total des personnages
-router.get('/total-characters', authenticateToken, getTotalCharacters);
+router.get('/total-characters', getTotalCharacters);
 
 export default router;
