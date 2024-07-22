@@ -93,11 +93,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
 import { useUserStore } from "../stores/userStore";
 import { useRouter } from "vue-router";
+import { initializeAuth } from '../utils/auth';
 
 const router = useRouter();
 
@@ -141,6 +142,7 @@ const loginHandler = async () => {
     const data = await response.json();
     localStorage.setItem("jwt", data.token);
     localStorage.setItem("userId", data.userId);
+    initializeAuth();
     userLoggedIn.value = true;
     if (data.mustChangePassword) {
       showPasswordAlert.value = true;
@@ -267,6 +269,10 @@ const emit = defineEmits(["update:hideUserSideBar"]);
 const toggle = () => {
   emit("update:hideUserSideBar", false);
 };
+
+onMounted(() => {
+  checkLoginStatus();
+});
 </script>
 
 <style lang="scss" scoped>

@@ -9,32 +9,18 @@ import { usePersistedState } from './composables/usePersistedState';
 import { useCartStore } from './stores/cartStore';
 import { useShopStore, setupStoreWatchers } from './stores/useShopStore';
 import { v4 as uuidv4 } from 'uuid';
-
+import { initializeAuth } from './utils/auth';
 const app = createApp(App);
 
 // Créer une instance de Pinia
 const pinia = createPinia();
 
-// Décoder le JWT et stocker le rôle dès que l'app est chargée
-const token = localStorage.getItem('jwt');
-if (token) {
-    const decoded = jwtDecode(token); // Utiliser jwtDecode qui a été importé
-    localStorage.setItem('role', decoded.role); // Stocker le rôle dans localStorage pour utilisation ultérieure
-}
-
-
-// Vérification et stockage du sessionId
-const sessionId = localStorage.getItem('sessionId');
-if (!sessionId) {
-    const newSessionId = uuidv4(); // Générer un nouveau sessionId
-    localStorage.setItem('sessionId', newSessionId);
-    console.log('Generated new session ID:', newSessionId); // Ajout d'une vérification
-} else {
-    console.log('Session ID already exists:', sessionId); // Ajout d'une vérification
-}
 
 // Utiliser Pinia dans l'application Vue
 app.use(pinia);
+
+// Initialiser l'authentification
+initializeAuth();
 
 const cartStore = useCartStore();
 usePersistedState(cartStore, 'cartStore'); // Utiliser usePersistedState pour sauvegarder le panier dans localStorage
