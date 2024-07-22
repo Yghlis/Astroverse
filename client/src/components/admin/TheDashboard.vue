@@ -9,10 +9,10 @@
         gs-auto-position="true"
         :gs-w="card.type === 'carte-3' ? 2 : 1"
         :gs-h="hightOfCard(card.type)"
-        :gs-min-w="card.type === 'carte-3' ? 2 : 1"
-        :gs-min-h="card.type === 'carte-3' ? 2 : 1"
-        :gs-max-w="card.type === 'carte-3' ? 2 : undefined"
-        :gs-max-h="card.type === 'carte-3' ? 3 : undefined"
+        :gs-min-w="widthMinOfCard(card.type)"
+        :gs-min-h="heightMinOfCard(card.type)"
+        :gs-max-w="widthMaxOfCard(card.type)"
+        :gs-max-h="heightMaxOfCard(card.type)"
       >
         <div
           class="grid-stack-item-content"
@@ -121,6 +121,40 @@ const hightOfCard = (type) => {
     return 1;
   }
 };
+
+const widthMinOfCard = (type) => {
+  if (type === "carte-3") {
+    return 2;
+  } else {
+    return 1;
+  }
+};
+
+const heightMinOfCard = (type) => {
+  if (type === "carte-3" || type === "carte-2") {
+    return 2;
+  } else {
+    return 1;
+  }
+};
+const heightMaxOfCard = (type) => {
+  if (type === "carte-3") {
+    return 3;
+  } else if (type === "carte-2") {
+    return 2;
+  } else {
+    return undefined;
+  }
+};
+
+const widthMaxOfCard = (type) => {
+  if (type === "carte-3") {
+    return 2;
+  } else {
+    return undefined;
+  }
+};
+
 
 const colors = [
   "#e5e1f8",

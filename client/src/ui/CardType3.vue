@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref, onMounted, onBeforeUnmount, computed } from "vue";
+import { defineProps, ref, onMounted, onBeforeUnmount, watch } from "vue";
 import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
 
@@ -63,6 +63,15 @@ const observer = new ResizeObserver(() => {
   updateChartHeight();
 });
 
+const resizeChart = () => {
+  if (chartInstance) {
+    const parent = salesChart.value.parentNode;
+    parent.style.height = chartHeight.value;
+    parent.style.width = "100%"; 
+    chartInstance.resize();
+  }
+};
+
 onMounted(() => {
   updateChartHeight();
   if (cardElement.value) {
@@ -70,7 +79,7 @@ onMounted(() => {
   }
 
   chartInstance = new Chart(salesChart.value, {
-    type: "line", 
+    type: "line",
     data: {
       labels: ["Jour", "Mois", "Année"],
       datasets: [
@@ -88,6 +97,7 @@ onMounted(() => {
       ],
     },
     options: {
+      responsive: false, // Disable responsive
       maintainAspectRatio: false,
       scales: {
         y: {
@@ -117,15 +127,23 @@ onMounted(() => {
       },
     },
   });
+
+  resizeChart();
 });
 
 onBeforeUnmount(() => {
   if (cardElement.value) {
     observer.unobserve(cardElement.value);
   }
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+});
+
+watch(chartHeight, () => {
+  resizeChart();
 });
 </script>
-
 
 <style scoped lang="scss">
 .card {
