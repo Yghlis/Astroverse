@@ -63,11 +63,22 @@
 
     <!-- Section des commandes -->
     <h2>Mes Commandes</h2>
-    <input v-model="orderSearchQuery" class="search-bar" placeholder="Rechercher une commande..." />
-    <div v-for="order in filteredOrders" :key="order.id" class="order-container">
+    <input
+      v-model="orderSearchQuery"
+      class="search-bar"
+      placeholder="Rechercher une commande..."
+    />
+    <div
+      v-for="order in filteredOrders"
+      :key="order.id"
+      class="order-container"
+    >
       <div class="order-header">
         <div>
-          <p>Commande effectuée le {{ new Date(order.createdAt).toLocaleDateString() }}</p>
+          <p>
+            Commande effectuée le
+            {{ new Date(order.createdAt).toLocaleDateString() }}
+          </p>
           <p>Numéro de commande: {{ order.id }}</p>
           <p>Livraison à {{ order.shippingAddress }}</p>
         </div>
@@ -76,8 +87,16 @@
         </div>
       </div>
       <div class="order-items">
-        <div v-for="item in order.products" :key="item.productId" class="order-item">
-          <img :src="getImageUrl(item.image_preview)" alt="product image" class="product-image" />
+        <div
+          v-for="item in order.products"
+          :key="item.productId"
+          class="order-item"
+        >
+          <img
+            :src="getImageUrl(item.image_preview)"
+            alt="product image"
+            class="product-image"
+          />
           <div class="product-details">
             <p>{{ item.title }}</p>
             <p>{{ item.quantity }} x {{ item.price }} €</p>
@@ -86,7 +105,12 @@
       </div>
       <p class="order-total">Total : {{ order.totalPrice }} €</p>
       <div class="order-actions">
-        <button :disabled="order.status !== 'Livrée'" @click="refundOrder(order.id)">Demander un remboursement</button>
+        <button
+          :disabled="order.status !== 'Livrée'"
+          @click="refundOrder(order.id)"
+        >
+          Demander un remboursement
+        </button>
         <button @click="reorder(order.products)">Acheter à nouveau</button>
         <button @click="downloadInvoice(order)">Télécharger la facture</button>
       </div>
@@ -106,19 +130,18 @@ import { useCartStore } from "../stores/cartStore"; // Importation du cartStore
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-const { flashMessage, flashMessageType, setFlashMessage } = useFlashMessageStore();
+const { flashMessage, flashMessageType, setFlashMessage } =
+  useFlashMessageStore();
 
 const userStore = useUserStore();
 const productStore = useProductStore();
-const cartStore = useCartStore(); // Utilisation du cartStore
-
-const apiUrl = "http://localhost:8000"; // Base URL pour les images
+const cartStore = useCartStore();
 
 onMounted(() => {
   const id = localStorage.getItem("userId");
   userStore.getUserById(id);
   productStore.getFollowedProducts(id);
-  fetchUserOrders(id); // Appel pour récupérer les commandes de l'utilisateur
+  fetchUserOrders(id);
 });
 
 const userData = computed(() => userStore.userData);
@@ -147,7 +170,9 @@ watch(
     phoneNumber.value = newVal.phone_number || "";
 
     const addressData = newVal.address || {};
-    const formattedAddress = `${addressData.street || ""} ${addressData.city || ""} ${addressData.postal_code || ""} ${addressData.country || ""}`.trim();
+    const formattedAddress = `${addressData.street || ""} ${
+      addressData.city || ""
+    } ${addressData.postal_code || ""} ${addressData.country || ""}`.trim();
     address.value = formattedAddress;
     initialAddress.value = formattedAddress;
   },
@@ -176,12 +201,14 @@ const fetchUserOrders = async (userId) => {
     const response = await fetch(`${apiUrl}/orders?userId=${userId}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        'Content-Type': 'application/json' // Ajout du Content-Type
+        "Content-Type": "application/json", // Ajout du Content-Type
       },
     });
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Erreur lors de la récupération des commandes: ${errorText}`);
+      throw new Error(
+        `Erreur lors de la récupération des commandes: ${errorText}`
+      );
     }
     orders.value = await response.json();
   } catch (error) {
@@ -191,9 +218,9 @@ const fetchUserOrders = async (userId) => {
 
 // Watcher pour filtrer les commandes en fonction de la recherche
 const filteredOrders = computed(() => {
-  return orders.value.filter(order => {
+  return orders.value.filter((order) => {
     const orderIdMatch = order.id.toString().includes(orderSearchQuery.value);
-    const productMatch = order.products.some(product =>
+    const productMatch = order.products.some((product) =>
       product.title.toLowerCase().includes(orderSearchQuery.value.toLowerCase())
     );
     return orderIdMatch || productMatch;
@@ -202,7 +229,7 @@ const filteredOrders = computed(() => {
 
 const getImageUrl = (imagePath) => {
   // Retirer '/home/node' du chemin si présent
-  const cleanPath = imagePath.replace('/home/node', '');
+  const cleanPath = imagePath.replace("/home/node", "");
   return cleanPath.startsWith("http") ? cleanPath : `${apiUrl}${cleanPath}`;
 };
 
@@ -260,7 +287,8 @@ const updateProfile = () => {
 
   if (address.value !== initialAddress.value) {
     const formattedAddress = {
-      street: fullAddress.value.housenumber + " " + fullAddress.value.street || "",
+      street:
+        fullAddress.value.housenumber + " " + fullAddress.value.street || "",
       city: fullAddress.value.city || "",
       postal_code: fullAddress.value.postcode || "",
       country: fullAddress.value.country || "",
@@ -290,7 +318,10 @@ const sendResetEmail = async () => {
     setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
   } else {
     const errorData = await response.json();
-    setFlashMessage(errorData.message || "Erreur lors de l'envoi de l'email de réinitialisation.");
+    setFlashMessage(
+      errorData.message ||
+        "Erreur lors de l'envoi de l'email de réinitialisation."
+    );
     setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
   }
 };
@@ -301,20 +332,22 @@ const refundOrder = async (orderId) => {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ status: "Retour demandée" })
+      body: JSON.stringify({ status: "Retour demandée" }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Erreur lors de la demande de remboursement: ${errorText}`);
+      throw new Error(
+        `Erreur lors de la demande de remboursement: ${errorText}`
+      );
     }
 
     const updatedOrder = await response.json();
 
     // Mise à jour de l'état local des commandes
-    const orderIndex = orders.value.findIndex(order => order.id === orderId);
+    const orderIndex = orders.value.findIndex((order) => order.id === orderId);
     if (orderIndex !== -1) {
       orders.value[orderIndex].status = updatedOrder.order.status;
     }
@@ -331,31 +364,42 @@ const reorder = async (products) => {
   for (const product of products) {
     for (let i = 0; i < product.quantity; i++) {
       try {
-        const checkStockResponse = await fetch(`${apiUrl}/products/check-stock`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'session-id': localStorage.getItem('sessionId'),
-          },
-          body: JSON.stringify({ productId: product.productId, quantity: 1 })
-        });
+        const checkStockResponse = await fetch(
+          `${apiUrl}/products/check-stock`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "session-id": localStorage.getItem("sessionId"),
+            },
+            body: JSON.stringify({ productId: product.productId, quantity: 1 }),
+          }
+        );
 
         if (!checkStockResponse.ok) {
           const errorText = await checkStockResponse.text();
-          throw new Error(`Erreur lors de la vérification du stock: ${errorText}`);
+          throw new Error(
+            `Erreur lors de la vérification du stock: ${errorText}`
+          );
         }
 
         const checkStockData = await checkStockResponse.json();
 
         if (checkStockData.available) {
           await cartStore.addItemToCart(product);
-          await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay between each add
+          await new Promise((resolve) => setTimeout(resolve, 100)); // 100ms delay between each add
         } else {
-          setFlashMessage("Stock indisponible pour commander à nouveau", "error");
+          setFlashMessage(
+            "Stock indisponible pour commander à nouveau",
+            "error"
+          );
           return;
         }
       } catch (error) {
-        console.error("Erreur lors de la vérification du stock ou de l'ajout au panier:", error);
+        console.error(
+          "Erreur lors de la vérification du stock ou de l'ajout au panier:",
+          error
+        );
         setFlashMessage("Stock indisponible pour commander à nouveau", "error");
         return;
       }
@@ -383,23 +427,36 @@ const downloadInvoice = async (order) => {
   // Add customer details on the right
   doc.text(`Nom de l'acheteur :`, 140, 25);
   doc.text(`${order.firstName} ${order.lastName}`, 140, 30);
-  const billingAddress = order.billingAddress.replace(/, /g, '\n');
+  const billingAddress = order.billingAddress.replace(/, /g, "\n");
   doc.text(`Adresse de facturation :`, 140, 35);
   doc.text(billingAddress, 140, 40);
 
   // Add invoice details below company and customer details
   doc.text(`Facture n° : ${order.id}`, 14, 60);
-  doc.text(`Date de facturation : ${new Date(order.createdAt).toLocaleDateString()}`, 14, 66);
+  doc.text(
+    `Date de facturation : ${new Date(order.createdAt).toLocaleDateString()}`,
+    14,
+    66
+  );
 
   // Add table with order items
-  const tableColumn = ["Produit", "Quantité", "Prix unitaire", "Total HT", "TVA (20%)", "Total TTC"];
+  const tableColumn = [
+    "Produit",
+    "Quantité",
+    "Prix unitaire",
+    "Total HT",
+    "TVA (20%)",
+    "Total TTC",
+  ];
   const tableRows = [];
 
   for (const product of order.products) {
     const productDetails = await fetchProductDetails(product.productId);
-    const productTitle = productDetails ? productDetails.title : 'Produit sans titre';
+    const productTitle = productDetails
+      ? productDetails.title
+      : "Produit sans titre";
     const totalHT = product.quantity * product.price;
-    const tva = totalHT * 0.20;
+    const tva = totalHT * 0.2;
     const totalTTC = totalHT + tva;
     const productData = [
       productTitle,
@@ -407,7 +464,7 @@ const downloadInvoice = async (order) => {
       `${product.price} €`,
       `${totalHT.toFixed(2)} €`,
       `${tva.toFixed(2)} €`,
-      `${totalTTC.toFixed(2)} €`
+      `${totalTTC.toFixed(2)} €`,
     ];
     tableRows.push(productData);
   }
@@ -415,18 +472,32 @@ const downloadInvoice = async (order) => {
   doc.autoTable(tableColumn, tableRows, { startY: 75 });
 
   // Calculate totals
-  const totalHT = order.products.reduce((acc, product) => acc + product.quantity * product.price, 0).toFixed(2);
-  const totalTVA = (totalHT * 0.20).toFixed(2);
+  const totalHT = order.products
+    .reduce((acc, product) => acc + product.quantity * product.price, 0)
+    .toFixed(2);
+  const totalTVA = (totalHT * 0.2).toFixed(2);
   const totalTTC = (parseFloat(totalHT) + parseFloat(totalTVA)).toFixed(2);
 
   // Add totals
   doc.text(`Total HT : ${totalHT} €`, 14, doc.autoTable.previous.finalY + 10);
-  doc.text(`Total TVA (20%) : ${totalTVA} €`, 14, doc.autoTable.previous.finalY + 16);
+  doc.text(
+    `Total TVA (20%) : ${totalTVA} €`,
+    14,
+    doc.autoTable.previous.finalY + 16
+  );
   doc.text(`Total TTC : ${totalTTC} €`, 14, doc.autoTable.previous.finalY + 22);
 
   // Add payment details
-  doc.text("Modalités de paiement : Stripe", 14, doc.autoTable.previous.finalY + 32);
-  doc.text("Méthode de paiement : Carte de crédit", 14, doc.autoTable.previous.finalY + 38);
+  doc.text(
+    "Modalités de paiement : Stripe",
+    14,
+    doc.autoTable.previous.finalY + 32
+  );
+  doc.text(
+    "Méthode de paiement : Carte de crédit",
+    14,
+    doc.autoTable.previous.finalY + 38
+  );
 
   // Save the PDF
   doc.save(`facture_${order.id}.pdf`);
@@ -452,26 +523,37 @@ const fetchProductDetails = async (productId) => {
 
 // Nouvelle méthode pour supprimer le compte
 const deleteAccount = async () => {
-  if (confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.")) {
+  if (
+    confirm(
+      "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible."
+    )
+  ) {
     try {
-      const response = await fetch(`${apiUrl}/users/${userData.value.user_id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${apiUrl}/users/${userData.value.user_id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Erreur lors de la suppression du compte: ${errorText}`);
+        throw new Error(
+          `Erreur lors de la suppression du compte: ${errorText}`
+        );
       }
 
       alert("Votre compte a été supprimé avec succès.");
       // Logique de déconnexion ou de redirection après suppression du compte
     } catch (error) {
       console.error("Erreur lors de la suppression du compte:", error);
-      alert("Une erreur est survenue lors de la suppression de votre compte. Veuillez réessayer.");
+      alert(
+        "Une erreur est survenue lors de la suppression de votre compte. Veuillez réessayer."
+      );
     }
   }
 };
@@ -706,7 +788,7 @@ const deleteAccount = async () => {
     border-radius: 25px;
     margin-bottom: 20px;
     transition: all 0.3s ease;
-    
+
     &::placeholder {
       color: #ccc;
     }
