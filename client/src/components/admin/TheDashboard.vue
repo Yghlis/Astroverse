@@ -5,13 +5,22 @@
       <span class="material-symbols-outlined" @click="toggleModal">
         add_circle
       </span>
+      <div class="reorder">
+        <p>Réorganiser</p>
+        <span class="material-symbols-outlined" @click="reorderGrid">
+          select_all
+        </span>
+      </div>
     </div>
     <div class="grid-stack">
       <div
         v-for="(card, index) in activeCards"
         :key="card.id"
         class="grid-stack-item"
-        gs-auto-position="true"
+        :data-gs-id="card.id"
+        :gs-auto-position="automaticPosition"
+        :gs-x="card.x"
+        :gs-y="card.y"
         :gs-w="card.type === 'carte-3' ? 2 : 1"
         :gs-h="hightOfCard(card.type)"
         :gs-min-w="widthMinOfCard(card.type)"
@@ -31,7 +40,7 @@
       <h2 class="widget-title">Liste des Widgets</h2>
       <div
         class="switch-container"
-        v-for="(card, index) in cards"
+        v-for="(card, index) in widgetStore.cards"
         :key="card.id"
       >
         <label :for="'switch-' + card.id" class="switch-label">{{
@@ -43,6 +52,7 @@
             :id="'switch-' + card.id"
             v-model="card.active"
             class="switch-input"
+            @change="saveState"
           />
           <span class="slider round"></span>
         </label>
@@ -52,7 +62,8 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, nextTick, computed, watch } from "vue";
+import { ref, onMounted, nextTick, computed, watch } from "vue";
+import { useWidgetStore } from "../../stores/widgetStore";
 import { GridStack } from "gridstack";
 import "gridstack/dist/gridstack.min.css";
 import "gridstack/dist/gridstack-extra.min.css";
@@ -61,101 +72,18 @@ import CardType2 from "../../ui/CardType2.vue";
 import CardType3 from "../../ui/CardType3.vue";
 import modalWidget from "../../ui/modalWidget.vue";
 
+const widgetStore = useWidgetStore();
+
 const showModal = ref(false);
+const automaticPosition = ref(false);
 
 const toggleModal = () => {
   showModal.value = !showModal.value;
 };
 
-const cards = reactive([
-  {
-    id: 1,
-    type: "carte-1",
-    title: "Total Des Utilisateurs",
-    icon: "group",
-    valueA: 2450,
-    valueB: 15,
-    typeArrow: "up",
-    active: true,
-  },
-  {
-    id: 2,
-    type: "carte-1",
-    title: "Croissance des Ventes",
-    icon: "trending_up",
-    valueA: 1200,
-    valueB: 10,
-    typeArrow: "down",
-    active: true,
-  },
-  {
-    id: 3,
-    type: "carte-1",
-    title: "Nouveaux Achats",
-    icon: "shopping_cart",
-    valueA: 890,
-    valueB: 5,
-    typeArrow: "up",
-    active: true,
-  },
-  {
-    id: 4,
-    type: "carte-1",
-    title: "Taux de Satisfaction",
-    icon: "thumb_up",
-    valueA: 1500,
-    valueB: 20,
-    typeArrow: "up",
-    active: true,
-  },
-  {
-    id: 5,
-    type: "carte-1",
-    title: "Revenus Totaux",
-    icon: "account_balance",
-    valueA: 3400,
-    valueB: 8,
-    typeArrow: "down",
-    active: true,
-  },
-  {
-    id: 6,
-    type: "carte-1",
-    title: "Temps Moyen",
-    icon: "access_time",
-    valueA: 400,
-    valueB: 12,
-    typeArrow: "up",
-    active: true,
-  },
-  {
-    id: 7,
-    type: "carte-2",
-    title: "Les Produits les plus Vendus",
-    icon: "shopping_bag",
-    items: [
-      { name: "Produit 1", quantity: 120 },
-      { name: "Produit 2", quantity: 90 },
-      { name: "Produit 3", quantity: 80 },
-    ],
-    active: true,
-  },
-  {
-    id: 8,
-    type: "carte-3",
-    title: "Total des Ventes",
-    icon: "monetization_on",
-    sales: {
-      day: 120,
-      month: 800,
-      year: 5000,
-      total: 15000,
-    },
-    active: true,
-  },
-]);
-
-const activeCards = computed(() => cards.filter((card) => card.active));
+const activeCards = computed(() =>
+  widgetStore.cards.filter((card) => card.active)
+);
 
 const hightOfCard = (type) => {
   if (type === "carte-3" || type === "carte-2") {
@@ -199,41 +127,6 @@ const widthMaxOfCard = (type) => {
   }
 };
 
-const colors = [
-  "#e5e1f8",
-  "#f9f0e1",
-  "#cef3fc",
-  "#e1f8e5",
-  "#f8e5e1",
-  "#e5f4f8",
-  "#f3e1f8",
-  "#f8e1e1",
-  "#e1f8f8",
-  "#e1e5f8",
-];
-
-function assignColorsToCards(cards) {
-  const uniqueColors = [...colors];
-  const assignedColors = new Set();
-  let colorIndex = 0;
-
-  cards.forEach((card) => {
-    if (assignedColors.size === uniqueColors.length) {
-      assignedColors.clear();
-    }
-
-    while (assignedColors.has(uniqueColors[colorIndex])) {
-      colorIndex = (colorIndex + 1) % uniqueColors.length;
-    }
-
-    card.backgroundColor = uniqueColors[colorIndex];
-    assignedColors.add(uniqueColors[colorIndex]);
-    colorIndex = (colorIndex + 1) % uniqueColors.length;
-  });
-}
-
-assignColorsToCards(cards);
-
 let grid;
 
 const initGridStack = () => {
@@ -243,14 +136,20 @@ const initGridStack = () => {
     margin: "10px",
     column: 3,
     disableOneColumnMode: true,
-    disableResize: false,
-    removable: true,
-    resizable: {
-      handles: "se",
-      minWidth: 500,
-      minHeight: 250,
-      gridSize: 50,
-    },
+    disableResize: true,
+  });
+
+  grid.on("dragstop", (event, element) => {
+    const node = element.gridstackNode;
+    if (node) {
+      const cardId = parseInt(node.el.getAttribute("data-gs-id"));
+      const card = widgetStore.cards.find((card) => card.id === cardId);
+      if (card) {
+        card.x = node.x;
+        card.y = node.y;
+        widgetStore.setCards([...widgetStore.cards]);
+      }
+    }
   });
 };
 
@@ -282,6 +181,31 @@ const getComponentType = (type) => {
     default:
       return CardType1;
   }
+};
+
+const reorganizeAllCards = () => {
+  widgetStore.cards.forEach((card, index) => {
+    const newX = index % 3; // Nouvelle position en x
+    const newY = Math.floor(index / 3); // Nouvelle position en y
+
+    const element = document.querySelector(`[data-gs-id='${card.id}']`);
+    if (element) {
+      grid.update(element, { x: newX, y: newY }); // Met à jour la position de l'élément
+    }
+
+    card.x = newX;
+    card.y = newY;
+  });
+
+  widgetStore.setCards([...widgetStore.cards]); // Sauvegarder les nouvelles positions
+};
+
+// Appeler cette fonction pour réorganiser les cartes
+const reorderGrid = () => {
+  reorganizeAllCards();
+  automaticPosition.value = !automaticPosition.value;
+  widgetStore.deleteLocalCards();
+  automaticPosition.value = !automaticPosition.value;
 };
 </script>
 
@@ -317,6 +241,40 @@ const getComponentType = (type) => {
         transform: rotate(90deg);
       }
     }
+    .reorder {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      margin-right: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      &:hover {
+        p {
+          transform: translateX(-20px);
+        }
+        .material-symbols-outlined {
+          cursor: pointer;
+          transform: scale(1.3);
+        }
+      
+      }
+
+
+      p {
+        font-family: "Montserrat", sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+
+      .material-symbols-outlined {
+        font-size: 44px;
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+        transition: all 0.3s ease;
+      }
+    }
   }
 
   .grid-stack {
@@ -346,6 +304,7 @@ const getComponentType = (type) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
     margin-bottom: 10px;
     padding: 10px 30px;
 
@@ -355,6 +314,7 @@ const getComponentType = (type) => {
       font-weight: 500;
       color: #333;
       user-select: none;
+      width: 80%;
     }
 
     .switch {
