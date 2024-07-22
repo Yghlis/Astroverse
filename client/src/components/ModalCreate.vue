@@ -172,15 +172,12 @@
               <span>{{ errors.character }}</span>
 
               <label for="universe">Univers</label>
-              <select id="universe" v-model="formData.universe">
-                <option
-                  v-for="universe in universes"
-                  :key="universe.id"
-                  :value="universe.id"
-                >
-                  {{ universe.name }}
-                </option>
-              </select>
+              <input
+                id="universe"
+                v-model="formData.universe"
+                type="text"
+                disabled
+              />
               <span>{{ errors.universe }}</span>
 
               <label for="reference">Référence</label>
@@ -224,15 +221,30 @@
               <span>{{ errors.name }}</span>
 
               <label for="color1">Couleur 1</label>
-              <input id="color1" v-model="formData.color1" type="color" />
+              <input
+                class="colorPicker"
+                id="color1"
+                v-model="formData.color1"
+                type="color"
+              />
               <span>{{ errors.color1 }}</span>
 
               <label for="color2">Couleur 2</label>
-              <input id="color2" v-model="formData.color2" type="color" />
+              <input
+                class="colorPicker"
+                id="color2"
+                v-model="formData.color2"
+                type="color"
+              />
               <span>{{ errors.color2 }}</span>
 
               <label for="colorText">Couleur du Texte</label>
-              <input id="colorText" v-model="formData.colorText" type="color" />
+              <input
+                class="colorPicker"
+                id="colorText"
+                v-model="formData.colorText"
+                type="color"
+              />
               <span>{{ errors.colorText }}</span>
             </div>
 
@@ -610,6 +622,11 @@ onMounted(async () => {
       background-color: #c4c4c4;
       cursor: not-allowed;
     }
+  }
+
+  .colorPicker {
+    width: 50px;
+    padding: 2px;
   }
 
   span {

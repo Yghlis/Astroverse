@@ -10,7 +10,6 @@ import Product from './models/Product.js';
 import Universe from './models/Universe.js';
 import User from './models/user.js'; 
 import Character from './models/Character.js';
-import OrderProduct from './models/OrderProduct.js';
 import Follow from './models/Follow.js'; // Importez le modèle Follow
 import Basket from './models/Basket.js'; 
 import Order from './models/Order.js';
@@ -84,8 +83,7 @@ Follow.belongsTo(Product, { foreignKey: 'productId' });
 Universe.hasMany(Follow, { foreignKey: 'universeId' });
 Follow.belongsTo(Universe, { foreignKey: 'universeId' });
 
-Product.belongsToMany(Order, { through: OrderProduct, as: 'orderedProducts' });
-Order.belongsToMany(Product, { through: OrderProduct, as: 'orderedProducts' });
+
 
 
 // Connexion à PostgreSQL et synchronisation des modèles
