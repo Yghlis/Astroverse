@@ -1,8 +1,6 @@
-import { Sequelize, Op, fn, col } from 'sequelize';
+import { Op } from 'sequelize';
 import Product from '../models/Product.js';
-import Universe from '../models/Universe.js';
-import Follow from '../models/Follow.js';
-import sequelize from '../config/database.js';
+import Order from '../models/Order.js';
 
 // Récupérer les modifications de stock
 const getStockChanges = async (productId) => {
@@ -92,11 +90,12 @@ export const getStockEvolution = async (req, res) => {
   }
 };
 
-// Contrôleur pour obtenir le top 3 des ventes de produits
 export const getTotalProductSales = async (req, res) => {
   try {
+    // Récupérer toutes les commandes
     const orders = await Order.findAll();
 
+    // Initialiser une map pour suivre les quantités vendues par produit
     const productSales = {};
 
     orders.forEach(order => {
@@ -112,6 +111,7 @@ export const getTotalProductSales = async (req, res) => {
       });
     });
 
+    // Récupérer les détails des produits
     const productIds = Object.keys(productSales);
     const products = await Product.findAll({
       where: {
@@ -121,12 +121,14 @@ export const getTotalProductSales = async (req, res) => {
       }
     });
 
+    // Ajouter les détails des produits aux ventes
     const detailedProductSales = products.map(product => ({
       productId: product.id,
       title: product.title,
       quantity: productSales[product.id].quantity
     }));
 
+    // Trier les produits par quantité vendue et limiter à top 3
     const topProductSales = detailedProductSales.sort((a, b) => b.quantity - a.quantity).slice(0, 3);
 
     res.status(200).json({ topProductSales });
@@ -135,8 +137,7 @@ export const getTotalProductSales = async (req, res) => {
   }
 };
 
-// Contrôleur pour obtenir le total des ventes par période
-export const getTotalSalesByPeriod = async (req, res) => {
+const getTotalSalesByPeriod = async (req, res) => {
   try {
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -173,84 +174,6 @@ export const getTotalSalesByPeriod = async (req, res) => {
       yearlySales
     });
   } catch (error) {
-    res.status(500).json({ message: 'Internal server error', error: error.message });
-  }
-};
-
-export const getTopViewedCategories = async (req, res) => {
-  try {
-    // Obtenez le top 3 des univers par nombre de vues
-    const topCategories = await Product.findAll({
-      attributes: [
-        'universe',
-        [fn('SUM', col('views_count')), 'total_views']
-      ],
-      group: ['universe'],
-      order: [[fn('SUM', col('views_count')), 'DESC']],
-      limit: 3,
-    });
-
-    // Ajoutez les détails des univers
-    const universeIds = topCategories.map(category => category.universe);
-    const universes = await Universe.findAll({
-      where: {
-        id: {
-          [Op.in]: universeIds
-        }
-      }
-    });
-
-    const universeDetails = universes.reduce((acc, universe) => {
-      acc[universe.id] = universe.name;
-      return acc;
-    }, {});
-
-    const result = topCategories.map(category => ({
-      universeId: category.universe,
-      universeName: universeDetails[category.universe],
-      totalViews: category.dataValues.total_views,
-    }));
-
-    res.status(200).json(result);
-  } catch (error) {
-    console.error('Error fetching top viewed categories:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
-  }
-};
-
-export const getTopFollowedProducts = async (req, res) => {
-  try {
-    const topFollowedProducts = await Follow.findAll({
-      attributes: [
-        'productId',
-        [Sequelize.fn('COUNT', Sequelize.col('productId')), 'follow_count']
-      ],
-      where: {
-        productId: {
-          [Sequelize.Op.ne]: null
-        }
-      },
-      group: ['productId'],
-      order: [[Sequelize.fn('COUNT', Sequelize.col('productId')), 'DESC']],
-      limit: 3,
-      include: [{
-        model: Product,
-        attributes: ['id', 'title', 'brand', 'price', 'image_preview'],
-      }],
-    });
-
-    const result = topFollowedProducts.map(follow => ({
-      productId: follow.productId,
-      title: follow.Product.title,
-      brand: follow.Product.brand,
-      price: follow.Product.price,
-      imagePreview: follow.Product.image_preview,
-      followCount: follow.dataValues.follow_count,
-    }));
-
-    res.status(200).json(result);
-  } catch (error) {
-    console.error('Error fetching top followed products:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };

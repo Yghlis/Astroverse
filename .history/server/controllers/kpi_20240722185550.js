@@ -1,7 +1,6 @@
-import { Sequelize, Op, fn, col } from 'sequelize';
+import { Op, fn, col } from 'sequelize';
 import Product from '../models/Product.js';
 import Universe from '../models/Universe.js';
-import Follow from '../models/Follow.js';
 import sequelize from '../config/database.js';
 
 // Récupérer les modifications de stock
@@ -214,43 +213,6 @@ export const getTopViewedCategories = async (req, res) => {
     res.status(200).json(result);
   } catch (error) {
     console.error('Error fetching top viewed categories:', error);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
-  }
-};
-
-export const getTopFollowedProducts = async (req, res) => {
-  try {
-    const topFollowedProducts = await Follow.findAll({
-      attributes: [
-        'productId',
-        [Sequelize.fn('COUNT', Sequelize.col('productId')), 'follow_count']
-      ],
-      where: {
-        productId: {
-          [Sequelize.Op.ne]: null
-        }
-      },
-      group: ['productId'],
-      order: [[Sequelize.fn('COUNT', Sequelize.col('productId')), 'DESC']],
-      limit: 3,
-      include: [{
-        model: Product,
-        attributes: ['id', 'title', 'brand', 'price', 'image_preview'],
-      }],
-    });
-
-    const result = topFollowedProducts.map(follow => ({
-      productId: follow.productId,
-      title: follow.Product.title,
-      brand: follow.Product.brand,
-      price: follow.Product.price,
-      imagePreview: follow.Product.image_preview,
-      followCount: follow.dataValues.follow_count,
-    }));
-
-    res.status(200).json(result);
-  } catch (error) {
-    console.error('Error fetching top followed products:', error);
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };

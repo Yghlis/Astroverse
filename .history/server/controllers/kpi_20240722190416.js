@@ -1,7 +1,7 @@
-import { Sequelize, Op, fn, col } from 'sequelize';
+import { Op, fn, col } from 'sequelize';
 import Product from '../models/Product.js';
-import Universe from '../models/Universe.js';
 import Follow from '../models/Follow.js';
+import Universe from '../models/Universe.js';
 import sequelize from '../config/database.js';
 
 // Récupérer les modifications de stock

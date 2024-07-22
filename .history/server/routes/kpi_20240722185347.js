@@ -1,5 +1,5 @@
 import express from 'express';
-import { getStockEvolution, getTotalProductSales, getTotalSalesByPeriod, getTopViewedCategories, getTopFollowedProducts } from '../controllers/kpi.js';
+import { getStockEvolution, getTotalProductSales, getTotalSalesByPeriod, getTopViewedCategories } from '../controllers/kpi.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -15,8 +15,5 @@ router.get('/sales-by-period', authenticateToken, getTotalSalesByPeriod);
 
 // Route pour obtenir le top 3 des catégories les plus vues
 router.get('/top-viewed-categories', authenticateToken, getTopViewedCategories);
-
-// Route pour obtenir les produits les plus suivis
-router.get('/top-followed-products', authenticateToken, getTopFollowedProducts);
 
 export default router;
