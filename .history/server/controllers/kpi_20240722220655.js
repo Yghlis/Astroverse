@@ -4,7 +4,7 @@ import Universe from '../models/Universe.js';
 import Follow from '../models/Follow.js';
 import Order from '../models/Order.js';
 import Favorite from '../models/Favorite.js';
-import Character from '../models/Character.js';
+import Character from '../models/Favorite.js';
 import User from '../models/user.js';
 import sequelize from '../config/database.js';
 
