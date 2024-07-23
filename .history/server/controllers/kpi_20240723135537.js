@@ -402,17 +402,6 @@ const calculateDailyProfitsForMonth = async (startDate, endDate) => {
   }));
 };
 
-// Générer un tableau de jours pour le mois actuel
-const generateDaysForCurrentMonth = () => {
-  const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const days = [];
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(new Date(now.getFullYear(), now.getMonth(), i));
-  }
-  return days;
-};
-
 // Contrôleur pour obtenir les données de bénéfices (mois actuel)
 export const getProfitData = async () => {
   try {
@@ -422,20 +411,8 @@ export const getProfitData = async () => {
     // Daily profits for the current month
     const dailyProfitsForMonth = await calculateDailyProfitsForMonth(startOfMonth, now);
 
-    // Générer un tableau de jours pour le mois actuel
-    const daysInMonth = generateDaysForCurrentMonth();
-
-    // Combiner les jours et les profits
-    const profitsWithAllDays = daysInMonth.map(day => {
-      const profitData = dailyProfitsForMonth.find(profit => profit.day.getTime() === day.getTime());
-      return {
-        day: day.toISOString(),
-        profit: profitData ? profitData.profit : 0
-      };
-    });
-
     return {
-      dailyProfitsForMonth: profitsWithAllDays
+      dailyProfitsForMonth
     };
   } catch (error) {
     console.error('Error fetching profit data:', error);

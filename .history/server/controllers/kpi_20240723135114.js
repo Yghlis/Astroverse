@@ -6,6 +6,7 @@ import Order from '../models/Order.js';
 import Favorite from '../models/Favorite.js';
 import Character from '../models/Character.js';
 import User from '../models/user.js';
+import sequelize from '../config/database.js';
 
 // Récupérer les modifications de stock
 const getStockChanges = async (productId) => {
@@ -378,7 +379,53 @@ export const getNewsletterSubscriptionStats = async () => {
   }
 };
 
-// Fonction pour calculer les bénéfices journaliers pour le mois actuel
+const calculateProfits = async (startDate, endDate) => {
+  const orders = await Order.findAll({
+    where: {
+      createdAt: {
+        [Op.gte]: startDate,
+        [Op.lte]: endDate
+      }
+    },
+    attributes: [
+      [fn('DATE_TRUNC', 'day', col('createdAt')), 'date'],
+      [fn('SUM', col('totalPrice')), 'totalPrice'],
+      [fn('SUM', col('tax')), 'tax']
+    ],
+    group: ['date'],
+    order: [['date', 'ASC']]
+  });
+
+  return orders.map(order => ({
+    date: order.getDataValue('date'),
+    profit: parseFloat(order.getDataValue('totalPrice')) - parseFloat(order.getDataValue('tax'))
+  }));
+};
+
+const calculateMonthlyProfits = async (startDate, endDate) => {
+  const orders = await Order.findAll({
+    where: {
+      createdAt: {
+        [Op.gte]: startDate,
+        [Op.lte]: endDate
+      }
+    },
+    attributes: [
+      [fn('DATE_TRUNC', 'month', col('createdAt')), 'month'],
+      [fn('SUM', col('totalPrice')), 'totalPrice'],
+      [fn('SUM', col('tax')), 'tax']
+    ],
+    group: ['month'],
+    order: [['month', 'ASC']]
+  });
+
+  return orders.map(order => ({
+    month: order.getDataValue('month'),
+    profit: parseFloat(order.getDataValue('totalPrice')) - parseFloat(order.getDataValue('tax'))
+  }));
+};
+
+// Contrôleur pour obtenir les données de bénéfices (jour / mois / année)
 const calculateDailyProfitsForMonth = async (startDate, endDate) => {
   const orders = await Order.findAll({
     where: {
@@ -402,19 +449,8 @@ const calculateDailyProfitsForMonth = async (startDate, endDate) => {
   }));
 };
 
-// Générer un tableau de jours pour le mois actuel
-const generateDaysForCurrentMonth = () => {
-  const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const days = [];
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(new Date(now.getFullYear(), now.getMonth(), i));
-  }
-  return days;
-};
-
-// Contrôleur pour obtenir les données de bénéfices (mois actuel)
-export const getProfitData = async () => {
+// Contrôleur pour obtenir les données de bénéfices (jour / mois / année)
+export const getProfitData = async (req, res) => {
   try {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -422,24 +458,12 @@ export const getProfitData = async () => {
     // Daily profits for the current month
     const dailyProfitsForMonth = await calculateDailyProfitsForMonth(startOfMonth, now);
 
-    // Générer un tableau de jours pour le mois actuel
-    const daysInMonth = generateDaysForCurrentMonth();
-
-    // Combiner les jours et les profits
-    const profitsWithAllDays = daysInMonth.map(day => {
-      const profitData = dailyProfitsForMonth.find(profit => profit.day.getTime() === day.getTime());
-      return {
-        day: day.toISOString(),
-        profit: profitData ? profitData.profit : 0
-      };
+    res.status(200).json({
+      dailyProfitsForMonth
     });
-
-    return {
-      dailyProfitsForMonth: profitsWithAllDays
-    };
   } catch (error) {
     console.error('Error fetching profit data:', error);
-    throw new Error('Internal server error');
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
