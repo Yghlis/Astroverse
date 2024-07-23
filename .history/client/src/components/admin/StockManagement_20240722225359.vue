@@ -102,8 +102,6 @@ const fetchProducts = async () => {
       tags: product.tags ? product.tags.join(',') : ''
     }));
 
-    console.log(products.value);
-
     if (products.value.length > 0) {
       selectedProduct.value = products.value[0].id;
       fetchChartData();  // Charger les données du graphique pour le produit par défaut

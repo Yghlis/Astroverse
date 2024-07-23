@@ -10,7 +10,6 @@ import User from '../models/user.js';
 import nodemailer from 'nodemailer';
 import { validate as validateUUID } from 'uuid';
 import { z } from 'zod';
-import { Op } from 'sequelize';
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -49,24 +48,7 @@ const deleteUnusedFiles = (oldFiles, newFiles) => {
   });
 };
 
-// Fonction pour récupérer les utilisateurs ayant les rôles ROLE_ADMIN ou ROLE_STORE_KEEPER
-const getAdminAndStoreKeeperUsers = async () => {
-  try {
-    const users = await User.findAll({
-      where: {
-        roles: {
-          [Op.overlap]: ['ROLE_ADMIN', 'ROLE_STORE_KEEPER']
-        }
-      }
-    });
-    return users;
-  } catch (error) {
-    console.error('Error fetching users with specific roles:', error);
-    throw new Error('Failed to fetch users with specific roles');
-  }
-};
-
-// suivre un produit
+//suivre un produit
 export const followProduct = async (req, res) => {
   const followProductSchema = z.object({
     userId: z.string().uuid(),
@@ -186,6 +168,7 @@ const checkStockSchema = z.object({
   quantity: z.number().int().positive('Quantity must be a positive integer')
 });
 
+
 export const checkStock = async (req, res) => {
   const checkStockSchema = z.object({
     productId: z.string().uuid(),
@@ -266,7 +249,7 @@ export const addProduct = async (req, res) => {
       is_promotion,
       description,
       stock,
-      alert_stock,
+      
       character,
       universe,
       reference,
@@ -318,7 +301,6 @@ export const addProduct = async (req, res) => {
       is_promotion,
       description,
       stock,
-      alert_stock,
       number_of_purchases,
       number_of_favorites,
       rating,
@@ -344,7 +326,6 @@ export const addProduct = async (req, res) => {
       is_promotion,
       description,
       stock,
-      alert_stock,
       number_of_purchases,
       number_of_favorites,
       rating,
@@ -501,7 +482,6 @@ export const updateProduct = async (req, res) => {
       is_promotion: z.union([z.boolean(), z.string().transform(val => val.toLowerCase() === 'true')]),
       description: z.string().nonempty('La description est requise'),
       stock: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]),
-      alert_stock: z.union([z.number().int().nonnegative(), z.string().transform(val => parseInt(val, 10))]).optional(),
       character: z.string().nonempty('Le personnage est requis'),
       universe: z.string().nonempty('L\'univers est requis'),
       reference: z.string().optional(),
@@ -528,7 +508,6 @@ export const updateProduct = async (req, res) => {
       is_promotion,
       description,
       stock,
-      alert_stock,
       character,
       universe,
       reference,
@@ -607,7 +586,6 @@ export const updateProduct = async (req, res) => {
       is_promotion,
       description,
       stock,
-      alert_stock,
       number_of_purchases,
       number_of_favorites,
       rating,
@@ -634,7 +612,6 @@ export const updateProduct = async (req, res) => {
         is_promotion,
         description,
         stock,
-        alert_stock,
         number_of_purchases,
         number_of_favorites,
         rating,
@@ -666,16 +643,6 @@ export const updateProduct = async (req, res) => {
 
     // Envoyer des notifications de changement de produit
     await notifyProductChange(product, previousStock, previousIsPromotion);
-
-    // Envoyer des notifications de stock bas
-    if (product.stock < product.alert_stock) {
-      const usersToNotify = await getAdminAndStoreKeeperUsers();
-      const emailContent = `Le stock du produit ${product.title} est bas. Stock restant: ${product.stock}.`;
-      const emailPromises = usersToNotify.map(user => 
-        sendEmail(user.email, 'Stock bas pour un produit', emailContent)
-      );
-      await Promise.all(emailPromises);
-    }
 
     res.json(product);
   } catch (error) {

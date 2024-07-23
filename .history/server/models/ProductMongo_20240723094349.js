@@ -9,6 +9,11 @@ const productSchema = new mongoose.Schema({
   is_promotion: Boolean,
   description: String,
   stock: Number,
+  alert_stock: { // Ajout du champ alert_stock
+    type: Number,
+    required: true,
+    default: 10
+  },
   number_of_purchases: Number,
   number_of_favorites: Number,
   rating: Number,

@@ -109,7 +109,6 @@ export const useProductFormStore = defineStore('productForm', () => {
       details: parsedDetails, // Utiliser les détails analysés ici
       image_preview_url: data.image_preview ? ensureAbsoluteUrl(data.image_preview) : '',
       image_gallery_urls: data.image_gallery ? data.image_gallery.map(ensureAbsoluteUrl) : ['', '', '', ''],
-      alert_stock: data.alert_stock != null ? data.alert_stock.toString() : '0' 
     });
   
     detailsData.dimensions = parsedDetails.dimensions || '';
@@ -197,7 +196,6 @@ export const useProductFormStore = defineStore('productForm', () => {
 
       formData.price = parseFloat(formData.price.replace(',', '.'));
       formData.discounted_price = formData.discounted_price ? parseFloat(formData.discounted_price.replace(',', '.')) : 0;
-      formData.alert_stock = parseInt(formData.alert_stock, 10); 
 
       console.log('Form data after conversion:', formData);
 
@@ -280,7 +278,6 @@ export const useProductFormStore = defineStore('productForm', () => {
 
       formData.price = parseFloat(formData.price.replace(',', '.'));
       formData.discounted_price = formData.discounted_price ? parseFloat(formData.discounted_price.replace(',', '.')) : 0;
-      formData.alert_stock = parseInt(formData.alert_stock, 10); 
 
       console.log('Form data after conversion:', formData);
 
