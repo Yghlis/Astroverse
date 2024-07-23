@@ -55,7 +55,8 @@
             }}
             €
           </span>
-          <button @click="addToCart">Ajouter au panier</button>
+          <button v-if="stockDispo" @click="addToCart">Ajouter au panier</button>
+          <button v-else disabled>Indisponible</button>
         </div>
         <div v-if="product.is_promotion" class="call-to-action alt">
           <span class="price-original"> {{ product.price }} € </span>
@@ -111,6 +112,10 @@ const parsedDetails = computed(() => {
     console.error("Invalid JSON:", e);
     return {};
   }
+});
+
+const stockDispo = computed(() => {
+  return product.value.stock > 0 ? true : false;
 });
 
 const formatProductNameForURL = (name) => {
@@ -349,6 +354,11 @@ const addToCart = () => {
           &:active {
             background-color: #43af40;
             color: white;
+          }
+          &:disabled {
+            background-color: #e2e2e2;
+            color: #797979;
+            cursor: not-allowed;
           }
         }
         .price-original {
