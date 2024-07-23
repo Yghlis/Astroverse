@@ -78,17 +78,6 @@
         >
           Newsletter
         </button>
-        <RouterLink
-          :class="{
-            mini: !showSideBar,
-          }"
-          class="exit"
-          to="/"
-          ><span class="material-symbols-outlined"> move_item </span>
-          <transition name="fade-translate">
-            <span v-if="showSideBar">Sortir</span>
-          </transition></RouterLink
-        >
       </div>
     </SideAdmin>
     <div class="admin-content" :class="{ active: showSideBar }">

@@ -78,25 +78,13 @@
         >
           Newsletter
         </button>
-        <RouterLink
-          :class="{
-            mini: !showSideBar,
-          }"
-          class="exit"
-          to="/"
-          ><span class="material-symbols-outlined"> move_item </span>
-          <transition name="fade-translate">
-            <span v-if="showSideBar">Sortir</span>
-          </transition></RouterLink
-        >
       </div>
     </SideAdmin>
     <div class="admin-content" :class="{ active: showSideBar }">
       <transition name="slide" mode="out-in">
         <TheDashboard v-if="currentDataType === 'dashboard'"></TheDashboard>
       <AdminTable
-        v-else-if="currentDataType !== 'stock' && currentDataType !== 'newsletters' && reloadTable && currentDataType !== 'dashboard'"
-        :key="currentDataType"
+        v-if="currentDataType !== 'stock' && currentDataType !== 'newsletters' && reloadTable && currentDataType "
         :data="tableData"
         :columns="tableColumns"
         :currentDataType="currentDataType"
@@ -109,7 +97,6 @@
         :data="tableData"
       />
       <NewsletterManagement v-else />
-      </transition>
     </div>
   </div>
 </template>
