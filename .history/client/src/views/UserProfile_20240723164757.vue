@@ -138,9 +138,6 @@ import useFlashMessageStore from "@composables/useFlashMessageStore";
 import { useCartStore } from "../stores/cartStore"; // Importation du cartStore
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();
@@ -535,6 +532,8 @@ const fetchProductDetails = async (productId) => {
 
 // Nouvelle méthode pour supprimer le compte
 const deleteAccount = async () => {
+  localStorage.removeItem("jwt");
+  localStorage.removeItem("userId");
   const apiUrl = import.meta.env.VITE_API_URL;
   if (
     confirm(
@@ -559,9 +558,9 @@ const deleteAccount = async () => {
           `Erreur lors de la suppression du compte: ${errorText}`
         );
       }
-    
+
       alert("Votre compte a été supprimé avec succès.");
-  router.push("/");
+      // Logique de déconnexion ou de redirection après suppression du compte
     } catch (error) {
       console.error("Erreur lors de la suppression du compte:", error);
       alert(

@@ -561,7 +561,7 @@ const deleteAccount = async () => {
       }
     
       alert("Votre compte a été supprimé avec succès.");
-  router.push("/");
+  rou
     } catch (error) {
       console.error("Erreur lors de la suppression du compte:", error);
       alert(

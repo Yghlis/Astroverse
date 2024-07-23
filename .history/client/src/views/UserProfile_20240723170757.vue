@@ -138,9 +138,6 @@ import useFlashMessageStore from "@composables/useFlashMessageStore";
 import { useCartStore } from "../stores/cartStore"; // Importation du cartStore
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();
@@ -561,7 +558,6 @@ const deleteAccount = async () => {
       }
     
       alert("Votre compte a été supprimé avec succès.");
-  router.push("/");
     } catch (error) {
       console.error("Erreur lors de la suppression du compte:", error);
       alert(

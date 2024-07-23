@@ -562,6 +562,8 @@ const deleteAccount = async () => {
     
       alert("Votre compte a été supprimé avec succès.");
   router.push("/");
+  localStorage.setItem("jwt", data.token);
+    localStorage.setItem("userId", data.userId);
     } catch (error) {
       console.error("Erreur lors de la suppression du compte:", error);
       alert(
