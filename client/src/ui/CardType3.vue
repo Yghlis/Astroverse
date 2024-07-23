@@ -55,7 +55,13 @@ const resizeChart = () => {
   }
 };
 
-const initializeChart = (canvasRef, label, data, backgroundColor, borderColor) => {
+const initializeChart = (
+  canvasRef,
+  label,
+  data,
+  backgroundColor,
+  borderColor
+) => {
   if (chartInstance) {
     chartInstance.destroy();
   }

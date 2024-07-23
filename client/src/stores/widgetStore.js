@@ -206,12 +206,11 @@ export const useWidgetStore = defineStore("widget", {
         this.cards.forEach((card) => {
           switch (card.title) {
             case "Total des Ventes par Jour":
-              card.salesByPeriod = data.salesByPeriod.dailySalesForMonth.map(
-                (profit) => ({
-                  day: profit.day,
-                  totalQuantity: profit.totalQuantity,
-                })
-              );
+              card.dailySalesForMonth =
+                data.salesByPeriod.dailySalesForMonth.map((sale) => ({
+                  day: sale.day,
+                  totalQuantity: sale.totalQuantity,
+                }));
               break;
             case "Les Produits les plus Vendus":
               card.items = data.totalProductSales.topProductSales.map(
