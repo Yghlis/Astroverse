@@ -1,8 +1,7 @@
 <template>
   <div class="container-landing">
     <VideoPlayer :mediaItems="mediaItems"></VideoPlayer>
-    
-    <HighLight></HighLight>
+    <HighLight :topProducts="topViewedProducts"></HighLight>
     <TheSearch></TheSearch>
     <UniversDisplay></UniversDisplay>
   </div>
@@ -40,9 +39,18 @@ const mediaItems = computed(() => {
       url: product.image_preview,
       isVideo: false,
       isYouTube: false,
-      link: `/item/${product.id}`, 
+      link: `/item/${product.id}`,
     };
   });
+});
+
+// Get top 10 viewed products
+const topViewedProducts = computed(() => {
+  if (!products.value || products.value.length === 0) return [];
+  return products.value
+    .slice()
+    .sort((a, b) => b.views_count - a.views_count)
+    .slice(0, 10);
 });
 </script>
 
