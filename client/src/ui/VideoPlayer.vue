@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -47,14 +47,12 @@ const getImageUrl = (absolutePath) => {
   if (!absolutePath) {
     return "";
   }
-  // Extraire la partie relative du chemin absolu
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
   return `${apiUrl}/uploads/${relativePath}`;
 };
 
 const currentIndex = ref(0);
-
 const currentMedia = computed(() => props.mediaItems[currentIndex.value]);
 
 const goToNext = () => {
@@ -63,7 +61,8 @@ const goToNext = () => {
 
 const goToPrevious = () => {
   currentIndex.value =
-    (currentIndex.value - 1 + props.mediaItems.length) % props.mediaItems.length;
+    (currentIndex.value - 1 + props.mediaItems.length) %
+    props.mediaItems.length;
 };
 
 const goToSlide = (index) => {
@@ -76,7 +75,36 @@ const goToLink = () => {
   }
 };
 
-// Watch for changes in mediaItems and reset currentIndex if necessary
+// Automatic slide transition every 5 seconds
+let slideInterval;
+
+const startSlideShow = () => {
+  slideInterval = setInterval(() => {
+    goToNext();
+  }, 5000);
+};
+
+const stopSlideShow = () => {
+  clearInterval(slideInterval);
+};
+
+onMounted(() => {
+  startSlideShow();
+});
+
+onUnmounted(() => {
+  stopSlideShow();
+});
+
+// Reset slide interval on user interaction
+watch(
+  () => currentIndex.value,
+  () => {
+    stopSlideShow();
+    startSlideShow();
+  }
+);
+
 watch(
   () => props.mediaItems,
   (newVal) => {
