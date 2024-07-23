@@ -12,7 +12,7 @@ import ChangePassword from "../components/ChangePassword.vue"; // Importation du
 import CartCheckout from "../views/CartCheckout.vue";
 import UserProfile from "../views/UserProfile.vue";
 import Confirmation from "../components/Confirmation.vue";
-import LegalContent from "../components/LegalContent.vue";
+import LegalContent from "../components"
 
 const routes = [
   { path: "/", component: LandingPage },

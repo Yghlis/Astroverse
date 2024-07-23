@@ -42,7 +42,7 @@
             id="sameAddressForPayment"
           />
           <label for="sameAddressForPayment"
-            >Si l'adresse de facturation = adresse de livraison</label
+            >si l'adresse de facturation = adresse de livraison</label
           >
         </div>
         <div v-if="!sameAddressForPayment" class="payment-address">
@@ -86,53 +86,18 @@
         </div>
         <div>
           <label for="payment-element">Détails de paiement</label>
-          <div id="payment-element"></div>
+          <div id="payment-element">
+      
+          </div>
           <div id="payment-errors" role="alert"></div>
         </div>
-        <div class="save-address">
-          <input
-            v-model="acceptCGU"
-            type="checkbox"
-            id="acceptCGU"
-            required
-          />
-          <label for="acceptCGU">
-            Je confirme avoir lu&nbsp;
-            <a href="#" @click.prevent="openCGUModal">les CGU</a><span>*</span>
-          </label>
-        </div>
-        <button type="submit" class="call-to-action" :disabled="!acceptCGU">
+        <button type="submit" class="call-to-action">
           Rentrer ma cb
         </button>
         <button type="button" class="call-to-action" @click="handlePayment">
           Payer
         </button>
       </form>
-    </div>
-    <div v-if="showCGUModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="closeCGUModal">&times;</span>
-        <div class="cgu-content">
-          <h2>Mentions Légales</h2>
-          <p><strong>1. Éditeur du Site</strong></p>
-          <ul>
-            <li>Nom de l'entreprise : Astroverse</li>
-            <li>Adresse : 34 rue Juliette Savarin, 94000</li>
-            <li>Téléphone : 0625984606</li>
-            <li>Email : <a href="mailto:Astroverse@gmail.com">Astroverse@gmail.com</a></li>
-          </ul>
-          <p><strong>2. Hébergeur</strong></p>
-          <ul>
-            <li>Nom de l'hébergeur : Renderer</li>
-            <li>Adresse : 45 rue du Cavalier, 76000</li>
-            <li>Téléphone : 0176887766</li>
-            <li>Email : <a href="mailto:Heroku@gmail.com">Heroku@gmail.com</a></li>
-          </ul>
-          
-          <!-- Add other sections here -->
-          
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -178,9 +143,6 @@ const postalCode = ref('');
 const suggestions = ref([]);
 const loading = ref(false);
 let debounceTimeout = null;
-
-const acceptCGU = ref(false);
-const showCGUModal = ref(false);
 
 const fetchSuggestions = async (query) => {
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -442,14 +404,6 @@ const handlePayment = async () => {
     alert('Erreur lors de la création du paiement');
   }
 };
-
-const openCGUModal = () => {
-  showCGUModal.value = true;
-};
-
-const closeCGUModal = () => {
-  showCGUModal.value = false;
-};
 </script>
 
 <style scoped lang="scss">
@@ -575,47 +529,7 @@ const closeCGUModal = () => {
         &:hover {
           background-color: #55af00;
         }
-        &:disabled {
-          background-color: #ddd;
-          cursor: not-allowed;
-        }
       }
-    }
-  }
-}
-
-.modal {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.5);
-
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    max-width: 600px;
-    position: relative;
-
-    .close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 30px;
-      cursor: pointer;
-    }
-
-    .cgu-content {
-      max-height: 60vh;
-      overflow-y: auto;
     }
   }
 }

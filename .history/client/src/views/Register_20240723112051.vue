@@ -81,7 +81,7 @@
           required
         />
         <label for="acceptCGU">
-          Je confirme avoir lu&nbsp;
+          Je confirme avoir lu
           <a href="#" @click.prevent="openCGUModal"> les CGU</a><span>*</span>
         </label>
       </div>
