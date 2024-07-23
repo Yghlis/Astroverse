@@ -1,6 +1,6 @@
 <template>
   <div class="highlight">
-    <h2>Top 10 des produits les plus vendus</h2>
+    <h2>Top Products</h2>
     <div class="products">
       <TheCarousel>
         <shopCard

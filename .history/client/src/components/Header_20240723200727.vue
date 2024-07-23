@@ -90,6 +90,8 @@ const toggleFavorite = () => {
   favoriteClicked.value = !favoriteClicked.value;
 };
 
+//Panier
+
 import { useCartStore } from "../stores/cartStore";
 import { animate } from "motion";
 

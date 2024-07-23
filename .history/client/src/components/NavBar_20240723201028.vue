@@ -6,6 +6,9 @@
     <RouterLink to="/shop" :class="{ active: $route.path === '/shop' }"
       >Boutique</RouterLink
     >
+    <!-- <RouterLink to="/cart-checkout" :class="{ active: $route.path === '/cart-checkout' }"
+      >checkout</RouterLink
+    > -->
     <RouterLink
       v-if="isAdmin"
       to="/admin"
