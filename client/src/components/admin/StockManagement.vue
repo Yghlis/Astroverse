@@ -4,8 +4,18 @@
 
     <div class="controls">
       <label for="productSelector">Séléctionner le produit a observer:</label>
-      <select id="productSelector" v-model="selectedProduct" @change="fetchChartData">
-        <option v-for="product in products" :key="product.id" :value="product.id">{{ product.name }}</option>
+      <select
+        id="productSelector"
+        v-model="selectedProduct"
+        @change="fetchChartData"
+      >
+        <option
+          v-for="product in products"
+          :key="product.id"
+          :value="product.id"
+        >
+          {{ product.name }}
+        </option>
       </select>
     </div>
 
@@ -106,8 +116,9 @@ const searchQuery = ref("");
 
 const fetchProducts = async () => {
   const token = localStorage.getItem("jwt");
+  const apiUrl = import.meta.env.VITE_API_URL;
   try {
-    const response = await fetch(`http://localhost:8000/products`, {
+    const response = await fetch(`${apiUrl}/products`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -142,10 +153,11 @@ const fetchProducts = async () => {
 
 const fetchChartData = async () => {
   const token = localStorage.getItem("jwt");
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   try {
     const response = await fetch(
-      `http://localhost:8000/kpi/stock-evolution?productId=${selectedProduct.value}`,
+      `${apiUrl}/kpi/stock-evolution?productId=${selectedProduct.value}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -177,15 +189,14 @@ const checkStockAlert = () => {
 
 const getProductDetails = async (productId) => {
   const token = localStorage.getItem("jwt");
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   try {
-    const response = await fetch(
-      `http://localhost:8000/products/${productId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await fetch(`${apiUrl}/products/${productId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (!response.ok) {
       throw new Error("Erreur: " + response.status);
     }
@@ -224,18 +235,17 @@ const editStock = async (product) => {
           alert_stock: product.newAlertStock,
         };
 
+        const apiUrl = import.meta.env.VITE_API_URL;
+
         const token = localStorage.getItem("jwt");
-        const response = await fetch(
-          `http://localhost:8000/products/${product.id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(updatedProduct),
-          }
-        );
+        const response = await fetch(`${apiUrl}/products/${product.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedProduct),
+        });
 
         if (!response.ok) {
           throw new Error("Erreur: " + response.status);
