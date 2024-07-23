@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useUniversesStore } from '../../stores/useUniversesStore';
 
 const props = defineProps({
@@ -33,6 +33,8 @@ const props = defineProps({
   link: String,
   id: String
 });
+
+const emit = defineEmits(["followed", "unfollowed"]);
 
 const universeStore = useUniversesStore();
 const isFollowed = computed(() => {
@@ -47,6 +49,17 @@ const toggleFollow = async () => {
     await universeStore.followUniverse(props.id);
   }
 };
+
+watch(isFollowed, (newVal) => {
+  if (newVal == true) {
+    emit("followed", props.id);
+  } else {
+    emit("unfollowed", props.id);
+  }
+});
+
+
+
 </script>
 
 <style lang="scss" scoped>
@@ -81,12 +94,20 @@ const toggleFollow = async () => {
 .follow-icon {
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 20px;
   cursor: pointer;
   font-size: 24px;
-  color: grey;
+  color: white;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: black;
+  transition: all 0.3s ease;
   &.active {
-    color: #ffd700; /* Couleur de l'icône active */
+    color: #ffd700;
+  }
+  &:hover {
+    background-color: #333;
+    transform: scale(1.1);
   }
 }
 </style>

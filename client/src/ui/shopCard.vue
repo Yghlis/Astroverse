@@ -1,5 +1,5 @@
 <template>
-  <div class="card" @click.stop="navigateToDetail">
+  <div class="card" @click.stop="navigateToDetail" v-if="product">
     <img :src="getImageUrl(product.image_preview)" alt="figurine image" />
     <div class="divider"></div>
     <div class="information">
@@ -41,7 +41,6 @@ const navigateToDetail = () => {
 };
 
 const getImageUrl = (absolutePath) => {
-  console.log("wtf", absolutePath);
   if (!absolutePath) {
     return "";
   }
@@ -50,6 +49,7 @@ const getImageUrl = (absolutePath) => {
   const apiUrl = import.meta.env.VITE_API_URL;
   return `${apiUrl}/uploads/${relativePath}`;
 };
+
 
 const discountPercentage = computed(() => {
   if (

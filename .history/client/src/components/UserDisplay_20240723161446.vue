@@ -168,7 +168,7 @@ const resetPasswordChangeReminder = async () => {
       `${apiUrl}/users/${userId}`,
       {
         // Mise à jour de l'URL
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("jwt")}`,
