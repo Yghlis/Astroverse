@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer">
+  <footer class="footer" v-if="!isAdminRoute">
     <p
       v-if="flashMessage"
       class="flash-message"
@@ -23,22 +23,26 @@
       </div>
       <p>&copy; 2024 Astroverse. Tous droits réservés.</p>
       <ul class="footer-links">
-        <li><a href="#legal">Mentions légales</a></li>
-        <li><a href="#cgu">Conditions générales d'utilisation</a></li>
-        <li><a href="#pav">Politique de confidentialité</a></li>
-        <li><a href="#remboursement">Politique de confidentialité</a></li>
-        <li><a href="#garantie">Politique de confidentialité</a></li>
-        <li><a href="#cookie">Politique de confidentialité</a></li>
-        <li><a href="#livraison">Politique de confidentialité</a></li>
-        <li><a href="#accessibilité">Conditions d'utilisation</a></li>
-      </ul>
+  <li><router-link to="/legal/legal">Mentions légales</router-link></li>
+  <li><router-link to="/legal/cgu">Conditions générales d'utilisation</router-link></li>
+  <li><router-link to="/legal/privacy-policy">Politique de confidentialité</router-link></li>
+  <li><router-link to="/legal/refund-policy">Politique de remboursement</router-link></li>
+  <li><router-link to="/legal/warranty-conditions">Conditions de garantie</router-link></li>
+  <li><router-link to="/legal/cookie-policy">Politique de cookie</router-link></li>
+  <li><router-link to="/legal/shipping-policy">Politique de livraison</router-link></li>
+  <li><router-link to="/legal/accessibility">Accessibilité du site</router-link></li>
+</ul>
     </div>
   </footer>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+const isAdminRoute = computed(() => route.path === "/admin");
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();
