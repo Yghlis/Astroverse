@@ -261,7 +261,6 @@ export const useWidgetStore = defineStore("widget", {
             // Ajouter des cas supplémentaires si nécessaire
           }
         });
-        this.saveCards();
       } catch (error) {
         console.error("Échec de la mise à jour de l'utilisateur :", error);
       }
