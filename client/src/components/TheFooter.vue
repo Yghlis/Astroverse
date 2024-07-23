@@ -40,6 +40,10 @@
 import { ref, onMounted, computed } from "vue";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
 import { useRoute } from "vue-router";
+import { useUserStore } from "../stores/userStore";
+
+
+
 
 const route = useRoute();
 const isAdminRoute = computed(() => route.path === "/admin");
@@ -51,9 +55,10 @@ const isLoggedIn = ref(false);
 const token = ref("");
 const userId = ref("");
 const apiUrl = import.meta.env.VITE_API_URL;
+const userStore = useUserStore();
 
 // Vérifier si l'utilisateur est connecté lors du chargement du composant
-onMounted(() => {
+onMounted(async () => {
   console.log("onMounted in TheFooter.vue called");
   token.value = localStorage.getItem("jwt"); // Assurez-vous que la clé est correcte
   userId.value = localStorage.getItem("userId");
@@ -63,24 +68,9 @@ onMounted(() => {
   console.log("token in TheFooter.vue:", token.value);
   console.log("isLoggedIn in TheFooter.vue:", isLoggedIn.value);
 
-  // Récupérer l'état d'abonnement de l'utilisateur
   if (isLoggedIn.value) {
-    fetch(`/api/users/${userId.value}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token.value}`, // Utilisez le token JWT pour l'authentification
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        isSubscribedToNewsletter.value = data.isSubscribedToNewsletter;
-      })
-      .catch((error) => {
-        console.error(
-          "Erreur lors de la récupération de l'état d'abonnement:",
-          error
-        );
-      });
+    await userStore.getUserById(userId.value);
+    isSubscribedToNewsletter.value = userStore.userData.isSubscribedToNewsletter || false;
   }
 });
 const toggleSubscription = async () => {

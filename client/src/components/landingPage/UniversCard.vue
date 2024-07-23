@@ -17,7 +17,7 @@
     >
       notifications_active
     </span>
-  </div> {{ test }}
+  </div>
 </template>
 
 <script setup>
