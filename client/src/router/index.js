@@ -11,6 +11,7 @@ import ShopItem from "../views/ShopItem.vue";
 import ChangePassword from "../components/ChangePassword.vue"; // Importation du composant ChangePassword
 import CartCheckout from "../views/CartCheckout.vue";
 import UserProfile from "../views/UserProfile.vue";
+import Confirmation from "../components/Confirmation.vue";
 
 const routes = [
   { path: "/", component: LandingPage },
@@ -25,6 +26,7 @@ const routes = [
   { path: "/change-password/:userId/:token", name: "ChangePassword", component: ChangePassword }, // Nouvelle route pour changer le mot de passe
   { path: "/cart-checkout", component: CartCheckout },
   { path: "/profile", component: UserProfile, meta: { requiresAuth: false } },	//a changer 
+  { path: '/confirmation', name: 'Confirmation', component: Confirmation }
 ];
 
 const router = createRouter({

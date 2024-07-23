@@ -59,35 +59,42 @@
             <span v-if="showSideBar">Personnages</span>
           </transition>
         </button>
-        <RouterLink
-          :class="{
-            active: currentDataType === 'characters',
-            mini: !showSideBar,
-          }"
-          class="exit"
-          to="/"
-          ><span class="material-symbols-outlined"> move_item </span>
-          <transition name="fade-translate">
-            <span v-if="showSideBar">Sortir</span>
-          </transition></RouterLink
+        <button
+          :class="{ active: currentDataType === 'orders' }"
+          @click="fetchData('orders')"
         >
+          Commandes
+        </button>
+        <button
+          :class="{ active: currentDataType === 'stock' }"
+          @click="fetchData('stock')"
+        >
+          Gestion de stock
+        </button>
+        <!-- Nouveau bouton Newsletter -->
+        <button
+          :class="{ active: currentDataType === 'newsletters' }"
+          @click="fetchData('newsletters')"
+        >
+          Newsletter
+        </button>
       </div>
     </SideAdmin>
     <div class="admin-content" :class="{ active: showSideBar }">
-  
-      <transition name="slide" mode="out-in">
-        <TheDashboard v-if="currentDataType === 'dashboard'"></TheDashboard>
-        <AdminTable
-          :key="currentDataType"
-          :data="tableData"
-          :columns="tableColumns"
-          :currentDataType="currentDataType"
-          @edit="handleEdit"
-          @view="handleView"
-          @row-deleted="handleRowDeleted"
-          v-else-if="reloadTable && currentDataType !== 'dashboard'"
-        />
-      </transition>
+      <AdminTable
+        v-if="currentDataType !== 'stock' && currentDataType !== 'newsletters' && reloadTable"
+        :data="tableData"
+        :columns="tableColumns"
+        :currentDataType="currentDataType"
+        @edit="handleEdit"
+        @view="handleView"
+        @row-deleted="handleRowDeleted"
+      />
+      <StockManagement
+        v-else-if="currentDataType === 'stock'"
+        :data="tableData"
+      />
+      <NewsletterManagement v-else />
     </div>
   </div>
 </template>
@@ -96,6 +103,8 @@
 import SideAdmin from "../ui/SideAdmin.vue";
 import TheDashboard from "../components/admin/TheDashboard.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
+import StockManagement from "../components/admin/StockManagement.vue";
+import NewsletterManagement from "../components/admin/NewsletterManagement.vue";
 import { ref, onMounted, provide } from "vue";
 
 const showSideBar = ref(true);
@@ -153,6 +162,18 @@ const fetchData = async (type) => {
       url = `${apiUrl}/users`;
       columns = ["username", "email", "roles"];
       break;
+    case "orders":
+      url = `${apiUrl}/orders`;
+      columns = ["id", "utilisateur", "email", "shippingAddress", "billingAddress", "totalPrice", "status"];
+      break;
+    case "stock":
+      url = `${apiUrl}/stock`;
+      columns = ["product_name", "stock_level", "warehouse_location"];
+      break;
+    case "newsletters":
+      url = `${apiUrl}/newsletters`;
+      columns = ["id", "pdfUrl"];
+      break;
     default:
       return;
   }
@@ -168,18 +189,30 @@ const fetchData = async (type) => {
     if (!response.ok) {
       throw new Error(`Erreur: ${response.status}`);
     }
-    const data = await response.json();
+    let data = await response.json();
 
-    // Transform user data to include 'username'
-    if (type === "users") {
-      tableData.value = data.map((user) => ({
+    if (type === "orders") {
+      const userResponses = await Promise.all(data.map(order => fetch(`${apiUrl}/users/${order.userId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+        },
+      })));
+
+      const users = await Promise.all(userResponses.map(res => res.json()));
+
+      data = data.map((order, index) => ({
+        ...order,
+        utilisateur: `${order.firstName} ${order.lastName}`,
+        email: users[index].email,
+      }));
+    } else if (type === "users") {
+      data = data.map((user) => ({
         ...user,
         username: `${user.first_name} ${user.last_name}`,
       }));
-    } else {
-      tableData.value = data;
     }
 
+    tableData.value = data;
     tableColumns.value = columns;
   } catch (error) {
     console.error("Erreur lors de la récupération des données:", error);
