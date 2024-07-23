@@ -1,6 +1,7 @@
 <template>
   <div class="container-landing">
     <VideoPlayer :mediaItems="mediaItems"></VideoPlayer>
+    
     <HighLight></HighLight>
     <TheSearch></TheSearch>
     <UniversDisplay></UniversDisplay>
@@ -12,33 +13,37 @@ import VideoPlayer from "../ui/VideoPlayer.vue";
 import TheSearch from "../components/landingPage/TheSearch.vue";
 import HighLight from "../components/landingPage/HighLight.vue";
 import UniversDisplay from "../components/landingPage/UniversDisplay.vue";
-import { reactive } from "vue";
+import { reactive, onMounted, computed } from "vue";
 
-// ########################################## Api ##########################################
+import { useShopStore } from "../stores/useShopStore";
 
-import KaidoImage from "../assets/images/figurines/kaido.webp";
-import VideoTest from "../assets/videos/Slider vertical - Google Chrome 2022-04-04 01-36-14.mp4";
+const shopStore = useShopStore();
 
-const mediaItems = reactive([
-  {
-    url: KaidoImage,
-    isVideo: false,
-    isYouTube: false,
-    link: "https://google.com",
-  },
-  {
-    url: "https://www.youtube.com/embed/dEsQzKe1kb4?si=gFbud-WCXiqAmJfq",
-    isVideo: true,
-    isYouTube: true,
-    link: "https://www.darkanddarker.com/",
-  },
-  {
-    url: VideoTest,
-    isVideo: true,
-    isYouTube: false,
-    link: "https://google.com",
-  },
-]);
+const products = computed(() => shopStore.products);
+
+onMounted(async () => {
+  await shopStore.fetchProducts();
+});
+
+// Utility function to get random elements from an array
+function getRandomElements(array, count) {
+  const shuffled = array.slice().sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+// Transform products into mediaItems
+const mediaItems = computed(() => {
+  if (!products.value || products.value.length === 0) return [];
+  const randomProducts = getRandomElements(products.value, 5);
+  return randomProducts.map((product) => {
+    return {
+      url: product.image_preview,
+      isVideo: false,
+      isYouTube: false,
+      link: `/item/${product.id}`, 
+    };
+  });
+});
 </script>
 
 <style lang="scss" scoped>
