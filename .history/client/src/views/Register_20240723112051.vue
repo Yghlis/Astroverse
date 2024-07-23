@@ -81,7 +81,7 @@
           required
         />
         <label for="acceptCGU">
-          Je confirme avoir lu et accepter&nbsp;
+          Je confirme avoir lu
           <a href="#" @click.prevent="openCGUModal"> les CGU</a><span>*</span>
         </label>
       </div>
@@ -488,7 +488,7 @@ const closeCGUModal = () => {
     padding: 20px;
     border-radius: 10px;
     width: 80%;
-    max-width: 80%;
+    max-width: 600px;
     position: relative;
 
     .close {

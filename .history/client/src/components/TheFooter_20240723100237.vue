@@ -23,15 +23,15 @@
       </div>
       <p>&copy; 2024 Astroverse. Tous droits réservés.</p>
       <ul class="footer-links">
-  <li><router-link to="/legal/legal">Mentions légales</router-link></li>
-  <li><router-link to="/legal/cgu">Conditions générales d'utilisation</router-link></li>
-  <li><router-link to="/legal/privacy-policy">Politique de confidentialité</router-link></li>
-  <li><router-link to="/legal/refund-policy">Politique de remboursement</router-link></li>
-  <li><router-link to="/legal/warranty-conditions">Conditions de garantie</router-link></li>
-  <li><router-link to="/legal/cookie-policy">Politique de cookie</router-link></li>
-  <li><router-link to="/legal/shipping-policy">Politique de livraison</router-link></li>
-  <li><router-link to="/legal/accessibility">Accessibilité du site</router-link></li>
-</ul>
+        <li><a href="#legal">Mentions légales</a></li>
+        <li><a href="#cgu">Conditions générales d'utilisation</a></li>
+        <li><a href="#pav">Politique de confidentialité</a></li>
+        <li><a href="#remboursement">Politique de confidentialité</a></li>
+        <li><a href="#garantie">Conditions de garantie</a></li>
+        <li><a href="#cookie">Politique de cookie</a></li>
+        <li><a href="#livraison">Politique de livraison</a></li>
+        <li><a href="#accessibilité">Conditions d'utilisation</a></li>
+      </ul>
     </div>
   </footer>
 </template>
