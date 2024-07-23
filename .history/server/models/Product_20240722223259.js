@@ -84,8 +84,8 @@ const Product = sequelize.define('Product', {
   },
   alert_stock: {
     type: DataTypes.INTEGER,
-    allowNull: false,  
-    defaultValue: 10, 
+    allowNull: false,  // ou true si ce champ est facultatif
+    defaultValue: 0,   // si vous voulez une valeur par défaut
   },
   views_count: {
     type: DataTypes.INTEGER,

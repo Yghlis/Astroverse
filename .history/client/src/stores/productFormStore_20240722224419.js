@@ -197,7 +197,6 @@ export const useProductFormStore = defineStore('productForm', () => {
 
       formData.price = parseFloat(formData.price.replace(',', '.'));
       formData.discounted_price = formData.discounted_price ? parseFloat(formData.discounted_price.replace(',', '.')) : 0;
-      formData.alert_stock = parseInt(formData.alert_stock, 10); 
 
       console.log('Form data after conversion:', formData);
 
@@ -280,7 +279,6 @@ export const useProductFormStore = defineStore('productForm', () => {
 
       formData.price = parseFloat(formData.price.replace(',', '.'));
       formData.discounted_price = formData.discounted_price ? parseFloat(formData.discounted_price.replace(',', '.')) : 0;
-      formData.alert_stock = parseInt(formData.alert_stock, 10); 
 
       console.log('Form data after conversion:', formData);
 
