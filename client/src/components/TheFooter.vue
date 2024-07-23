@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer">
+  <footer class="footer" v-if="!isAdminRoute">
     <p
       v-if="flashMessage"
       class="flash-message"
@@ -37,8 +37,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+const isAdminRoute = computed(() => route.path === "/admin");
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();

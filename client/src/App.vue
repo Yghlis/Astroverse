@@ -3,7 +3,11 @@
     <Header />
     <router-view v-slot="{ Component }">
       <transition name="fade" mode="out-in">
-        <component class="container" :is="Component" />
+        <component
+          class="container"
+          :class="{ admin: isAdminRoute }"
+          :is="Component"
+        />
       </transition>
     </router-view>
     <TheFooter />
@@ -11,10 +15,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import Header from "./components/Header.vue";
 import TheFooter from "./components/TheFooter.vue";
-import { useCartStore } from './stores/cartStore';
+import { useCartStore } from "./stores/cartStore";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+const isAdminRoute = computed(() => route.path === "/admin");
 
 const isLoggedIn = ref(false);
 const firstName = ref("");
@@ -60,6 +68,9 @@ const logout = () => {
   .container {
     margin-top: 100px;
     flex: 1;
+    &.admin {
+      margin-top: 0px;
+    }
   }
 }
 .fade-enter-active,
