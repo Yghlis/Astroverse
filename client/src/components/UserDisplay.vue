@@ -3,7 +3,6 @@
   <h2 v-if="!userLoggedIn && !passwordResetRequested">Connectez-vous</h2>
   <h2 v-else-if="passwordResetRequested">Réinitialisez votre mot de passe</h2>
 
-  <!-- Alerte de renouvellement du mot de passe -->
   <div v-if="showPasswordAlert" class="password-alert">
     <p>Pensez à changer votre mot de passe.</p>
     <button @click="closeAlert">Fermer</button>
@@ -12,7 +11,6 @@
     </button>
   </div>
 
-  <!-- Affichage des messages flash avec classe conditionnelle pour l'animation et la couleur -->
   <p
     v-if="flashMessage"
     class="flash-message"
@@ -98,10 +96,9 @@ import { RouterLink } from "vue-router";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
 import { useUserStore } from "../stores/userStore";
 import { useRouter } from "vue-router";
-import { initializeAuth } from '../utils/auth';
+import { initializeAuth } from "../utils/auth";
 
 const router = useRouter();
-
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();
@@ -114,9 +111,7 @@ const errorMessage = ref("");
 const showPasswordAlert = ref(false);
 const userStore = useUserStore();
 
-watch(flashMessage, (newVal, oldVal) => {
-  console.log("Flash message updated:", newVal);
-});
+watch(flashMessage, (newVal, oldVal) => {});
 
 const loginHandler = async () => {
   loginClicked.value = true;
@@ -128,7 +123,7 @@ const loginHandler = async () => {
     return;
   }
   const apiUrl = import.meta.env.VITE_API_URL;
-  // Appel API pour connexion
+
   const response = await fetch(`${apiUrl}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -164,17 +159,13 @@ const resetPasswordChangeReminder = async () => {
   try {
     const apiUrl = import.meta.env.VITE_API_URL;
 
-    const response = await fetch(
-      `${apiUrl}/users/${userId}`,
-      {
-        // Mise à jour de l'URL
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        },
-      }
-    );
+    const response = await fetch(`${apiUrl}/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+    });
 
     if (response.ok) {
       showPasswordAlert.value = false;
@@ -208,10 +199,10 @@ const logoutHandler = () => {
   localStorage.removeItem("userId");
   userLoggedIn.value = false;
   setFlashMessage("Déconnexion réussie.");
-  setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+  setTimeout(() => (flashMessage.value = ""), 3000);
   setTimeout(() => {
     router.push("/");
-  } ,500)
+  }, 500);
   userStore.checkAdmin();
 };
 
@@ -237,14 +228,14 @@ const sendResetEmail = async () => {
       "Un email de réinitialisation a été envoyé si votre email est enregistré."
     );
     passwordResetRequested.value = false;
-    setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+    setTimeout(() => (flashMessage.value = ""), 3000);
   } else {
     const errorData = await response.json();
     setFlashMessage(
       errorData.message ||
         "Erreur lors de l'envoi de l'email de réinitialisation."
     );
-    setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+    setTimeout(() => (flashMessage.value = ""), 3000);
   }
 };
 

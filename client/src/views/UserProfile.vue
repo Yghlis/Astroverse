@@ -126,7 +126,7 @@ import shopCard from "../ui/shopCard.vue";
 import { useUserStore } from "../stores/userStore";
 import { useProductStore } from "../stores/useProductStore";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
-import { useCartStore } from "../stores/cartStore"; // Importation du cartStore
+import { useCartStore } from "../stores/cartStore";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -147,20 +147,16 @@ onMounted(() => {
 const userData = computed(() => userStore.userData);
 const followedProducts = computed(() => productStore.followedProducts);
 
-// Refs pour les champs d'entrée
 const firstName = ref("");
 const lastName = ref("");
 const email = ref("");
 const phoneNumber = ref("");
 
-// Ref pour l'adresse complète
 const address = ref("");
 const initialAddress = ref("");
 
-// Ref pour indiquer si une adresse suggérée a été sélectionnée
 const addressSelected = ref(true);
 
-// Watcher pour mettre à jour les valeurs des champs lorsque les données utilisateur changent
 watch(
   userData,
   (newVal) => {
@@ -181,7 +177,6 @@ watch(
 
 const displayProducts = ref([]);
 
-// Watcher pour mettre à jour les produits suivis affichés lorsque les données changent
 watch(
   followedProducts,
   (newVal) => {
@@ -193,10 +188,9 @@ watch(
 const orders = ref([]);
 const orderSearchQuery = ref("");
 
-// Méthode pour récupérer les commandes de l'utilisateur
 const fetchUserOrders = async (userId) => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  console.log(`API URL: ${apiUrl}/orders?userId=${userId}`); // Ajoutez cette ligne pour vérifier l'URL complète
+
   try {
     const response = await fetch(`${apiUrl}/orders?userId=${userId}`, {
       headers: {
@@ -216,7 +210,6 @@ const fetchUserOrders = async (userId) => {
   }
 };
 
-// Watcher pour filtrer les commandes en fonction de la recherche
 const filteredOrders = computed(() => {
   return orders.value.filter((order) => {
     const orderIdMatch = order.id.toString().includes(orderSearchQuery.value);
@@ -297,8 +290,6 @@ const updateProfile = () => {
     updatedUserData = { ...updatedUserData, address: formattedAddress };
   }
 
-  console.log("Données utilisateur avant envoi :", updatedUserData);
-
   userStore.updateUser(userData.value.user_id, updatedUserData);
 };
 
@@ -316,14 +307,14 @@ const sendResetEmail = async () => {
 
   if (response.ok) {
     setFlashMessage("Un email de réinitialisation a été envoyé.");
-    setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+    setTimeout(() => (flashMessage.value = ""), 3000);
   } else {
     const errorData = await response.json();
     setFlashMessage(
       errorData.message ||
         "Erreur lors de l'envoi de l'email de réinitialisation."
     );
-    setTimeout(() => (flashMessage.value = ""), 3000); // Cache le message après 3 secondes
+    setTimeout(() => (flashMessage.value = ""), 3000);
   }
 };
 
@@ -347,13 +338,10 @@ const refundOrder = async (orderId) => {
 
     const updatedOrder = await response.json();
 
-    // Mise à jour de l'état local des commandes
     const orderIndex = orders.value.findIndex((order) => order.id === orderId);
     if (orderIndex !== -1) {
       orders.value[orderIndex].status = updatedOrder.order.status;
     }
-
-    console.log("Remboursement demandé avec succès:", updatedOrder);
   } catch (error) {
     console.error("Erreur lors de la demande de remboursement:", error);
   }
@@ -388,7 +376,7 @@ const reorder = async (products) => {
 
         if (checkStockData.available) {
           await cartStore.addItemToCart(product);
-          await new Promise((resolve) => setTimeout(resolve, 100)); // 100ms delay between each add
+          await new Promise((resolve) => setTimeout(resolve, 100));
         } else {
           setFlashMessage(
             "Stock indisponible pour commander à nouveau",
@@ -412,11 +400,9 @@ const reorder = async (products) => {
 const downloadInvoice = async (order) => {
   const doc = new jsPDF();
 
-  // Add invoice title at the top
   doc.setFontSize(18);
   doc.text("Facture", 14, 15);
 
-  // Add company details on the left
   doc.setFontSize(12);
   doc.text("Astroverse", 14, 25);
   doc.text("34 rue astrobouse, 75012 PARIS", 14, 30);
@@ -425,14 +411,12 @@ const downloadInvoice = async (order) => {
   doc.text("Numéro SIRET : 123 321 213", 14, 45);
   doc.text("Numéro de TVA intracommunautaire : FR72 934 710 566", 14, 50);
 
-  // Add customer details on the right
   doc.text(`Nom de l'acheteur :`, 140, 25);
   doc.text(`${order.firstName} ${order.lastName}`, 140, 30);
   const billingAddress = order.billingAddress.replace(/, /g, "\n");
   doc.text(`Adresse de facturation :`, 140, 35);
   doc.text(billingAddress, 140, 40);
 
-  // Add invoice details below company and customer details
   doc.text(`Facture n° : ${order.id}`, 14, 60);
   doc.text(
     `Date de facturation : ${new Date(order.createdAt).toLocaleDateString()}`,
@@ -440,7 +424,6 @@ const downloadInvoice = async (order) => {
     66
   );
 
-  // Add table with order items
   const tableColumn = [
     "Produit",
     "Quantité",
@@ -472,14 +455,12 @@ const downloadInvoice = async (order) => {
 
   doc.autoTable(tableColumn, tableRows, { startY: 75 });
 
-  // Calculate totals
   const totalHT = order.products
     .reduce((acc, product) => acc + product.quantity * product.price, 0)
     .toFixed(2);
   const totalTVA = (totalHT * 0.2).toFixed(2);
   const totalTTC = (parseFloat(totalHT) + parseFloat(totalTVA)).toFixed(2);
 
-  // Add totals
   doc.text(`Total HT : ${totalHT} €`, 14, doc.autoTable.previous.finalY + 10);
   doc.text(
     `Total TVA (20%) : ${totalTVA} €`,
@@ -488,7 +469,6 @@ const downloadInvoice = async (order) => {
   );
   doc.text(`Total TTC : ${totalTTC} €`, 14, doc.autoTable.previous.finalY + 22);
 
-  // Add payment details
   doc.text(
     "Modalités de paiement : Stripe",
     14,
@@ -500,11 +480,9 @@ const downloadInvoice = async (order) => {
     doc.autoTable.previous.finalY + 38
   );
 
-  // Save the PDF
   doc.save(`facture_${order.id}.pdf`);
 };
 
-// Define the fetchProductDetails function
 const fetchProductDetails = async (productId) => {
   try {
     const response = await fetch(`${apiUrl}/products/${productId}`, {
@@ -522,7 +500,6 @@ const fetchProductDetails = async (productId) => {
   }
 };
 
-// Nouvelle méthode pour supprimer le compte
 const deleteAccount = async () => {
   if (
     confirm(
@@ -549,7 +526,6 @@ const deleteAccount = async () => {
       }
 
       alert("Votre compte a été supprimé avec succès.");
-      // Logique de déconnexion ou de redirection après suppression du compte
     } catch (error) {
       console.error("Erreur lors de la suppression du compte:", error);
       alert(

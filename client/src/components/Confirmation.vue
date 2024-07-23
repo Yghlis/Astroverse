@@ -24,16 +24,15 @@
   
   <script setup>
   import { ref, onMounted } from 'vue';
-  import { useCartStore } from '../stores/cartStore'; // Assurez-vous que le chemin est correct
+  import { useCartStore } from '../stores/cartStore'; 
   
   const order = ref({});
-  const apiUrl = import.meta.env.VITE_API_URL; // Récupérer l'URL de l'API
-  const cartStore = useCartStore(); // Access the cart store
+  const apiUrl = import.meta.env.VITE_API_URL; 
+  const cartStore = useCartStore();
   
   const fetchOrderDetails = async (paymentIntent) => {
     try {
-      console.log('API URL:', apiUrl);
-      console.log('Fetching order details with Payment Intent ID:', paymentIntent);
+      
   
       const response = await fetch(`${apiUrl}/orders/payment-intent/${paymentIntent}`, {
         headers: {
@@ -41,7 +40,7 @@
         },
       });
   
-      console.log('Response status:', response.status);
+      
   
       if (!response.ok) {
         const errorText = await response.text();
@@ -50,21 +49,20 @@
       }
   
       const data = await response.json();
-      console.log('Order details fetched successfully:', data);
+      
       order.value = data;
     } catch (error) {
-      console.error('Error fetching order details:', error);
+      
     }
   };
   
   const getProductImageUrl = (imagePreviewPath) => {
-    // Supprimer la partie "/home/node" du chemin de l'image
     const sanitizedPath = imagePreviewPath.replace('/home/node', '');
     return `${apiUrl}${sanitizedPath}`;
   };
   
   const clearCart = () => {
-    cartStore.clearCart(); // Utiliser l'action clearCart du store
+    cartStore.clearCart(); 
   };
   
   onMounted(() => {
@@ -72,12 +70,8 @@
     const paymentIntent = query.get('payment_intent');
     const redirectStatus = query.get('redirect_status');
   
-    console.log('Redirect status:', redirectStatus);
-    console.log('Payment Intent:', paymentIntent);
   
     if (redirectStatus === 'succeeded' && paymentIntent) {
-      console.log('Payment succeeded:', paymentIntent);
-      // Fetch the order details using the paymentIntent ID
       fetchOrderDetails(paymentIntent);
       clearCart();
     } else {

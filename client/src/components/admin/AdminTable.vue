@@ -210,7 +210,7 @@ const selectedRows = ref([]);
 const universes = ref([]);
 const showConfirmDeleteSelectedModal = ref(false);
 
-const statusDropdownVisible = ref(null); // ID of the order for which the dropdown is visible
+const statusDropdownVisible = ref(null);
 const newStatus = ref("");
 
 const universeFormStore = useUniverseFormStore();
@@ -286,14 +286,14 @@ const changePage = (page) => {
 };
 
 const confirmDelete = (row) => {
-  console.log(`Confirm delete for row: ${JSON.stringify(row)}`);
+
   rowToDelete.value = row;
   showConfirmModal.value = true;
 };
 
 const deleteRow = async () => {
-  const userId = rowToDelete.value.id || rowToDelete.value.user_id; // Try id first, then user_id
-  console.log(`Deleting user with ID: ${userId}`);
+  const userId = rowToDelete.value.id || rowToDelete.value.user_id; 
+
   const url = `${apiUrl}/${props.currentDataType}/${userId}`;
   try {
     const response = await fetch(url, {
@@ -355,7 +355,7 @@ const fetchUniverses = async () => {
 
 onMounted(() => {
   fetchUniverses();
-  console.log("Universes after fetching:", universes.value);
+  
 });
 
 const cancelDelete = () => {
@@ -438,7 +438,7 @@ const exportCSV = () => {
             const universeId = row[column].id || row[column];
             const universe = universes.value.find((u) => u.id === universeId);
             const universeName = universe ? universe.name : "Unknown Universe";
-            console.log(`Universe name for row ${row.id}: ${universeName}`);
+            
             return universeName;
           }
           return row[column];
@@ -459,7 +459,7 @@ const renderCell = (row, column) => {
     return row[column].name;
   }
   if (column === "universe" && row[column]) {
-    console.log(`Rendering universe for row ${row.id}:`, row[column]);
+   
     const universeId = row[column].id || row[column];
     const universe = universes.value.find((u) => u.id === universeId);
     if (universe) {
@@ -489,7 +489,6 @@ const adjustColor = (hex, percent) => {
 };
 
 const getClass = (cellValue, column) => {
-  console.log(`Getting class for ${column} with value: ${cellValue}`);
   if (column == "price") {
     return "high-price";
   }
@@ -537,7 +536,7 @@ const closeConsultModal = () => {
 
 const viewOrder = async (row) => {
   try {
-    console.log(`Fetching details for order ID: ${row.id}`);
+   
     const response = await fetch(`${apiUrl}/orders/${row.id}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("jwt")}`,
@@ -576,7 +575,7 @@ const confirmChangeOrderStatus = async (orderId) => {
 const changeOrderStatus = async (orderId) => {
   const url = `${apiUrl}/orders/${orderId}`;
   try {
-    console.log(`Changing status of order ${orderId} to ${newStatus.value}`);
+    
     const response = await fetch(url, {
       method: "PATCH",
       headers: {
@@ -592,12 +591,12 @@ const changeOrderStatus = async (orderId) => {
     setFlashMessage("Statut de la commande mis à jour avec succès", "success");
 
     if (newStatus.value === "Remboursée") {
-      console.log('Initiating refund process');
+      
       await refundOrder(orderId);
     }
 
     emit("reload:table");
-    statusDropdownVisible.value = null; // Hide the dropdown after update
+    statusDropdownVisible.value = null; 
   } catch (error) {
     console.error("Erreur lors de la mise à jour du statut:", error.message);
     setFlashMessage("Erreur lors de la mise à jour du statut", "error");
@@ -606,7 +605,6 @@ const changeOrderStatus = async (orderId) => {
 
 const refundOrder = async (orderId) => {
   try {
-    console.log(`Refunding order ${orderId}`);
     const response = await fetch(`${apiUrl}/orders/refund/${orderId}`, {
       method: "POST",
       headers: {
@@ -619,7 +617,7 @@ const refundOrder = async (orderId) => {
       throw new Error(`Erreur de remboursement: ${response.status} - ${errorMessage}`);
     }
     setFlashMessage("Remboursement effectué avec succès", "success");
-    console.log('Refund process completed successfully');
+    
   } catch (error) {
     console.error("Erreur lors du remboursement:", error.message);
     setFlashMessage("Erreur lors du remboursement", "error");
@@ -629,11 +627,11 @@ const refundOrder = async (orderId) => {
 const downloadInvoice = async (row) => {
   const doc = new jsPDF();
 
-  // Add invoice title at the top
+ 
   doc.setFontSize(18);
   doc.text("Facture", 14, 15);
 
-  // Add company details on the left
+
   doc.setFontSize(12);
   doc.text("Astroverse", 14, 25);
   doc.text("34 rue astrobouse, 75012 PARIS", 14, 30);
@@ -642,18 +640,18 @@ const downloadInvoice = async (row) => {
   doc.text("Numéro SIRET : 123 321 213", 14, 45);
   doc.text("Numéro de TVA intracommunautaire : FR72 934 710 566", 14, 50);
 
-  // Add customer details on the right
+
   doc.text(`Nom de l'acheteur :`, 140, 25);
   doc.text(`${row.firstName} ${row.lastName}`, 140, 30);
   const billingAddress = row.billingAddress.replace(/, /g, '\n');
   doc.text(`Adresse de facturation :`, 140, 35);
   doc.text(billingAddress, 140, 40);
 
-  // Add invoice details below company and customer details
+  
   doc.text(`Facture n° : ${row.id}`, 14, 60);
   doc.text(`Date de facturation : ${new Date(row.createdAt).toLocaleDateString()}`, 14, 66);
 
-  // Add table with order items
+ 
   const tableColumn = ["Produit", "Quantité", "Prix unitaire", "Total HT", "TVA (20%)", "Total TTC"];
   const tableRows = [];
 
@@ -676,25 +674,25 @@ const downloadInvoice = async (row) => {
 
   doc.autoTable(tableColumn, tableRows, { startY: 75 });
 
-  // Calculate totals
+ 
   const totalHT = row.products.reduce((acc, product) => acc + product.quantity * product.price, 0).toFixed(2);
   const totalTVA = (totalHT * 0.20).toFixed(2);
   const totalTTC = (parseFloat(totalHT) + parseFloat(totalTVA)).toFixed(2);
 
-  // Add totals
+ 
   doc.text(`Total HT : ${totalHT} €`, 14, doc.autoTable.previous.finalY + 10);
   doc.text(`Total TVA (20%) : ${totalTVA} €`, 14, doc.autoTable.previous.finalY + 16);
   doc.text(`Total TTC : ${totalTTC} €`, 14, doc.autoTable.previous.finalY + 22);
 
-  // Add payment details
+ 
   doc.text("Modalités de paiement : Stripe", 14, doc.autoTable.previous.finalY + 32);
   doc.text("Méthode de paiement : Carte de crédit", 14, doc.autoTable.previous.finalY + 38);
 
-  // Save the PDF
+ 
   doc.save(`facture_${row.id}.pdf`);
 };
 
-// Define the fetchProductDetails function
+
 const fetchProductDetails = async (productId) => {
   try {
     const response = await fetch(`${apiUrl}/products/${productId}`, {

@@ -43,22 +43,21 @@ const props = defineProps({
 });
 
 const getImageUrl = (absolutePath) => {
-  console.log("absolutePath:", absolutePath);
+
   if (!absolutePath) return '';
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
   const fullUrl = `${apiUrl}/uploads/${relativePath}`;
-  console.log("fullUrl:", fullUrl);
+  
   return fullUrl;
 };
 
-// Watcher pour loguer les changements dans cartItems
+
 watch(() => props.cartItems, (newVal) => {
-  console.log("Updated cartItems:", newVal);
+  
 }, { deep: true });
 
-// Log initial des cartItems
-console.log("Initial cartItems:", props.cartItems);
+
 </script>
 
 <style lang="scss" scoped>

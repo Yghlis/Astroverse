@@ -60,23 +60,35 @@
           </transition>
         </button>
         <button
-          :class="{ active: currentDataType === 'orders' }"
+          :class="{ active: currentDataType === 'orders', mini: !showSideBar }"
           @click="fetchData('orders')"
         >
-          Commandes
+          <span class="material-symbols-outlined"> shopping_cart </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Commandes</span>
+          </transition>
         </button>
         <button
-          :class="{ active: currentDataType === 'stock' }"
+          :class="{ active: currentDataType === 'stock', mini: !showSideBar }"
           @click="fetchData('stock')"
         >
-          Gestion de stock
+          <span class="material-symbols-outlined"> inventory </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Gestion stock</span>
+          </transition>
         </button>
-        <!-- Nouveau bouton Newsletter -->
+
         <button
-          :class="{ active: currentDataType === 'newsletters' }"
+          :class="{
+            active: currentDataType === 'newsletters',
+            mini: !showSideBar,
+          }"
           @click="fetchData('newsletters')"
         >
-          Newsletter
+          <span class="material-symbols-outlined"> mail </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Newsletter</span>
+          </transition>
         </button>
         <RouterLink
           :class="{
@@ -94,21 +106,26 @@
     <div class="admin-content" :class="{ active: showSideBar }">
       <transition name="slide" mode="out-in">
         <TheDashboard v-if="currentDataType === 'dashboard'"></TheDashboard>
-      <AdminTable
-        v-else-if="currentDataType !== 'stock' && currentDataType !== 'newsletters' && reloadTable && currentDataType !== 'dashboard'"
-        :key="currentDataType"
-        :data="tableData"
-        :columns="tableColumns"
-        :currentDataType="currentDataType"
-        @edit="handleEdit"
-        @view="handleView"
-        @row-deleted="handleRowDeleted"
-      />
-      <StockManagement
-        v-else-if="currentDataType === 'stock'"
-        :data="tableData"
-      />
-      <NewsletterManagement v-else />
+        <AdminTable
+          v-else-if="
+            currentDataType !== 'stock' &&
+            currentDataType !== 'newsletters' &&
+            reloadTable &&
+            currentDataType !== 'dashboard'
+          "
+          :key="currentDataType"
+          :data="tableData"
+          :columns="tableColumns"
+          :currentDataType="currentDataType"
+          @edit="handleEdit"
+          @view="handleView"
+          @row-deleted="handleRowDeleted"
+        />
+        <StockManagement
+          v-else-if="currentDataType === 'stock'"
+          :data="tableData"
+        />
+        <NewsletterManagement v-else />
       </transition>
     </div>
   </div>
@@ -179,7 +196,15 @@ const fetchData = async (type) => {
       break;
     case "orders":
       url = `${apiUrl}/orders`;
-      columns = ["id", "utilisateur", "email", "shippingAddress", "billingAddress", "totalPrice", "status"];
+      columns = [
+        "id",
+        "utilisateur",
+        "email",
+        "shippingAddress",
+        "billingAddress",
+        "totalPrice",
+        "status",
+      ];
       break;
     case "stock":
       url = `${apiUrl}/stock`;
@@ -207,13 +232,17 @@ const fetchData = async (type) => {
     let data = await response.json();
 
     if (type === "orders") {
-      const userResponses = await Promise.all(data.map(order => fetch(`${apiUrl}/users/${order.userId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        },
-      })));
+      const userResponses = await Promise.all(
+        data.map((order) =>
+          fetch(`${apiUrl}/users/${order.userId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+            },
+          })
+        )
+      );
 
-      const users = await Promise.all(userResponses.map(res => res.json()));
+      const users = await Promise.all(userResponses.map((res) => res.json()));
 
       data = data.map((order, index) => ({
         ...order,
@@ -242,7 +271,6 @@ const handleEdit = async (row) => {
       },
     });
     const data = await response.json();
-    console.log("Editing Row:", data);
   } else if (currentDataType.value === "products") {
     const response = await fetch(`${apiUrl}/products/${row.id}`, {
       headers: {
@@ -250,7 +278,6 @@ const handleEdit = async (row) => {
       },
     });
     const data = await response.json();
-    console.log("Editing Row:", data);
   }
 };
 
@@ -262,7 +289,6 @@ const handleView = async (row) => {
       },
     });
     const data = await response.json();
-    console.log("Viewing Row:", data);
   }
 };
 

@@ -1,8 +1,7 @@
 <template>
   <div class="card-wrapper">
     <a
-      :href="link"
-      target="_blank"
+      :href="url"
       class="card"
       :style="{
         background: `linear-gradient(45deg, ${color1}, ${color2})`,
@@ -25,12 +24,13 @@
 import { ref, computed, watch } from 'vue';
 import { useUniversesStore } from '../../stores/useUniversesStore';
 
+
+
 const props = defineProps({
   title: String,
   color1: String,
   color2: String,
   colorText: String,
-  link: String,
   id: String
 });
 
@@ -41,8 +41,15 @@ const isFollowed = computed(() => {
   return universeStore.followedUniverses.includes(props.id);
 });
 
+const url = computed(() => {
+  return `/shop?universes=${props.title}`;
+});
+
+const test = computed(() => {
+  return universeStore.universes;
+});
+
 const toggleFollow = async () => {
-  console.log("Toggling follow status for universe:", props.id);
   if (isFollowed.value) {
     await universeStore.unfollowUniverse(props.id);
   } else {

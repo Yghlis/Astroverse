@@ -20,7 +20,6 @@
         </div>
         <div class="modal-body">
           <div v-if="item">
-            <!-- Détails du produit -->
             <div v-if="currentDataType === 'products'">
               <p><strong>Nom du produit :</strong> {{ item.title }}</p>
               <p><strong>Marque :</strong> {{ item.brand }}</p>
@@ -63,19 +62,19 @@
                 </div>
               </div>
             </div>
-            <!-- Détails du personnage -->
+
             <div v-if="currentDataType === 'characters'">
               <p><strong>Nom du personnage :</strong> {{ item.name }}</p>
               <p><strong>Univers :</strong> {{ universeName }}</p>
             </div>
-            <!-- Détails de l'univers -->
+            
             <div v-if="currentDataType === 'universes'">
               <p><strong>Nom de l'univers :</strong> {{ item.name }}</p>
               <p><strong>Couleur 1 :</strong> {{ item.color1 }}</p>
               <p><strong>Couleur 2 :</strong> {{ item.color2 }}</p>
               <p><strong>Couleur du Texte :</strong> {{ item.colorText }}</p>
             </div>
-            <!-- Détails de la commande -->
+            
             <div v-if="currentDataType === 'orders'">
               <p><strong>Numéro de commande :</strong> {{ item.id }}</p>
               <div v-for="product in item.products" :key="product.productId" class="product-details">
@@ -93,7 +92,7 @@
               </div>
               <p><strong>Prix total :</strong> {{ item.totalPrice }}</p>
             </div>
-            <!-- Détails de l'utilisateur -->
+            
             <div v-if="currentDataType === 'users'">
               <p><strong>Prénom :</strong> {{ item.first_name }}</p>
               <p><strong>Nom :</strong> {{ item.last_name }}</p>
@@ -192,7 +191,7 @@ onMounted(async () => {
       throw new Error("Erreur lors de la récupération des données");
     }
     item.value = await response.json();
-    console.log("Item details:", item.value);
+
 
     if (props.currentDataType === "characters" && item.value.universe) {
       await characterFormStore.fetchUniverseNameById(item.value.universe);

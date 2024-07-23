@@ -330,7 +330,7 @@ const register = async () => {
       }),
     });
     const data = await response.json();
-    console.log("Register response:", data);
+   
     if (response.ok) {
       setFlashMessage("Inscription réussie !", "success");
       setTimeout(() => {
