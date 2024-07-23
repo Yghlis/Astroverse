@@ -7,6 +7,7 @@ export const useProductStore = defineStore("product", {
     loading: false,
     error: null,
     isFavorite: false,
+    isFollowing: false,
     followedProducts: {},
     favoriteProducts: {},
   }),
@@ -27,6 +28,7 @@ export const useProductStore = defineStore("product", {
 
         // Check if the product is favorite
         await this.checkIfFavorite(id);
+        await this.checkIfFollow(id);
       } catch (error) {
         this.error = "Failed to fetch product";
       } finally {
@@ -52,12 +54,12 @@ export const useProductStore = defineStore("product", {
           },
           body: JSON.stringify({ userId }),
         });
-        console.log("API response:", response);
         const responseData = await response.json();
         if (!response.ok) {
           console.error("Error message from API:", responseData);
           throw new Error(responseData.error || "Failed to follow product");
         }
+        this.isFollowing = true;
         useFlashMessageStore().setFlashMessage(
           "Product followed successfully",
           "success"
@@ -94,6 +96,7 @@ export const useProductStore = defineStore("product", {
           console.error("Error message from API:", responseData);
           throw new Error(responseData.error || "Failed to unfollow product");
         }
+        this.isFollowing = false;
         useFlashMessageStore().setFlashMessage(
           "Product unfollowed successfully",
           "success"
@@ -241,6 +244,24 @@ export const useProductStore = defineStore("product", {
       } catch (error) {
         console.error("Fetch error:", error.message);
       }
+    },
+
+    async checkIfFollow(productId) {
+      const userId = localStorage.getItem("userId");
+      await this.getFollowedProducts(userId);
+      console.log("Followed products from check:", this.followedProducts);
+
+      this.isFollowing = false; 
+      for (const product of this.followedProducts) {
+        console.log("Product", product);
+        console.log("Product ID", productId);
+        if (product.productId === productId) {
+          this.isFollowing = true;
+          break; 
+        }
+      }
+
+      console.log("Is following:", this.isFollowing);
     },
   },
 });

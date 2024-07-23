@@ -21,7 +21,6 @@
         :color1="univers.color1"
         :color2="univers.color2"
         :colorText="univers.colorText"
-        :link="univers.link"
         @followed="setFlashMessage('Univers suivi', 'success')"
         @unfollowed="setFlashMessage('Univers non suivi', 'error')"
       />

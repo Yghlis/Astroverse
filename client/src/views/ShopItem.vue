@@ -55,7 +55,9 @@
             }}
             €
           </span>
-          <button v-if="stockDispo" @click="addToCart">Ajouter au panier</button>
+          <button v-if="stockDispo" @click="addToCart">
+            Ajouter au panier
+          </button>
           <button v-else disabled>Indisponible</button>
         </div>
         <div v-if="product.is_promotion" class="call-to-action alt">
@@ -98,7 +100,7 @@ const router = useRouter();
 const zoomIn = ref(false);
 const productStore = useProductStore();
 const activeImage = ref("null");
-const notification = ref(false);
+const notification = computed(() => productStore.isFollowing);
 const product = computed(() => productStore.product);
 const loading = computed(() => productStore.loading);
 const error = computed(() => productStore.error);
@@ -155,13 +157,9 @@ const discountPercentage = computed(() => {
 });
 
 const toggleNotification = async () => {
-  notification.value = !notification.value;
   const userId = localStorage.getItem("userId");
   const productId = product.value.id;
-  console.log("User ID:", userId);
-  console.log("Product ID:", productId);
-
-  if (notification.value) {
+  if (!notification.value) {
     await productStore.followProduct(userId, productId);
   } else {
     await productStore.unfollowProduct(userId, productId);
@@ -179,7 +177,7 @@ const toggleFavorite = async () => {
 
 const getImageUrl = (absolutePath) => {
   console.log("absolutePath:", absolutePath);
-  if (!absolutePath) return '';
+  if (!absolutePath) return "";
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
   const fullUrl = `${apiUrl}/uploads/${relativePath}`;
