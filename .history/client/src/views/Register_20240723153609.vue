@@ -487,8 +487,8 @@ const closeCGUModal = () => {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
-    width: 80%;
-    max-width: 80%;
+    width: 100%;
+    max-width: 600px;
     position: relative;
 
     .close {
