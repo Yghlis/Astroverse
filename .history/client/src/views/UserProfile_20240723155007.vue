@@ -61,7 +61,7 @@
       ></shopCard>
     </TheCarousel>
 
-    <h2>Mes catégories suivis</h2>
+    <h2>Mes produits suivis</h2>
     <TheCarousel>
       <shopCard
         v-for="item in displayProducts"
