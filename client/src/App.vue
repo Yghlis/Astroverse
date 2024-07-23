@@ -55,7 +55,6 @@ const logout = () => {
   localStorage.removeItem("firstName");
   localStorage.removeItem("lastName");
   isLoggedIn.value = false;
-  console.log("Déconnexion réussie");
 };
 </script>
 

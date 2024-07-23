@@ -2,7 +2,6 @@
   <div class="container-landing">
     <VideoPlayer :mediaItems="mediaItems"></VideoPlayer>
     <HighLight :topProducts="topViewedProducts"></HighLight>
-    <TheSearch></TheSearch>
     <UniversDisplay></UniversDisplay>
   </div>
 </template>

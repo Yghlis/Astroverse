@@ -50,7 +50,6 @@ const test = computed(() => {
 });
 
 const toggleFollow = async () => {
-  console.log("Toggling follow status for universe:", props.id);
   if (isFollowed.value) {
     await universeStore.unfollowUniverse(props.id);
   } else {

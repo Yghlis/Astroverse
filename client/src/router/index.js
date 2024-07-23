@@ -53,14 +53,10 @@ router.beforeEach((to, from, next) => {
       console.error("Failed to decode JWT:", error);
     }
   } else {
-    console.log("Token JWT non trouvé dans le localStorage.");
+   
   }
 
-  console.log("JWT:", isAuthenticated);
-  console.log("userId:", userId);
-  console.log("Role:", userRole);
-  console.log("Value JWT:", token);
-  console.log("Must Change Password:", mustChangePassword);
+
 
   if (mustChangePassword && to.name !== "ChangePassword") {
     next({ name: "ChangePassword", params: { userId, token } });

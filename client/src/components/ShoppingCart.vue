@@ -24,14 +24,14 @@ import ShopCart from '../ui/ShopCart.vue';
 
 const cartStore = useCartStore();
 const router = useRouter();
-const { setFlashMessage } = useFlashMessageStore(); // Utilisation du store des messages flash
+const { setFlashMessage } = useFlashMessageStore(); 
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
 const incrementItemQuantity = async (itemId) => {
   const item = cartItems.value.find(cartItem => cartItem.productId === itemId);
   if (item) {
-    await cartStore.addItemToCart(item, true); // Passez true pour indiquer que c'est une incrémentation
+    await cartStore.addItemToCart(item, true); 
   }
 };
 const decrementItemQuantity = (itemId) => {
@@ -48,16 +48,16 @@ const removeItem = async (itemId) => {
 
 const emit = defineEmits(["update:hideCartSideBar"]);
 
-// Fonction pour émettre l'événement
+
 const toggle = () => {
   emit("update:hideCartSideBar", false);
 };
 
-// Fonction pour gérer le passage à la caisse
+
 const handleCheckout = async () => {
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // Vérifier si l'utilisateur est connecté
+ 
   const jwt = localStorage.getItem('jwt');
   if (!jwt) {
     setFlashMessage('Vous devez être connecté pour passer votre commande.', 'error');
@@ -81,7 +81,7 @@ const handleCheckout = async () => {
     }
 
     const data = await response.json();
-    console.log('Basket items:', data.items);
+    
 
     if (data.items.length === 0) {
       setFlashMessage('Votre panier est vide', 'error');

@@ -29,11 +29,9 @@ export const useShopStore = defineStore("shop", {
 
   actions: {
     async fetchProducts(url = null) {
-      console.log("fetchProducts called with URL:", url);
       this.loading = true;
-      this.fetching = true; // Marque le début de la requête
+      this.fetching = true;
       const apiUrl = url || import.meta.env.VITE_API_URL + "/products";
-      console.log("Final API URL:", apiUrl);
 
       this.error = null;
       try {
@@ -132,9 +130,6 @@ export const useShopStore = defineStore("shop", {
 
       const url = `${apiUrl}?${params.toString()}`;
 
-      console.log("Filter URL:", url);
-
-      // Appel à fetchProducts avec l'URL filtrée
       this.fetchProducts(url);
     },
 
@@ -175,7 +170,6 @@ export const useShopStore = defineStore("shop", {
   },
 });
 
-// Fonction pour regarder les changements dans selectedFilters et search
 export function setupStoreWatchers(store) {
   watch(
     () => store.selectedFilters,

@@ -29,7 +29,6 @@
             {{ flashMessage }}
           </p>
           <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-            <!-- Formulaire pour les produits -->
             <div v-if="currentDataType === 'products'">
               <label for="title">Nom du produit</label>
               <input id="title" v-model="formData.title" type="text" />
@@ -214,7 +213,6 @@
               <span>{{ errors.tags }}</span>
             </div>
 
-            <!-- Formulaire pour les univers -->
             <div v-if="currentDataType === 'universes'">
               <label for="name">Nom de l'univers</label>
               <input id="name" v-model="formData.name" type="text" />
@@ -248,7 +246,6 @@
               <span>{{ errors.colorText }}</span>
             </div>
 
-            <!-- Formulaire pour les personnages -->
             <div v-if="currentDataType === 'characters'">
               <label for="name">Nom du personnage</label>
               <input id="name" v-model="formData.name" type="text" />
@@ -267,7 +264,6 @@
               <span>{{ errors.universe }}</span>
             </div>
 
-            <!-- Formulaire pour les utilisateurs -->
             <div v-if="currentDataType === 'users'">
               <label for="first_name">Prénom</label>
               <input
@@ -438,8 +434,6 @@ const handleImageGalleryChange = (event, index) => {
 };
 
 const onSubmit = async () => {
-  console.log("Form data before submit:", formData.value); // Debug log
-
   if (props.currentDataType === "products") {
     formData.value.details = {
       dimensions: detailsData.dimensions,
@@ -467,16 +461,12 @@ onMounted(async () => {
     props.currentDataType === "products" ||
     props.currentDataType === "characters"
   ) {
-    console.log("Fetching universes and characters on modal mount...");
     if (props.currentDataType === "products") {
       productFormStore.resetFormData();
       await productFormStore.fetchUniverses();
       await productFormStore.fetchCharacters();
-      console.log("Universes fetched:", productFormStore.universes);
-      console.log("Characters fetched:", productFormStore.characters);
     } else if (props.currentDataType === "characters") {
       await characterFormStore.fetchUniverses();
-      console.log("Universes fetched:", characterFormStore.universes);
     }
   }
 });

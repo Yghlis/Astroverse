@@ -131,7 +131,6 @@ onMounted(async () => {
   const productId = route.params.id;
   await productStore.fetchProduct(productId);
   activeImage.value = product.value.image_gallery[0];
-  console.log("Product fetched:", product.value);
 });
 
 const zoomInImg = () => {
@@ -176,18 +175,16 @@ const toggleFavorite = async () => {
 };
 
 const getImageUrl = (absolutePath) => {
-  console.log("absolutePath:", absolutePath);
   if (!absolutePath) return "";
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
   const fullUrl = `${apiUrl}/uploads/${relativePath}`;
-  console.log("fullUrl:", fullUrl);
+
   return fullUrl;
 };
 
 const cartStore = useCartStore();
 const addToCart = () => {
-  console.log("Adding to cart:", product.value);
   cartStore.addItemToCart(product.value);
 };
 </script>

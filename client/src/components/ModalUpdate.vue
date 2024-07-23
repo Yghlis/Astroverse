@@ -29,7 +29,6 @@
             {{ flashMessage }}
           </p>
           <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-            <!-- Formulaire pour les produits -->
             <div v-if="currentDataType === 'products' && modalType === 'edit'">
               <label for="title">Nom du produit</label>
               <input id="title" v-model="formData.title" type="text" />
@@ -217,7 +216,6 @@
               <span>{{ errors.tags }}</span>
             </div>
 
-            <!-- Formulaire pour les univers -->
             <div v-if="currentDataType === 'universes' && modalType === 'edit'">
               <label for="name">Nom de l'univers</label>
               <input id="name" v-model="formData.name" type="text" />
@@ -251,7 +249,6 @@
               <span>{{ errors.colorText }}</span>
             </div>
 
-            <!-- Formulaire pour les personnages -->
             <div
               v-if="currentDataType === 'characters' && modalType === 'edit'"
             >
@@ -461,7 +458,6 @@ const capitalizeEmail = () => {
 };
 
 const onSubmit = async () => {
-  console.log("Form data before submit:", formData.value); // Debug log
   if (props.currentDataType === "products") {
     formData.value.details = {
       dimensions: detailsData.dimensions,
@@ -488,15 +484,10 @@ watch(
   () => props.currentDataType,
   async (newType) => {
     if (newType === "characters") {
-      console.log("Fetching universes for characters...");
       await characterFormStore.fetchUniverses();
-      console.log("Universes fetched:", characterFormStore.universes);
     } else if (newType === "products") {
-      console.log("Fetching universes and characters for products...");
       await productFormStore.fetchUniverses();
       await productFormStore.fetchCharacters();
-      console.log("Universes fetched:", productFormStore.universes);
-      console.log("Characters fetched:", productFormStore.characters);
     }
   }
 );
@@ -504,7 +495,6 @@ watch(
 watch(
   () => props.selectedRow,
   (newRow) => {
-    console.log("selectedRow:", newRow);
     if (props.currentDataType === "characters" && newRow) {
       characterFormStore.setFormData({
         ...newRow,
@@ -547,15 +537,10 @@ watch(
 
 onMounted(async () => {
   if (props.currentDataType === "characters") {
-    console.log("Fetching universes on modal mount...");
     await characterFormStore.fetchUniverses();
-    console.log("Universes fetched:", characterFormStore.universes);
   } else if (props.currentDataType === "products") {
-    console.log("Fetching universes and characters on modal mount...");
     await productFormStore.fetchUniverses();
     await productFormStore.fetchCharacters();
-    console.log("Universes fetched:", productFormStore.universes);
-    console.log("Characters fetched:", productFormStore.characters);
   }
 });
 </script>
