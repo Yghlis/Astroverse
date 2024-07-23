@@ -55,7 +55,10 @@
             }}
             €
           </span>
-          <button @click="addToCart">Ajouter au panier</button>
+          <button v-if="stockDispo" @click="addToCart">
+            Ajouter au panier
+          </button>
+          <button v-else disabled>Indisponible</button>
         </div>
         <div v-if="product.is_promotion" class="call-to-action alt">
           <span class="price-original"> {{ product.price }} € </span>
@@ -97,7 +100,7 @@ const router = useRouter();
 const zoomIn = ref(false);
 const productStore = useProductStore();
 const activeImage = ref("null");
-const notification = ref(false);
+const notification = computed(() => productStore.isFollowing);
 const product = computed(() => productStore.product);
 const loading = computed(() => productStore.loading);
 const error = computed(() => productStore.error);
@@ -105,12 +108,16 @@ const isFavorite = computed(() => productStore.isFavorite);
 const parsedDetails = computed(() => {
   try {
     return product.value && product.value.details
-      ? JSON.parse(product.value.details)
+      ? JSON.parse(JSON.stringify(product.value.details))
       : {};
   } catch (e) {
     console.error("Invalid JSON:", e);
     return {};
   }
+});
+
+const stockDispo = computed(() => {
+  return product.value.stock > 0 ? true : false;
 });
 
 const formatProductNameForURL = (name) => {
@@ -149,13 +156,9 @@ const discountPercentage = computed(() => {
 });
 
 const toggleNotification = async () => {
-  notification.value = !notification.value;
   const userId = localStorage.getItem("userId");
   const productId = product.value.id;
-  console.log("User ID:", userId);
-  console.log("Product ID:", productId);
-
-  if (notification.value) {
+  if (!notification.value) {
     await productStore.followProduct(userId, productId);
   } else {
     await productStore.unfollowProduct(userId, productId);
@@ -172,11 +175,12 @@ const toggleFavorite = async () => {
 };
 
 const getImageUrl = (absolutePath) => {
-  console.log(absolutePath);
+  if (!absolutePath) return "";
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
-  console.log(`${apiUrl}/uploads/${relativePath}`);
-  return `${apiUrl}/uploads/${relativePath}`;
+  const fullUrl = `${apiUrl}/uploads/${relativePath}`;
+
+  return fullUrl;
 };
 
 const cartStore = useCartStore();
@@ -345,6 +349,11 @@ const addToCart = () => {
           &:active {
             background-color: #43af40;
             color: white;
+          }
+          &:disabled {
+            background-color: #e2e2e2;
+            color: #797979;
+            cursor: not-allowed;
           }
         }
         .price-original {

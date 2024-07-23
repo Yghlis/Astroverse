@@ -31,8 +31,7 @@
   const handleSubmitForm = async () => {
     trimData();
     await handleSubmit(async (data) => {
-      // Remplacez ceci par votre fonction de soumission
-      console.log('Submitting data:', data);
+      
     });
   };
   </script>

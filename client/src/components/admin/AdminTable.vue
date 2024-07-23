@@ -13,7 +13,7 @@
     </p>
     <h1>Tableau de Bord des {{ tableTitle }}</h1>
     <p>
-      Bienvenue sur votre tableau de bord, adminName! Vous pouvez gérer les
+      Bienvenue sur votre tableau de bord, Vous pouvez gérer les
       {{ tableTitle }} depuis ici.
     </p>
     <div class="table-controls">
@@ -70,21 +70,37 @@
               }"
               >{{ renderCell(row, column) }}</span
             >
-
             <span v-else>
               {{ renderCell(row, column) }}
             </span>
           </td>
           <td>
-            <button class="view" @click="openModal('view', row)">
-              Consulter
-            </button>
-            <button class="edit" @click="openModal('edit', row)">
-              Modifier
-            </button>
-            <button class="delete" @click="confirmDelete(row)">
-              Supprimer
-            </button>
+            <template v-if="currentDataType === 'orders'">
+              <button class="view" @click="viewOrder(row)">Voir</button>
+              <button class="edit" @click="toggleStatusDropdown(row.id)">Changer le status</button>
+              <div v-if="row.id === statusDropdownVisible" class="status-dropdown">
+                <select v-model="newStatus" @change="confirmChangeOrderStatus(row.id)">
+                  <option value="En cours">En cours</option>
+                  <option value="Expédiée">Expédiée</option>
+                  <option value="Livrée">Livrée</option>
+                  <option value="Échouée">Échouée</option>
+                  <option value="Retour reçue">Retour reçue</option>
+                  <option value="Remboursée">Remboursée</option>
+                </select>
+              </div>
+              <button class="download" @click="downloadInvoice(row)">Télécharger la facture</button>
+            </template>
+            <template v-else>
+              <button class="view" @click="openModal('view', row)">
+                Consulter
+              </button>
+              <button class="edit" @click="openModal('edit', row)">
+                Modifier
+              </button>
+              <button class="delete" @click="confirmDelete(row)">
+                Supprimer
+              </button>
+            </template>
           </td>
         </tr>
       </tbody>
@@ -165,6 +181,9 @@ import { useUniverseFormStore } from "../../stores/universeFormStore";
 import { useCharacterFormStore } from "../../stores/characterFormStore";
 import { useProductFormStore } from "../../stores/productFormStore";
 import useFlashMessageStore from "../../composables/useFlashMessageStore";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+
 
 const props = defineProps({
   data: Array,
@@ -174,7 +193,6 @@ const props = defineProps({
 
 const emit = defineEmits(["edit", "view", "row-deleted", "reload:table"]);
 const apiUrl = import.meta.env.VITE_API_URL;
-
 
 const searchQuery = ref("");
 const currentPage = ref(1);
@@ -191,6 +209,9 @@ const selectedRow = ref(null);
 const selectedRows = ref([]);
 const universes = ref([]);
 const showConfirmDeleteSelectedModal = ref(false);
+
+const statusDropdownVisible = ref(null);
+const newStatus = ref("");
 
 const universeFormStore = useUniverseFormStore();
 const characterFormStore = useCharacterFormStore();
@@ -220,6 +241,8 @@ const tableTitle = computed(() => {
     return "Univers";
   } else if (props.currentDataType === "characters") {
     return "Personnages";
+  } else if (props.currentDataType === "orders") {
+    return "Commandes";
   }
 });
 
@@ -263,14 +286,14 @@ const changePage = (page) => {
 };
 
 const confirmDelete = (row) => {
-  console.log(`Confirm delete for row: ${JSON.stringify(row)}`);
+
   rowToDelete.value = row;
   showConfirmModal.value = true;
 };
 
 const deleteRow = async () => {
-  const userId = rowToDelete.value.id || rowToDelete.value.user_id; // Try id first, then user_id
-  console.log(`Deleting user with ID: ${userId}`);
+  const userId = rowToDelete.value.id || rowToDelete.value.user_id; 
+
   const url = `${apiUrl}/${props.currentDataType}/${userId}`;
   try {
     const response = await fetch(url, {
@@ -332,7 +355,7 @@ const fetchUniverses = async () => {
 
 onMounted(() => {
   fetchUniverses();
-  console.log("Universes after fetching:", universes.value);
+  
 });
 
 const cancelDelete = () => {
@@ -415,7 +438,7 @@ const exportCSV = () => {
             const universeId = row[column].id || row[column];
             const universe = universes.value.find((u) => u.id === universeId);
             const universeName = universe ? universe.name : "Unknown Universe";
-            console.log(`Universe name for row ${row.id}: ${universeName}`);
+            
             return universeName;
           }
           return row[column];
@@ -436,7 +459,7 @@ const renderCell = (row, column) => {
     return row[column].name;
   }
   if (column === "universe" && row[column]) {
-    console.log(`Rendering universe for row ${row.id}:`, row[column]);
+   
     const universeId = row[column].id || row[column];
     const universe = universes.value.find((u) => u.id === universeId);
     if (universe) {
@@ -466,7 +489,6 @@ const adjustColor = (hex, percent) => {
 };
 
 const getClass = (cellValue, column) => {
-  console.log(`Getting class for ${column} with value: ${cellValue}`);
   if (column == "price") {
     return "high-price";
   }
@@ -510,6 +532,182 @@ const closeCreateModal = () => {
 
 const closeConsultModal = () => {
   showConsultModal.value = false;
+};
+
+const viewOrder = async (row) => {
+  try {
+   
+    const response = await fetch(`${apiUrl}/orders/${row.id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Erreur lors de la récupération des détails de la commande");
+    }
+    const orderDetails = await response.json();
+    selectedRow.value = orderDetails;
+    showConsultModal.value = true;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des détails de la commande:", error.message);
+  }
+};
+
+const toggleStatusDropdown = (orderId) => {
+  if (statusDropdownVisible.value === orderId) {
+    statusDropdownVisible.value = null;
+  } else {
+    statusDropdownVisible.value = orderId;
+  }
+};
+
+const confirmChangeOrderStatus = async (orderId) => {
+  if (newStatus.value === "Remboursée") {
+    const userConfirmed = confirm("Êtes-vous sûr de vouloir rembourser la commande ?");
+    if (!userConfirmed) {
+      return; // Si l'utilisateur annule, on arrête l'exécution de la fonction
+    }
+  }
+
+  await changeOrderStatus(orderId);
+};
+
+const changeOrderStatus = async (orderId) => {
+  const url = `${apiUrl}/orders/${orderId}`;
+  try {
+    
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+      body: JSON.stringify({ status: newStatus.value }),
+    });
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      throw new Error(`Erreur: ${response.status} - ${errorMessage}`);
+    }
+    setFlashMessage("Statut de la commande mis à jour avec succès", "success");
+
+    if (newStatus.value === "Remboursée") {
+      
+      await refundOrder(orderId);
+    }
+
+    emit("reload:table");
+    statusDropdownVisible.value = null; 
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du statut:", error.message);
+    setFlashMessage("Erreur lors de la mise à jour du statut", "error");
+  }
+};
+
+const refundOrder = async (orderId) => {
+  try {
+    const response = await fetch(`${apiUrl}/orders/refund/${orderId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+    });
+    if (!response.ok) {
+      const errorMessage = await response.text();
+      throw new Error(`Erreur de remboursement: ${response.status} - ${errorMessage}`);
+    }
+    setFlashMessage("Remboursement effectué avec succès", "success");
+    
+  } catch (error) {
+    console.error("Erreur lors du remboursement:", error.message);
+    setFlashMessage("Erreur lors du remboursement", "error");
+  }
+};
+
+const downloadInvoice = async (row) => {
+  const doc = new jsPDF();
+
+ 
+  doc.setFontSize(18);
+  doc.text("Facture", 14, 15);
+
+
+  doc.setFontSize(12);
+  doc.text("Astroverse", 14, 25);
+  doc.text("34 rue astrobouse, 75012 PARIS", 14, 30);
+  doc.text("0656554455", 14, 35);
+  doc.text("Astroverse-Admin@gmail.com", 14, 40);
+  doc.text("Numéro SIRET : 123 321 213", 14, 45);
+  doc.text("Numéro de TVA intracommunautaire : FR72 934 710 566", 14, 50);
+
+
+  doc.text(`Nom de l'acheteur :`, 140, 25);
+  doc.text(`${row.firstName} ${row.lastName}`, 140, 30);
+  const billingAddress = row.billingAddress.replace(/, /g, '\n');
+  doc.text(`Adresse de facturation :`, 140, 35);
+  doc.text(billingAddress, 140, 40);
+
+  
+  doc.text(`Facture n° : ${row.id}`, 14, 60);
+  doc.text(`Date de facturation : ${new Date(row.createdAt).toLocaleDateString()}`, 14, 66);
+
+ 
+  const tableColumn = ["Produit", "Quantité", "Prix unitaire", "Total HT", "TVA (20%)", "Total TTC"];
+  const tableRows = [];
+
+  for (const product of row.products) {
+    const productDetails = await fetchProductDetails(product.productId);
+    const productTitle = productDetails ? productDetails.title : 'Produit sans titre';
+    const totalHT = product.quantity * product.price;
+    const tva = totalHT * 0.20;
+    const totalTTC = totalHT + tva;
+    const productData = [
+      productTitle,
+      product.quantity,
+      `${product.price} €`,
+      `${totalHT.toFixed(2)} €`,
+      `${tva.toFixed(2)} €`,
+      `${totalTTC.toFixed(2)} €`
+    ];
+    tableRows.push(productData);
+  }
+
+  doc.autoTable(tableColumn, tableRows, { startY: 75 });
+
+ 
+  const totalHT = row.products.reduce((acc, product) => acc + product.quantity * product.price, 0).toFixed(2);
+  const totalTVA = (totalHT * 0.20).toFixed(2);
+  const totalTTC = (parseFloat(totalHT) + parseFloat(totalTVA)).toFixed(2);
+
+ 
+  doc.text(`Total HT : ${totalHT} €`, 14, doc.autoTable.previous.finalY + 10);
+  doc.text(`Total TVA (20%) : ${totalTVA} €`, 14, doc.autoTable.previous.finalY + 16);
+  doc.text(`Total TTC : ${totalTTC} €`, 14, doc.autoTable.previous.finalY + 22);
+
+ 
+  doc.text("Modalités de paiement : Stripe", 14, doc.autoTable.previous.finalY + 32);
+  doc.text("Méthode de paiement : Carte de crédit", 14, doc.autoTable.previous.finalY + 38);
+
+ 
+  doc.save(`facture_${row.id}.pdf`);
+};
+
+
+const fetchProductDetails = async (productId) => {
+  try {
+    const response = await fetch(`${apiUrl}/products/${productId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Erreur lors de la récupération des détails du produit");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Erreur:", error.message);
+    return null;
+  }
 };
 </script>
 
@@ -789,6 +987,15 @@ const closeConsultModal = () => {
 
         &:hover {
           background-color: #c82333;
+        }
+      }
+
+      &.download {
+        background-color: #17a2b8;
+        color: white;
+
+        &:hover {
+          background-color: #138496;
         }
       }
     }

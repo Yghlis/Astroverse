@@ -12,13 +12,14 @@
                 ? "du Personnage"
                 : currentDataType === "universes"
                 ? "de l'Univers"
+                : currentDataType === "orders"
+                ? "de la Commande"
                 : "de l'Utilisateur"
             }}
           </h3>
         </div>
         <div class="modal-body">
           <div v-if="item">
-            <!-- Détails du produit -->
             <div v-if="currentDataType === 'products'">
               <p><strong>Nom du produit :</strong> {{ item.title }}</p>
               <p><strong>Marque :</strong> {{ item.brand }}</p>
@@ -61,19 +62,37 @@
                 </div>
               </div>
             </div>
-            <!-- Détails du personnage -->
+
             <div v-if="currentDataType === 'characters'">
               <p><strong>Nom du personnage :</strong> {{ item.name }}</p>
               <p><strong>Univers :</strong> {{ universeName }}</p>
             </div>
-            <!-- Détails de l'univers -->
+            
             <div v-if="currentDataType === 'universes'">
               <p><strong>Nom de l'univers :</strong> {{ item.name }}</p>
               <p><strong>Couleur 1 :</strong> {{ item.color1 }}</p>
               <p><strong>Couleur 2 :</strong> {{ item.color2 }}</p>
               <p><strong>Couleur du Texte :</strong> {{ item.colorText }}</p>
             </div>
-            <!-- Détails de l'utilisateur -->
+            
+            <div v-if="currentDataType === 'orders'">
+              <p><strong>Numéro de commande :</strong> {{ item.id }}</p>
+              <div v-for="product in item.products" :key="product.productId" class="product-details">
+                <img
+                  :src="getImageUrl(product.image_preview)"
+                  alt="Image Preview"
+                  class="product-image"
+                  v-if="product.image_preview"
+                />
+                <div class="product-info">
+                  <p><strong>Nom du produit :</strong> {{ product.title }}</p>
+                  <p><strong>Quantité :</strong> {{ product.quantity }}</p>
+                  <p><strong>Prix :</strong> {{ product.price }}</p>
+                </div>
+              </div>
+              <p><strong>Prix total :</strong> {{ item.totalPrice }}</p>
+            </div>
+            
             <div v-if="currentDataType === 'users'">
               <p><strong>Prénom :</strong> {{ item.first_name }}</p>
               <p><strong>Nom :</strong> {{ item.last_name }}</p>
@@ -145,7 +164,6 @@ const characterFormStore = useCharacterFormStore();
 const universeName = ref("");
 const apiUrl = import.meta.env.VITE_API_URL;
 
-
 const getImageUrl = (filename) => {
   return `${apiUrl}/uploads/${filename.split("/").pop()}`;
 };
@@ -160,6 +178,8 @@ onMounted(async () => {
     url = `${apiUrl}/universes/${props.selectedRow.id}`;
   } else if (props.currentDataType === "users") {
     url = `${apiUrl}/users/${props.selectedRow.user_id}`;
+  } else if (props.currentDataType === "orders") {
+    url = `${apiUrl}/orders/${props.selectedRow.id}`;
   }
   try {
     const response = await fetch(url, {
@@ -171,7 +191,7 @@ onMounted(async () => {
       throw new Error("Erreur lors de la récupération des données");
     }
     item.value = await response.json();
-    console.log("Character details:", item.value);
+
 
     if (props.currentDataType === "characters" && item.value.universe) {
       await characterFormStore.fetchUniverseNameById(item.value.universe);
@@ -385,6 +405,29 @@ const parsedDetails = computed(() => {
       background-color: #6c757d;
       cursor: not-allowed;
     }
+  }
+}
+
+.product-details {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+
+  img.product-image {
+    max-width: 150px;
+    max-height: 150px;
+    width: auto;
+    height: auto;
+    margin-right: 20px;
+  }
+
+  .product-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  p {
+    margin: 0 10px;
   }
 }
 

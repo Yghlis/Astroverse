@@ -1,40 +1,63 @@
 <template>
   <transition-group name="list" tag="ul">
-    <li v-for="item in cartItems" :key="item.id">
-      <img :src="getImageUrl(item.image_gallery[0])" alt="item image" />
+    <li v-for="item in cartItems" :key="item.productId">
+      <img v-if="item.image_gallery && item.image_gallery.length" :src="getImageUrl(item.image_gallery[0])" alt="item image" />
       {{ item.title }}
       <div class="right">
         <div class="quantity">
-          <button class="control" @click="decrementItemQuantity(item.id)">
-            -</button
-          ><span>{{ item.quantity }}</span
-          ><button class="control" @click="incrementItemQuantity(item.id)">
-            +
-          </button>
+          <button class="control" @click="decrementItemQuantity(item.productId)">-</button>
+          <span>{{ item.quantity }}</span>
+          <button class="control" @click="incrementItemQuantity(item.productId)">+</button>
         </div>
         <span>{{ getItemPrice(item) * item.quantity }}€ </span>
-        <button @click="removeItem(item.id)">Supprimer</button>
+        <button @click="removeItem(item.productId)">Supprimer</button>
       </div>
     </li>
   </transition-group>
 </template>
 
 <script setup>
-import { defineProps, computed } from "vue";
+import { defineProps, watch } from 'vue';
 
 const props = defineProps({
-  cartItems: Array,
-  incrementItemQuantity: Function,
-  decrementItemQuantity: Function,
-  getItemPrice: Function,
-  removeItem: Function,
+  cartItems: {
+    type: Array,
+    default: () => []
+  },
+  incrementItemQuantity: {
+    type: Function,
+    required: true
+  },
+  decrementItemQuantity: {
+    type: Function,
+    required: true
+  },
+  getItemPrice: {
+    type: Function,
+    required: true
+  },
+  removeItem: {
+    type: Function,
+    required: true
+  },
 });
 
 const getImageUrl = (absolutePath) => {
+
+  if (!absolutePath) return '';
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
-  return `${apiUrl}/uploads/${relativePath}`;
+  const fullUrl = `${apiUrl}/uploads/${relativePath}`;
+  
+  return fullUrl;
 };
+
+
+watch(() => props.cartItems, (newVal) => {
+  
+}, { deep: true });
+
+
 </script>
 
 <style lang="scss" scoped>

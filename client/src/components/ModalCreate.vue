@@ -29,7 +29,6 @@
             {{ flashMessage }}
           </p>
           <form @submit.prevent="onSubmit" enctype="multipart/form-data">
-            <!-- Formulaire pour les produits -->
             <div v-if="currentDataType === 'products'">
               <label for="title">Nom du produit</label>
               <input id="title" v-model="formData.title" type="text" />
@@ -172,15 +171,12 @@
               <span>{{ errors.character }}</span>
 
               <label for="universe">Univers</label>
-              <select id="universe" v-model="formData.universe">
-                <option
-                  v-for="universe in universes"
-                  :key="universe.id"
-                  :value="universe.id"
-                >
-                  {{ universe.name }}
-                </option>
-              </select>
+              <input
+                id="universe"
+                v-model="formData.universe"
+                type="text"
+                disabled
+              />
               <span>{{ errors.universe }}</span>
 
               <label for="reference">Référence</label>
@@ -217,26 +213,39 @@
               <span>{{ errors.tags }}</span>
             </div>
 
-            <!-- Formulaire pour les univers -->
             <div v-if="currentDataType === 'universes'">
               <label for="name">Nom de l'univers</label>
               <input id="name" v-model="formData.name" type="text" />
               <span>{{ errors.name }}</span>
 
               <label for="color1">Couleur 1</label>
-              <input id="color1" v-model="formData.color1" type="color" />
+              <input
+                class="colorPicker"
+                id="color1"
+                v-model="formData.color1"
+                type="color"
+              />
               <span>{{ errors.color1 }}</span>
 
               <label for="color2">Couleur 2</label>
-              <input id="color2" v-model="formData.color2" type="color" />
+              <input
+                class="colorPicker"
+                id="color2"
+                v-model="formData.color2"
+                type="color"
+              />
               <span>{{ errors.color2 }}</span>
 
               <label for="colorText">Couleur du Texte</label>
-              <input id="colorText" v-model="formData.colorText" type="color" />
+              <input
+                class="colorPicker"
+                id="colorText"
+                v-model="formData.colorText"
+                type="color"
+              />
               <span>{{ errors.colorText }}</span>
             </div>
 
-            <!-- Formulaire pour les personnages -->
             <div v-if="currentDataType === 'characters'">
               <label for="name">Nom du personnage</label>
               <input id="name" v-model="formData.name" type="text" />
@@ -255,7 +264,6 @@
               <span>{{ errors.universe }}</span>
             </div>
 
-            <!-- Formulaire pour les utilisateurs -->
             <div v-if="currentDataType === 'users'">
               <label for="first_name">Prénom</label>
               <input
@@ -426,8 +434,6 @@ const handleImageGalleryChange = (event, index) => {
 };
 
 const onSubmit = async () => {
-  console.log("Form data before submit:", formData.value); // Debug log
-
   if (props.currentDataType === "products") {
     formData.value.details = {
       dimensions: detailsData.dimensions,
@@ -455,16 +461,12 @@ onMounted(async () => {
     props.currentDataType === "products" ||
     props.currentDataType === "characters"
   ) {
-    console.log("Fetching universes and characters on modal mount...");
     if (props.currentDataType === "products") {
       productFormStore.resetFormData();
       await productFormStore.fetchUniverses();
       await productFormStore.fetchCharacters();
-      console.log("Universes fetched:", productFormStore.universes);
-      console.log("Characters fetched:", productFormStore.characters);
     } else if (props.currentDataType === "characters") {
       await characterFormStore.fetchUniverses();
-      console.log("Universes fetched:", characterFormStore.universes);
     }
   }
 });
@@ -610,6 +612,11 @@ onMounted(async () => {
       background-color: #c4c4c4;
       cursor: not-allowed;
     }
+  }
+
+  .colorPicker {
+    width: 50px;
+    padding: 2px;
   }
 
   span {

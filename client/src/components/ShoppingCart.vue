@@ -9,23 +9,30 @@
       :removeItem="removeItem"
     />
     <p>Total: {{ cartTotal }}€</p>
-    <RouterLink @click="toggle" to="/cart-checkout" class="call-to-action"
-      >Passer votre Commande</RouterLink
-    >
+    <button @click="handleCheckout" class="call-to-action">
+      Passer votre Commande
+    </button>
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import { useRouter } from 'vue-router';
 import { useCartStore } from "../stores/cartStore";
+import useFlashMessageStore from "@composables/useFlashMessageStore";
 import ShopCart from '../ui/ShopCart.vue';
 
 const cartStore = useCartStore();
+const router = useRouter();
+const { setFlashMessage } = useFlashMessageStore(); 
 
 const cartItems = computed(() => cartStore.cartItems);
 const cartTotal = computed(() => cartStore.cartTotal);
-const incrementItemQuantity = (itemId) => {
-  cartStore.incrementItemQuantity(itemId);
+const incrementItemQuantity = async (itemId) => {
+  const item = cartItems.value.find(cartItem => cartItem.productId === itemId);
+  if (item) {
+    await cartStore.addItemToCart(item, true); 
+  }
 };
 const decrementItemQuantity = (itemId) => {
   cartStore.decrementItemQuantity(itemId);
@@ -34,16 +41,57 @@ const getItemPrice = (item) => {
   return cartStore.getItemPrice(item);
 };
 
-const removeItem = (itemId) => {
-  cartStore.removeItemFromCart(itemId);
+const removeItem = async (itemId) => {
+    cartStore.removeItemFromCart(itemId);
 };
 
-// Définir les événements
+
 const emit = defineEmits(["update:hideCartSideBar"]);
 
-// Fonction pour émettre l'événement
+
 const toggle = () => {
   emit("update:hideCartSideBar", false);
+};
+
+
+const handleCheckout = async () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+ 
+  const jwt = localStorage.getItem('jwt');
+  if (!jwt) {
+    setFlashMessage('Vous devez être connecté pour passer votre commande.', 'error');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/basket`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'session-id': localStorage.getItem('sessionId'),
+        'Authorization': `Bearer ${jwt}`
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error fetching cart:', errorText);
+      return;
+    }
+
+    const data = await response.json();
+    
+
+    if (data.items.length === 0) {
+      setFlashMessage('Votre panier est vide', 'error');
+    } else {
+      toggle();
+      router.push('/cart-checkout');
+    }
+  } catch (error) {
+    console.error('Error checking cart:', error);
+  }
 };
 </script>
 

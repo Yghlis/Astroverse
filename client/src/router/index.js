@@ -11,6 +11,8 @@ import ShopItem from "../views/ShopItem.vue";
 import ChangePassword from "../components/ChangePassword.vue"; // Importation du composant ChangePassword
 import CartCheckout from "../views/CartCheckout.vue";
 import UserProfile from "../views/UserProfile.vue";
+import Confirmation from "../components/Confirmation.vue";
+import LegalContent from "../components/LegalContent.vue";
 
 const routes = [
   { path: "/", component: LandingPage },
@@ -24,6 +26,8 @@ const routes = [
   { path: "/change-password/:userId/:token", name: "ChangePassword", component: ChangePassword }, // Nouvelle route pour changer le mot de passe
   { path: "/cart-checkout", component: CartCheckout },
   { path: "/profile", component: UserProfile, meta: { requiresAuth: false } },	//a changer 
+  { path: '/confirmation', name: 'Confirmation', component: Confirmation },
+  { path: '/legal/:section', name: 'LegalContent', component: LegalContent },
 ];
 
 const router = createRouter({
@@ -49,14 +53,10 @@ router.beforeEach((to, from, next) => {
       console.error("Failed to decode JWT:", error);
     }
   } else {
-    console.log("Token JWT non trouvé dans le localStorage.");
+   
   }
 
-  console.log("JWT:", isAuthenticated);
-  console.log("userId:", userId);
-  console.log("Role:", userRole);
-  console.log("Value JWT:", token);
-  console.log("Must Change Password:", mustChangePassword);
+
 
   if (mustChangePassword && to.name !== "ChangePassword") {
     next({ name: "ChangePassword", params: { userId, token } });

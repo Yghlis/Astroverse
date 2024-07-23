@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer">
+  <footer class="footer" v-if="!isAdminRoute">
     <p
       v-if="flashMessage"
       class="flash-message"
@@ -23,17 +23,55 @@
       </div>
       <p>&copy; 2024 Astroverse. Tous droits réservés.</p>
       <ul class="footer-links">
-        <li><a href="#privacy">Politique de confidentialité</a></li>
-        <li><a href="#terms">Conditions d'utilisation</a></li>
-        <li><a href="#contact">Contactez-nous</a></li>
+        <li><router-link to="/legal/legal">Mentions légales</router-link></li>
+        <li>
+          <router-link to="/legal/cgu"
+            >Conditions générales d'utilisation</router-link
+          >
+        </li>
+        <li>
+          <router-link to="/legal/privacy-policy"
+            >Politique de confidentialité</router-link
+          >
+        </li>
+        <li>
+          <router-link to="/legal/refund-policy"
+            >Politique de remboursement</router-link
+          >
+        </li>
+        <li>
+          <router-link to="/legal/warranty-conditions"
+            >Conditions de garantie</router-link
+          >
+        </li>
+        <li>
+          <router-link to="/legal/cookie-policy"
+            >Politique de cookie</router-link
+          >
+        </li>
+        <li>
+          <router-link to="/legal/shipping-policy"
+            >Politique de livraison</router-link
+          >
+        </li>
+        <li>
+          <router-link to="/legal/accessibility"
+            >Accessibilité du site</router-link
+          >
+        </li>
       </ul>
     </div>
   </footer>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import useFlashMessageStore from "@composables/useFlashMessageStore";
+import { useRoute } from "vue-router";
+import { useUserStore } from "../stores/userStore";
+
+const route = useRoute();
+const isAdminRoute = computed(() => route.path === "/admin");
 
 const { flashMessage, flashMessageType, setFlashMessage } =
   useFlashMessageStore();
@@ -42,63 +80,35 @@ const isLoggedIn = ref(false);
 const token = ref("");
 const userId = ref("");
 const apiUrl = import.meta.env.VITE_API_URL;
+const userStore = useUserStore();
 
-// Vérifier si l'utilisateur est connecté lors du chargement du composant
-onMounted(() => {
-  console.log("onMounted in TheFooter.vue called");
-  token.value = localStorage.getItem("jwt"); // Assurez-vous que la clé est correcte
+onMounted(async () => {
+  token.value = localStorage.getItem("jwt");
   userId.value = localStorage.getItem("userId");
   isLoggedIn.value = !!token.value;
 
-  console.log("userId in TheFooter.vue:", userId.value);
-  console.log("token in TheFooter.vue:", token.value);
-  console.log("isLoggedIn in TheFooter.vue:", isLoggedIn.value);
-
-  // Récupérer l'état d'abonnement de l'utilisateur
   if (isLoggedIn.value) {
-    fetch(`/api/users/${userId.value}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token.value}`, // Utilisez le token JWT pour l'authentification
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        isSubscribedToNewsletter.value = data.isSubscribedToNewsletter;
-      })
-      .catch((error) => {
-        console.error(
-          "Erreur lors de la récupération de l'état d'abonnement:",
-          error
-        );
-      });
+    await userStore.getUserById(userId.value);
+    isSubscribedToNewsletter.value =
+      userStore.userData.isSubscribedToNewsletter || false;
   }
 });
 const toggleSubscription = async () => {
-  console.log("toggleSubscription called");
-  console.log("userId:", userId.value);
-  console.log("token:", token.value);
-
   try {
-    const response = await fetch(
-      `${apiUrl}/users/${userId.value}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token.value}`, // Utilisez le token JWT pour l'authentification
-        },
-        body: JSON.stringify({
-          toggleNewsletterSubscription: !isSubscribedToNewsletter.value, // Inversez l'état actuel
-        }),
-      }
-    );
-
-    console.log("response status:", response.status);
+    const response = await fetch(`${apiUrl}/users/${userId.value}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token.value}`,
+      },
+      body: JSON.stringify({
+        toggleNewsletterSubscription: !isSubscribedToNewsletter.value,
+      }),
+    });
 
     if (response.ok) {
       const data = await response.json();
-      console.log("response data:", data);
+
       isSubscribedToNewsletter.value = data.isSubscribedToNewsletter;
       setFlashMessage(data.message, "success");
     } else {

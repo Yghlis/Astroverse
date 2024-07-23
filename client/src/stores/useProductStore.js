@@ -7,6 +7,7 @@ export const useProductStore = defineStore("product", {
     loading: false,
     error: null,
     isFavorite: false,
+    isFollowing: false,
     followedProducts: {},
     favoriteProducts: {},
   }),
@@ -23,10 +24,11 @@ export const useProductStore = defineStore("product", {
         }
         const data = await response.json();
         this.product = data;
-        console.log(data);
+        
 
-        // Check if the product is favorite
+       
         await this.checkIfFavorite(id);
+        await this.checkIfFollow(id);
       } catch (error) {
         this.error = "Failed to fetch product";
       } finally {
@@ -37,7 +39,7 @@ export const useProductStore = defineStore("product", {
     async followProduct(userId, productId) {
       const apiUrl = import.meta.env.VITE_API_URL;
       const token = localStorage.getItem("jwt");
-      console.log("Token:", token);
+     
       if (!token) {
         console.error("Token not present");
         useFlashMessageStore().setFlashMessage("Token not present", "error");
@@ -52,12 +54,12 @@ export const useProductStore = defineStore("product", {
           },
           body: JSON.stringify({ userId }),
         });
-        console.log("API response:", response);
         const responseData = await response.json();
         if (!response.ok) {
           console.error("Error message from API:", responseData);
           throw new Error(responseData.error || "Failed to follow product");
         }
+        this.isFollowing = true;
         useFlashMessageStore().setFlashMessage(
           "Product followed successfully",
           "success"
@@ -88,12 +90,13 @@ export const useProductStore = defineStore("product", {
           },
           body: JSON.stringify({ userId }),
         });
-        console.log("API response:", response);
+       
         const responseData = await response.json();
         if (!response.ok) {
           console.error("Error message from API:", responseData);
           throw new Error(responseData.error || "Failed to unfollow product");
         }
+        this.isFollowing = false;
         useFlashMessageStore().setFlashMessage(
           "Product unfollowed successfully",
           "success"
@@ -124,7 +127,7 @@ export const useProductStore = defineStore("product", {
           },
           body: JSON.stringify({ productId }),
         });
-        console.log("API response:", response);
+        
         const responseData = await response.json();
         if (!response.ok) {
           console.error("Error message from API:", responseData);
@@ -160,7 +163,7 @@ export const useProductStore = defineStore("product", {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("API response:", response);
+       
         if (!response.ok) {
           const responseData = await response.json();
           console.error("Error message from API:", responseData);
@@ -214,7 +217,7 @@ export const useProductStore = defineStore("product", {
           },
         });
         const followedProducts = await response.json();
-        console.log("Followed products:", followedProducts);
+        
         this.followedProducts = followedProducts;
       } catch (error) {
         console.error("Fetch error:", error.message);
@@ -236,11 +239,28 @@ export const useProductStore = defineStore("product", {
         });
         const favorites = await response.json();
         this.favoriteProducts = favorites;
-        console.log("Favorite products:", favorites);
+        
         return favorites;
       } catch (error) {
         console.error("Fetch error:", error.message);
       }
+    },
+
+    async checkIfFollow(productId) {
+      const userId = localStorage.getItem("userId");
+      await this.getFollowedProducts(userId);
+      
+
+      this.isFollowing = false; 
+      for (const product of this.followedProducts) {
+        
+        if (product.productId === productId) {
+          this.isFollowing = true;
+          break; 
+        }
+      }
+
+      
     },
   },
 });

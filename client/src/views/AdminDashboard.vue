@@ -1,57 +1,148 @@
 <template>
   <div class="admin-container">
     <SideAdmin :showSideBar="showSideBar" @update:hideSideBarAdmin="toggleNav">
-      <h2>Admin Options</h2>
       <div class="admin-options">
         <button
-          :class="{ active: currentDataType === 'products' }"
+          :class="{
+            active: currentDataType === 'dashboard',
+            mini: !showSideBar,
+          }"
+          @click="goToDashboard"
+        >
+          <span class="material-symbols-outlined"> dashboard </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Dashboard</span>
+          </transition>
+        </button>
+        <button
+          :class="{
+            active: currentDataType === 'products',
+            mini: !showSideBar,
+          }"
           @click="fetchData('products')"
         >
-          Produits
+          <span class="material-symbols-outlined"> store </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Produits</span>
+          </transition>
         </button>
         <button
-          :class="{ active: currentDataType === 'users' }"
+          :class="{ active: currentDataType === 'users', mini: !showSideBar }"
           @click="fetchData('users')"
         >
-          Utilisateurs
+          <span class="material-symbols-outlined"> person </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Utilisateurs</span>
+          </transition>
         </button>
         <button
-          :class="{ active: currentDataType === 'universes' }"
+          :class="{
+            active: currentDataType === 'universes',
+            mini: !showSideBar,
+          }"
           @click="fetchData('universes')"
         >
-          Univers
+          <span class="material-symbols-outlined"> category </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Univers</span>
+          </transition>
         </button>
         <button
-          :class="{ active: currentDataType === 'characters' }"
+          :class="{
+            active: currentDataType === 'characters',
+            mini: !showSideBar,
+          }"
           @click="fetchData('characters')"
         >
-          Personnages
+          <span class="material-symbols-outlined"> directions_walk </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Personnages</span>
+          </transition>
         </button>
+        <button
+          :class="{ active: currentDataType === 'orders', mini: !showSideBar }"
+          @click="fetchData('orders')"
+        >
+          <span class="material-symbols-outlined"> shopping_cart </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Commandes</span>
+          </transition>
+        </button>
+        <button
+          :class="{ active: currentDataType === 'stock', mini: !showSideBar }"
+          @click="fetchData('stock')"
+        >
+          <span class="material-symbols-outlined"> inventory </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Gestion stock</span>
+          </transition>
+        </button>
+
+        <button
+          :class="{
+            active: currentDataType === 'newsletters',
+            mini: !showSideBar,
+          }"
+          @click="fetchData('newsletters')"
+        >
+          <span class="material-symbols-outlined"> mail </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Newsletter</span>
+          </transition>
+        </button>
+        <RouterLink
+          :class="{
+            mini: !showSideBar,
+          }"
+          class="exit"
+          to="/"
+          ><span class="material-symbols-outlined"> move_item </span>
+          <transition name="fade-translate">
+            <span v-if="showSideBar">Sortir</span>
+          </transition></RouterLink
+        >
       </div>
     </SideAdmin>
     <div class="admin-content" :class="{ active: showSideBar }">
-      <AdminTable
-        :data="tableData"
-        :columns="tableColumns"
-        :currentDataType="currentDataType"
-        @edit="handleEdit"
-        @view="handleView"
-        @row-deleted="handleRowDeleted"
-        v-if="reloadTable"
-      />
+      <transition name="slide" mode="out-in">
+        <TheDashboard v-if="currentDataType === 'dashboard'"></TheDashboard>
+        <AdminTable
+          v-else-if="
+            currentDataType !== 'stock' &&
+            currentDataType !== 'newsletters' &&
+            reloadTable &&
+            currentDataType !== 'dashboard'
+          "
+          :key="currentDataType"
+          :data="tableData"
+          :columns="tableColumns"
+          :currentDataType="currentDataType"
+          @edit="handleEdit"
+          @view="handleView"
+          @row-deleted="handleRowDeleted"
+        />
+        <StockManagement
+          v-else-if="currentDataType === 'stock'"
+          :data="tableData"
+        />
+        <NewsletterManagement v-else />
+      </transition>
     </div>
   </div>
 </template>
 
 <script setup>
 import SideAdmin from "../ui/SideAdmin.vue";
+import TheDashboard from "../components/admin/TheDashboard.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
+import StockManagement from "../components/admin/StockManagement.vue";
+import NewsletterManagement from "../components/admin/NewsletterManagement.vue";
 import { ref, onMounted, provide } from "vue";
 
 const showSideBar = ref(true);
 const tableData = ref([]);
 const tableColumns = ref([]);
-const currentDataType = ref("");
+const currentDataType = ref("dashboard");
 const reloadTable = ref(true);
 
 const handleReloadTable = () => {
@@ -70,9 +161,9 @@ const toggleNav = (newState) => {
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-onMounted(() => {
-  fetchData("products");
-});
+const goToDashboard = () => {
+  currentDataType.value = "dashboard";
+};
 
 const fetchData = async (type) => {
   let url = "";
@@ -103,6 +194,26 @@ const fetchData = async (type) => {
       url = `${apiUrl}/users`;
       columns = ["username", "email", "roles"];
       break;
+    case "orders":
+      url = `${apiUrl}/orders`;
+      columns = [
+        "id",
+        "utilisateur",
+        "email",
+        "shippingAddress",
+        "billingAddress",
+        "totalPrice",
+        "status",
+      ];
+      break;
+    case "stock":
+      url = `${apiUrl}/stock`;
+      columns = ["product_name", "stock_level", "warehouse_location"];
+      break;
+    case "newsletters":
+      url = `${apiUrl}/newsletters`;
+      columns = ["id", "pdfUrl"];
+      break;
     default:
       return;
   }
@@ -118,18 +229,34 @@ const fetchData = async (type) => {
     if (!response.ok) {
       throw new Error(`Erreur: ${response.status}`);
     }
-    const data = await response.json();
+    let data = await response.json();
 
-    // Transform user data to include 'username'
-    if (type === "users") {
-      tableData.value = data.map((user) => ({
+    if (type === "orders") {
+      const userResponses = await Promise.all(
+        data.map((order) =>
+          fetch(`${apiUrl}/users/${order.userId}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("jwt")}`,
+            },
+          })
+        )
+      );
+
+      const users = await Promise.all(userResponses.map((res) => res.json()));
+
+      data = data.map((order, index) => ({
+        ...order,
+        utilisateur: `${order.firstName} ${order.lastName}`,
+        email: users[index].email,
+      }));
+    } else if (type === "users") {
+      data = data.map((user) => ({
         ...user,
         username: `${user.first_name} ${user.last_name}`,
       }));
-    } else {
-      tableData.value = data;
     }
 
+    tableData.value = data;
     tableColumns.value = columns;
   } catch (error) {
     console.error("Erreur lors de la récupération des données:", error);
@@ -144,7 +271,6 @@ const handleEdit = async (row) => {
       },
     });
     const data = await response.json();
-    console.log("Editing Row:", data);
   } else if (currentDataType.value === "products") {
     const response = await fetch(`${apiUrl}/products/${row.id}`, {
       headers: {
@@ -152,7 +278,6 @@ const handleEdit = async (row) => {
       },
     });
     const data = await response.json();
-    console.log("Editing Row:", data);
   }
 };
 
@@ -164,7 +289,6 @@ const handleView = async (row) => {
       },
     });
     const data = await response.json();
-    console.log("Viewing Row:", data);
   }
 };
 
@@ -177,6 +301,8 @@ const handleRowDeleted = (id) => {
 .admin-container {
   display: flex;
   justify-content: flex-end;
+  margin: 0;
+  overflow: hidden;
   h2 {
     margin: 0;
     padding: 20px;
@@ -189,15 +315,21 @@ const handleRowDeleted = (id) => {
   .admin-options {
     display: flex;
     flex-direction: column;
-    margin: 0;
+    margin: 10px 0 0 0;
     width: 100%;
-    gap: 10px;
+    height: 100%;
     font-family: "Montserrat", sans-serif;
-    button {
+    button,
+    a {
+      text-decoration: none;
       width: 100%;
-      padding: 20px 10px;
+      padding: 20px 20px 20px 50px;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
       background-color: white;
-      color: black;
+      color: #808080;
       border: none;
       font-size: 26px;
       font-family: "Montserrat", sans-serif;
@@ -208,16 +340,60 @@ const handleRowDeleted = (id) => {
         background-color: black;
         color: white;
       }
+      &.mini {
+        justify-content: flex-end;
+      }
+      &.exit {
+        margin-top: auto;
+        background-color: #ff0000;
+        color: white;
+        &:hover {
+          background-color: #ff3333;
+        }
+      }
     }
   }
 
   .admin-content {
-    width: 100%;
+    width: calc(100% - 75px);
     min-height: 100vh;
-    transition: all 0.3s ease;
+    transition: width 0.5s ease;
     &.active {
-      width: calc(100% - 250px);
+      width: calc(100% - 300px);
     }
   }
+}
+
+.material-symbols-outlined {
+  font-size: 35px;
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 48;
+  transition: transform 0.5s ease;
+  &.alt {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+  }
+}
+
+//transtions fade-translate
+.fade-translate-enter-active,
+.fade-translate-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-translate-enter-from,
+.fade-translate-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+/* Transitions slide */
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 </style>

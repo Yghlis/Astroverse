@@ -22,7 +22,6 @@ export const useUserStore = defineStore("user", {
           this.isAdmin = false;
         }
       } else {
-        console.log("Token JWT non trouvé dans le localStorage.");
         this.isAdmin = false;
       }
     },
@@ -30,7 +29,7 @@ export const useUserStore = defineStore("user", {
     async getUserById(id) {
       const token = localStorage.getItem("jwt");
       const apiUrl = import.meta.env.VITE_API_URL;
-      console.log(id);
+
       try {
         const response = await fetch(`${apiUrl}/users/${id}`, {
           headers: {
@@ -44,7 +43,6 @@ export const useUserStore = defineStore("user", {
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           this.userData = await response.json();
-          console.log(this.userData);
         } else {
           throw new Error("Réponse non-JSON reçue");
         }
@@ -61,7 +59,6 @@ export const useUserStore = defineStore("user", {
 
       this.validate(user);
       if (Object.keys(this.errors).length > 0) {
-        console.log("Validation errors:", this.errors);
         setFlashMessage(
           "Erreur de validation, veuillez vérifier les données saisies",
           "error"
