@@ -61,14 +61,21 @@ onMounted(() => {
     observer.observe(cardElement.value);
   }
 
+  const dataKey =
+    props.card.dailySalesForMonth?.[0]?.profit !== undefined
+      ? "profit"
+      : "totalQuantity";
+  const label =
+    dataKey === "profit" ? "Profit des ventes par jour" : "Ventes par Jour";
+
   if (
-    props.card.dailyProfitsForMonth &&
-    Array.isArray(props.card.dailyProfitsForMonth)
+    props.card.dailySalesForMonth &&
+    Array.isArray(props.card.dailySalesForMonth)
   ) {
-    const dailyProfits = props.card.dailyProfitsForMonth.map(
-      (entry) => entry.profit
+    const dailyData = props.card.dailySalesForMonth.map(
+      (entry) => entry[dataKey]
     );
-    const days = props.card.dailyProfitsForMonth.map((entry) =>
+    const days = props.card.dailySalesForMonth.map((entry) =>
       new Date(entry.day).getDate()
     );
 
@@ -78,8 +85,8 @@ onMounted(() => {
         labels: days,
         datasets: [
           {
-            label: "Profit des ventes par jour",
-            data: dailyProfits,
+            label: label,
+            data: dailyData,
             backgroundColor: "rgba(75, 192, 192, 0.2)",
             borderColor: "rgba(75, 192, 192, 1)",
             borderWidth: 2,
@@ -120,7 +127,7 @@ onMounted(() => {
 
     resizeChart();
   } else {
-    console.error("dailyProfitsForMonth is not defined or not an array");
+    console.error("dailySalesForMonth is not defined or not an array");
   }
 });
 

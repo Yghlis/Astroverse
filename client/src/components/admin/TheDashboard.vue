@@ -189,12 +189,10 @@ const getComponentType = (type) => {
 // Appeler cette fonction pour réorganiser les cartes
 const reorderGrid = () => {
   automaticPosition.value = true;
-  reload.value = false;
-  widgetStore.deleteLocalCards();
   setTimeout(() => {
-    reload.value = true;
-    automaticPosition.value = false;
     resetGridStack();
+    automaticPosition.value = false;
+    widgetStore.deleteLocalCards();
   }, 500);
 };
 </script>

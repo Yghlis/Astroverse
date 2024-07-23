@@ -42,14 +42,14 @@ export const useWidgetStore = defineStore("widget", {
           {
             id: 1,
             type: "carte-3",
-            title: "Total des Ventes",
+            title: "Total des Ventes par Jour",
             icon: "monetization_on",
-            sales: {
-              day: 120,
-              month: 800,
-              year: 5000,
-              total: 15000,
-            },
+            dailySalesForMonth: [
+              {
+                day: "2024-07-01T00:00:00.000Z",
+                totalQuantity: 0,
+              },
+            ],
             active: true,
             x: 0,
             y: 0,
@@ -205,13 +205,13 @@ export const useWidgetStore = defineStore("widget", {
         // Mettre à jour les cartes en fonction du titre
         this.cards.forEach((card) => {
           switch (card.title) {
-            case "Total des Ventes":
-              card.sales = {
-                day: data.salesByPeriod.dailySales || 0,
-                month: data.salesByPeriod.monthlySales || 0,
-                year: data.salesByPeriod.yearlySales || 0,
-                total: data.salesByPeriod.totalSales || 0,
-              };
+            case "Total des Ventes par Jour":
+              card.salesByPeriod = data.salesByPeriod.dailySalesForMonth.map(
+                (profit) => ({
+                  day: profit.day,
+                  totalQuantity: profit.totalQuantity,
+                })
+              );
               break;
             case "Les Produits les plus Vendus":
               card.items = data.totalProductSales.topProductSales.map(
