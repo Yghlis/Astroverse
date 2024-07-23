@@ -51,8 +51,8 @@ export const useWidgetStore = defineStore("widget", {
             total: 15000,
           },
           active: true,
-          x: 1,
-          y: 2,
+          x: 0,
+          y: 0,
         },
         {
           id: 2,
@@ -65,8 +65,8 @@ export const useWidgetStore = defineStore("widget", {
             { name: "Produit 3", quantity: 80 },
           ],
           active: true,
-          x: 0,
-          y: 2,
+          x: 1,
+          y: 0,
         },
         {
           id: 3,
@@ -79,8 +79,8 @@ export const useWidgetStore = defineStore("widget", {
             { name: "Produit 3", quantity: 80 },
           ],
           active: true,
-          x: 0,
-          y: 2,
+          x: 2,
+          y: 0,
         },
         {
           id: 4,
@@ -94,7 +94,7 @@ export const useWidgetStore = defineStore("widget", {
           ],
           active: true,
           x: 0,
-          y: 2,
+          y: 1,
         },
         {
           id: 5,
@@ -107,8 +107,8 @@ export const useWidgetStore = defineStore("widget", {
             { name: "Produit 3", quantity: 80 },
           ],
           active: true,
-          x: 0,
-          y: 2,
+          x: 1,
+          y: 1,
         },
           {
             id: 6,
@@ -119,8 +119,8 @@ export const useWidgetStore = defineStore("widget", {
             valueB: null,
             typeArrow: "up",
             active: true,
-            x: 0,
-            y: 0,
+            x: 2,
+            y: 1,
           },
           {
             id: 7,
@@ -134,7 +134,7 @@ export const useWidgetStore = defineStore("widget", {
               total: 15000,
             },
             active: true,
-            x: 1,
+            x: 0,
             y: 2,
           },
           {
@@ -147,7 +147,7 @@ export const useWidgetStore = defineStore("widget", {
             typeArrow: "down",
             active: true,
             x: 1,
-            y: 0,
+            y: 2,
           },
           {
             id: 9,
@@ -158,8 +158,8 @@ export const useWidgetStore = defineStore("widget", {
             valueB: 10,
             typeArrow: "down",
             active: true,
-            x: 1,
-            y: 0,
+            x: 2,
+            y: 2,
           },
           {
             id: 10,
@@ -170,9 +170,9 @@ export const useWidgetStore = defineStore("widget", {
             valueB: 10,
             typeArrow: "down",
             active: true,
-            x: 1,
-            y: 0,
-          }
+            x: ,
+            y: 3,
+          },
           
         ];
     assignColorsToCards(cards);
@@ -199,27 +199,3 @@ export const useWidgetStore = defineStore("widget", {
     },
   },
 });
-
-const apiUrl = import.meta.env.VITE_API_URL;
-try {
-  const response = await fetch(`${apiUrl}/kpi`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Échec de la récupération des KPI");
-  }
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    this.userData = await response.json();
-    setFlashMessage("Utilisateur mis à jour avec succès", "success");
-  } else {
-    throw new Error("Réponse non-JSON reçue");
-  }
-} catch (error) {
-  console.error("Échec de la mise à jour de l'utilisateur :", error);
-  setFlashMessage("Échec de la mise à jour de l'utilisateur", "error");
-}

@@ -208,9 +208,10 @@ try {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
+    body: JSON.stringify(user),
   });
   if (!response.ok) {
-    throw new Error("Échec de la récupération des KPI");
+    throw new Error("Échec de la mise à jour de l'utilisateur");
   }
   const contentType = response.headers.get("content-type");
   if (contentType && contentType.includes("application/json")) {

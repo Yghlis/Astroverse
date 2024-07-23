@@ -51,7 +51,7 @@ export const useWidgetStore = defineStore("widget", {
             total: 15000,
           },
           active: true,
-          x: 1,
+          x: 0,
           y: 2,
         },
         {
@@ -199,27 +199,3 @@ export const useWidgetStore = defineStore("widget", {
     },
   },
 });
-
-const apiUrl = import.meta.env.VITE_API_URL;
-try {
-  const response = await fetch(`${apiUrl}/kpi`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Échec de la récupération des KPI");
-  }
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    this.userData = await response.json();
-    setFlashMessage("Utilisateur mis à jour avec succès", "success");
-  } else {
-    throw new Error("Réponse non-JSON reçue");
-  }
-} catch (error) {
-  console.error("Échec de la mise à jour de l'utilisateur :", error);
-  setFlashMessage("Échec de la mise à jour de l'utilisateur", "error");
-}

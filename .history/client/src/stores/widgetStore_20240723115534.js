@@ -123,9 +123,83 @@ export const useWidgetStore = defineStore("widget", {
             y: 0,
           },
           {
+            id: 2,
+            type: "carte-1",
+            title: "Croissance des Ventes",
+            icon: "trending_up",
+            valueA: 1200,
+            valueB: 10,
+            typeArrow: "down",
+            active: true,
+            x: 1,
+            y: 0,
+          },
+          {
+            id: 3,
+            type: "carte-1",
+            title: "Nouveaux Achats",
+            icon: "shopping_cart",
+            valueA: 890,
+            valueB: 5,
+            typeArrow: "up",
+            active: true,
+            x: 2,
+            y: 0,
+          },
+          {
+            id: 4,
+            type: "carte-1",
+            title: "Taux de Satisfaction",
+            icon: "thumb_up",
+            valueA: 1500,
+            valueB: 20,
+            typeArrow: "up",
+            active: true,
+            x: 0,
+            y: 1,
+          },
+          {
+            id: 5,
+            type: "carte-1",
+            title: "Revenus Totaux",
+            icon: "account_balance",
+            valueA: 3400,
+            valueB: 8,
+            typeArrow: "down",
+            active: true,
+            x: 1,
+            y: 1,
+          },
+          {
+            id: 6,
+            type: "carte-1",
+            title: "Temps Moyen",
+            icon: "access_time",
+            valueA: 400,
+            valueB: 12,
+            typeArrow: "up",
+            active: true,
+            x: 2,
+            y: 1,
+          },
+          {
             id: 7,
+            type: "carte-2",
+            title: "Les Produits les plus Vendus",
+            icon: "shopping_bag",
+            items: [
+              { name: "Produit 1", quantity: 120 },
+              { name: "Produit 2", quantity: 90 },
+              { name: "Produit 3", quantity: 80 },
+            ],
+            active: true,
+            x: 0,
+            y: 2,
+          },
+          {
+            id: 8,
             type: "carte-3",
-            title: "Graphique bénéfices",
+            title: "Total des Ventes",
             icon: "monetization_on",
             sales: {
               day: 120,
@@ -137,43 +211,6 @@ export const useWidgetStore = defineStore("widget", {
             x: 1,
             y: 2,
           },
-          {
-            id: 8,
-            type: "carte-1",
-            title: "Total des produits",
-            icon: "trending_up",
-            valueA: 1200,
-            valueB: 10,
-            typeArrow: "down",
-            active: true,
-            x: 1,
-            y: 0,
-          },
-          {
-            id: 9,
-            type: "carte-1",
-            title: "Total des univers",
-            icon: "trending_up",
-            valueA: 1200,
-            valueB: 10,
-            typeArrow: "down",
-            active: true,
-            x: 1,
-            y: 0,
-          },
-          {
-            id: 10,
-            type: "carte-1",
-            title: "Total des personnages",
-            icon: "trending_up",
-            valueA: 1200,
-            valueB: 10,
-            typeArrow: "down",
-            active: true,
-            x: 1,
-            y: 0,
-          }
-          
         ];
     assignColorsToCards(cards);
     return { cards };
@@ -199,27 +236,3 @@ export const useWidgetStore = defineStore("widget", {
     },
   },
 });
-
-const apiUrl = import.meta.env.VITE_API_URL;
-try {
-  const response = await fetch(`${apiUrl}/kpi`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error("Échec de la récupération des KPI");
-  }
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    this.userData = await response.json();
-    setFlashMessage("Utilisateur mis à jour avec succès", "success");
-  } else {
-    throw new Error("Réponse non-JSON reçue");
-  }
-} catch (error) {
-  console.error("Échec de la mise à jour de l'utilisateur :", error);
-  setFlashMessage("Échec de la mise à jour de l'utilisateur", "error");
-}
