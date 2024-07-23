@@ -196,7 +196,7 @@ export const useWidgetStore = defineStore("widget", {
         }
 
         const data = await response.json();
-        console.log(data);
+        console.log(data)
         
         // Mettre à jour les cartes en fonction du titre
         this.cards.forEach(card => {

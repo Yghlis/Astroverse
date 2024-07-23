@@ -12,7 +12,6 @@
         </span>
       </div>
     </div>
-    {{ activeCards }}
     <div class="grid-stack">
       <div
         v-for="(card, index) in activeCards"
@@ -170,6 +169,7 @@ onMounted(async () => {
   await nextTick();
   initGridStack();
   widgetStore.fetchKpi();
+
 });
 
 const getComponentType = (type) => {
