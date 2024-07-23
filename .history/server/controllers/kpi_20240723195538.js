@@ -138,48 +138,6 @@ export const getTotalProductSales = async () => {
   }
 };
 
-export const getTotalProductSalesLandingPage = async () => {
-  try {
-    const orders = await Order.findAll();
-    const productSales = {};
-
-    orders.forEach(order => {
-      order.products.forEach(product => {
-        if (productSales[product.productId]) {
-          productSales[product.productId].quantity += product.quantity;
-        } else {
-          productSales[product.productId] = {
-            productId: product.productId,
-            quantity: product.quantity
-          };
-        }
-      });
-    });
-
-    const productIds = Object.keys(productSales);
-    const products = await Product.findAll({
-      where: {
-        id: {
-          [Op.in]: productIds
-        }
-      }
-    });
-
-    const detailedProductSales = products.map(product => ({
-      productId: product.id,
-      title: product.title,
-      quantity: productSales[product.id].quantity,
-    }));
-
-    const topProductSales = detailedProductSales.sort((a, b) => b.quantity - a.quantity).slice(0, 10);
-
-    return { topProductSales };
-  } catch (error) {
-    console.error('Error fetching total product sales:', error);
-    throw new Error('Internal server error');
-  }
-};
-
 // Générer un tableau de jours pour le mois actuel
 const generateDaysForCurrentMonth = () => {
   const now = new Date();
@@ -552,8 +510,7 @@ export const getAllKpis = async (req, res) => {
       profitData,
       totalProducts,
       totalUniverses,
-      totalCharacters,
-      topTenProductSales // Ajout de la fonction getTotalProductSalesLandingPage
+      totalCharacters
     ] = await Promise.all([
       getTotalProductSales(),
       getTotalSalesByPeriod(),
@@ -565,8 +522,7 @@ export const getAllKpis = async (req, res) => {
       getProfitData(),
       getTotalProducts(),
       getTotalUniverses(),
-      getTotalCharacters(),
-      getTotalProductSalesLandingPage() // Appel de la fonction getTotalProductSalesLandingPage
+      getTotalCharacters()
     ]);
 
     res.status(200).json({
@@ -580,8 +536,7 @@ export const getAllKpis = async (req, res) => {
       profitData,
       totalProducts,
       totalUniverses,
-      totalCharacters,
-      topTenProductSales // Ajout du résultat dans la réponse JSON
+      totalCharacters
     });
   } catch (error) {
     console.error('Error fetching all KPIs:', error);

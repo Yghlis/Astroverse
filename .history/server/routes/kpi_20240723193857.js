@@ -12,7 +12,8 @@ import {
   getProfitData,
   getTotalProducts,
   getTotalUniverses,
-  getTotalCharacters
+  getTotalCharacters,
+  getTotalProductSalesLandingPage
 } from '../controllers/kpi.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
 
@@ -57,6 +58,6 @@ router.get('/total-universes', authenticateToken, getTotalUniverses);
 // Route pour obtenir le total des personnages
 router.get('/total-characters', authenticateToken, getTotalCharacters);
 
+router.get('/top-ten-products', authenticateToken, getTotalProductSalesLandingPage);
 
 export default router;
-  

@@ -57,6 +57,6 @@ router.get('/total-universes', authenticateToken, getTotalUniverses);
 // Route pour obtenir le total des personnages
 router.get('/total-characters', authenticateToken, getTotalCharacters);
 
+router.get('/top-ten-products', getTotalProductSalesLandingPage);
 
 export default router;
-  
