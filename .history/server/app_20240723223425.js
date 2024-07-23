@@ -1,0 +1,96 @@
+import express from 'express';
+import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import { indexRouter } from './routes/index.js';
+import sequelize from './config/database.js';
+import Product from './models/Product.js';
+import Universe from './models/Universe.js';
+import User from './models/user.js'; 
+import Character from './models/Character.js';
+import Follow from './models/Follow.js';
+import productRoutes from './routes/product.js';
+import universeRoutes from './routes/universe.js';
+import characterRoutes from './routes/character.js';
+import userRoutes from './routes/user.js'; 
+import favoriteRoutes from './routes/favorites.js'; 
+import newsletterRoutes from './routes/newsletter.js';
+import geocodeRoutes from './routes/geocode.js';
+import basketRoutes from './routes/basket.js'; 
+import orderRoutes from './routes/order.js';
+import kpiRoutes from './routes/kpi.js';
+
+
+dotenv.config();
+
+const app = express();
+const port = process.env.PORT || 8000;
+import authRoutes from './routes/auth.js';
+
+app.use(cors());
+
+app.use('/orders/webhook', express.raw({ type: 'application/json' }));
+
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+app.use('/', indexRouter);
+app.use('/auth', authRoutes);
+app.use('/products', productRoutes);
+app.use('/universes', universeRoutes);
+app.use('/characters', characterRoutes);
+app.use('/users', userRoutes); 
+app.use('/geocode', geocodeRoutes);
+app.use('/uploads', express.static('uploads'));
+app.use('/favorites', favoriteRoutes);
+app.use('/newsletter', newsletterRoutes); 
+app.use('/basket', basketRoutes); 
+app.use('/orders', orderRoutes);
+app.use('/kpi', kpiRoutes); 
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).end(); 
+});
+
+mongoose.connect(process.env.DB_URI)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch(err => {
+    console.error('Error connecting to MongoDB', err);
+  });
+
+User.hasMany(Follow, { foreignKey: 'userId' });
+Follow.belongsTo(User, { foreignKey: 'userId' });
+
+Product.hasMany(Follow, { foreignKey: 'productId' });
+Follow.belongsTo(Product, { foreignKey: 'productId' });
+
+Universe.hasMany(Follow, { foreignKey: 'universeId' });
+Follow.belongsTo(Universe, { foreignKey: 'universeId' });
+
+Universe.hasMany(Character, { foreignKey: 'universeId' });
+Character.belongsTo(Universe, { foreignKey: 'universeId' });
+
+Character.hasMany(Product, { foreignKey: 'characterId' });
+Product.belongsTo(Character, { foreignKey: 'characterId' });
+
+
+sequelize.authenticate()
+  .then(() => {
+    console.log('Connected to PostgreSQL');
+
+    return sequelize.sync({ alter: true });
+  })
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`Server is running`);
+    });
+  })
+  .catch(err => {
+    console.error('Unable to connect to PostgreSQL:', err);
+  });
+
+export default app;
