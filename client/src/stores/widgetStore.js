@@ -39,141 +39,145 @@ export const useWidgetStore = defineStore("widget", {
     const cards = storedCards
       ? JSON.parse(storedCards)
       : [
-        {
-          id: 1,
-          type: "carte-3",
-          title: "Total des Ventes",
-          icon: "monetization_on",
-          sales: {
-            day: 120,
-            month: 800,
-            year: 5000,
-            total: 15000,
+          {
+            id: 1,
+            type: "carte-3",
+            title: "Total des Ventes",
+            icon: "monetization_on",
+            sales: {
+              day: 120,
+              month: 800,
+              year: 5000,
+              total: 15000,
+            },
+            active: true,
+            x: 0,
+            y: 0,
           },
-          active: true,
-          x: 1,
-          y: 2,
-        },
-        {
-          id: 2,
-          type: "carte-2",
-          title: "Les Produits les plus Vendus",
-          icon: "shopping_bag",
-          items: [
-            { name: "Produit 1", quantity: 120 },
-            { name: "Produit 2", quantity: 90 },
-            { name: "Produit 3", quantity: 80 },
-          ],
-          active: true,
-          x: 0,
-          y: 2,
-        },
-        {
-          id: 3,
-          type: "carte-2",
-          title: "Les catégories les plus vues",
-          icon: "shopping_bag",
-          items: [
-            { name: "Produit 1", quantity: 120 },
-            { name: "Produit 2", quantity: 90 },
-            { name: "Produit 3", quantity: 80 },
-          ],
-          active: true,
-          x: 0,
-          y: 2,
-        },
-        {
-          id: 4,
-          type: "carte-2",
-          title: "Les produits les plus suivis",
-          icon: "shopping_bag",
-          items: [
-            { name: "Produit 1", quantity: 120 },
-            { name: "Produit 2", quantity: 90 },
-            { name: "Produit 3", quantity: 80 },
-          ],
-          active: true,
-          x: 0,
-          y: 2,
-        },
-        {
-          id: 5,
-          type: "carte-2",
-          title: "Les produits les plus likés",
-          icon: "shopping_bag",
-          items: [
-            { name: "Produit 1", quantity: 120 },
-            { name: "Produit 2", quantity: 90 },
-            { name: "Produit 3", quantity: 80 },
-          ],
-          active: true,
-          x: 0,
-          y: 2,
-        },
-        {
-          id: 6,
-          type: "carte-1",
-          title: "Total des utilisateurs abonnées a la newsletter",
-          icon: "group",
-          valueA: 2450,
-          valueB: null,
-          typeArrow: "up",
-          active: true,
-          x: 0,
-          y: 0,
-        },
-        {
-          id: 7,
-          type: "carte-3",
-          title: "Graphique bénéfices",
-          icon: "monetization_on",
-          sales: {
-            day: 120,
-            month: 800,
-            year: 5000,
-            total: 15000,
+          {
+            id: 2,
+            type: "carte-2",
+            title: "Les Produits les plus Vendus",
+            icon: "shopping_bag",
+            items: [
+              { name: "Produit 1", quantity: 120 },
+              { name: "Produit 2", quantity: 90 },
+              { name: "Produit 3", quantity: 80 },
+            ],
+            active: true,
+            x: 1,
+            y: 0,
           },
-          active: true,
-          x: 1,
-          y: 2,
-        },
-        {
-          id: 8,
-          type: "carte-1",
-          title: "Total des produits",
-          icon: "trending_up",
-          valueA: 1200,
-          valueB: 10,
-          typeArrow: "down",
-          active: true,
-          x: 1,
-          y: 0,
-        },
-        {
-          id: 9,
-          type: "carte-1",
-          title: "Total des univers",
-          icon: "trending_up",
-          valueA: 1200,
-          valueB: 10,
-          typeArrow: "down",
-          active: true,
-          x: 1,
-          y: 0,
-        },
-        {
-          id: 10,
-          type: "carte-1",
-          title: "Total des personnages",
-          icon: "trending_up",
-          valueA: 1200,
-          valueB: 10,
-          typeArrow: "down",
-          active: true,
-          x: 1,
-          y: 0,
-        }
-      ];
+          {
+            id: 3,
+            type: "carte-2",
+            title: "Les catégories les plus vues",
+            icon: "shopping_bag",
+            items: [
+              { name: "Produit 1", quantity: 120 },
+              { name: "Produit 2", quantity: 90 },
+              { name: "Produit 3", quantity: 80 },
+            ],
+            active: true,
+            x: 2,
+            y: 0,
+          },
+          {
+            id: 4,
+            type: "carte-2",
+            title: "Les produits les plus suivis",
+            icon: "shopping_bag",
+            items: [
+              { name: "Produit 1", quantity: 120 },
+              { name: "Produit 2", quantity: 90 },
+              { name: "Produit 3", quantity: 80 },
+            ],
+            active: true,
+            x: 0,
+            y: 1,
+          },
+          {
+            id: 5,
+            type: "carte-2",
+            title: "Les produits les plus likés",
+            icon: "shopping_bag",
+            items: [
+              { name: "Produit 1", quantity: 120 },
+              { name: "Produit 2", quantity: 90 },
+              { name: "Produit 3", quantity: 80 },
+            ],
+            active: true,
+            x: 1,
+            y: 1,
+          },
+          {
+            id: 6,
+            type: "carte-1",
+            title: "Total des utilisateurs abonnées a la newsletter",
+            icon: "group",
+            valueA: 2450,
+            valueB: null,
+            typeArrow: "up",
+            active: true,
+            x: 2,
+            y: 1,
+          },
+          {
+            id: 7,
+            type: "carte-3",
+            title: "Graphique bénéfices",
+            icon: "monetization_on",
+            dailyProfitsForMonth: [
+              {
+                day: "2024-07-01T00:00:00.000Z",
+                profit: 0,
+              },
+              {
+                day: "2024-07-02T00:00:00.000Z",
+                profit: 50,
+              },
+            ],
+            active: true,
+            x: 0,
+            y: 3,
+          },
+          {
+            id: 8,
+            type: "carte-1",
+            title: "Total des produits",
+            icon: "trending_up",
+            valueA: 1200,
+            valueB: 10,
+            typeArrow: "down",
+            active: true,
+            x: 1,
+            y: 3,
+          },
+          {
+            id: 9,
+            type: "carte-1",
+            title: "Total des univers",
+            icon: "trending_up",
+            valueA: 1200,
+            valueB: 10,
+            typeArrow: "down",
+            active: true,
+            x: 2,
+            y: 3,
+          },
+          {
+            id: 10,
+            type: "carte-1",
+            title: "Total des personnages",
+            icon: "trending_up",
+            valueA: 1200,
+            valueB: 10,
+            typeArrow: "down",
+            active: true,
+            x: 0,
+            y: 4,
+          },
+        ];
     assignColorsToCards(cards);
     return { cards };
   },
@@ -183,23 +187,23 @@ export const useWidgetStore = defineStore("widget", {
       const token = localStorage.getItem("jwt");
       const apiUrl = import.meta.env.VITE_API_URL;
       try {
-        const response = await fetch(`${apiUrl}/kpi/all-kpis`, { 
+        const response = await fetch(`${apiUrl}/kpi/all-kpis`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
-      
+
         if (!response.ok) {
           throw new Error("Échec de la récupération des KPI");
         }
 
         const data = await response.json();
         console.log(data);
-        
+
         // Mettre à jour les cartes en fonction du titre
-        this.cards.forEach(card => {
+        this.cards.forEach((card) => {
           switch (card.title) {
             case "Total des Ventes":
               card.sales = {
@@ -210,25 +214,27 @@ export const useWidgetStore = defineStore("widget", {
               };
               break;
             case "Les Produits les plus Vendus":
-              card.items = data.totalProductSales.topProductSales.map(product => ({
-                name: product.title,
-                quantity: product.quantity,
-              }));
+              card.items = data.totalProductSales.topProductSales.map(
+                (product) => ({
+                  name: product.title,
+                  quantity: product.quantity,
+                })
+              );
               break;
             case "Les catégories les plus vues":
-              card.items = data.topViewedCategories.map(category => ({
+              card.items = data.topViewedCategories.map((category) => ({
                 name: category.universeName,
                 quantity: parseInt(category.totalViews, 10),
               }));
               break;
             case "Les produits les plus suivis":
-              card.items = data.topFollowedProducts.map(product => ({
+              card.items = data.topFollowedProducts.map((product) => ({
                 name: product.productName,
                 quantity: parseInt(product.followCount, 10),
               }));
               break;
             case "Les produits les plus likés":
-              card.items = data.topLikedProducts.map(product => ({
+              card.items = data.topLikedProducts.map((product) => ({
                 name: product.productName,
                 quantity: parseInt(product.likeCount, 10),
               }));
@@ -237,12 +243,11 @@ export const useWidgetStore = defineStore("widget", {
               card.valueA = data.totalNewsletterSubscribers.totalSubscribers;
               break;
             case "Graphique bénéfices":
-              card.sales = {
-                day: data.profitData.dailyProfit || 0,
-                month: data.salesByPeriod.monthlySales || 0,
-                year: data.salesByPeriod.yearlySales || 0,
-                total: data.profitData.totalProfit || 0,
-              };
+              card.dailyProfitsForMonth =
+                data.profitData.dailyProfitsForMonth.map((profit) => ({
+                  day: profit.day,
+                  profit: profit.profit,
+                }));
               break;
             case "Total des produits":
               card.valueA = data.totalProducts.totalProducts;
@@ -256,15 +261,12 @@ export const useWidgetStore = defineStore("widget", {
             // Ajouter des cas supplémentaires si nécessaire
           }
         });
-
-        this.saveCards(); // Sauvegarder les cartes mises à jour
-
       } catch (error) {
         console.error("Échec de la mise à jour de l'utilisateur :", error);
       }
     },
     toggleCardActive(id) {
-      const card = this.cards.find(card => card.id === id);
+      const card = this.cards.find((card) => card.id === id);
       if (card) {
         card.active = !card.active;
         this.saveCards();

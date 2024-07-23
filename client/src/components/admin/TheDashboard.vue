@@ -5,15 +5,15 @@
       <span class="material-symbols-outlined" @click="toggleModal">
         add_circle
       </span>
-      <div class="reorder">
+      <div class="reorder"  @click="reorderGrid">
         <p>Réorganiser</p>
-        <span class="material-symbols-outlined" @click="reorderGrid">
+        <span class="material-symbols-outlined">
           select_all
         </span>
       </div>
     </div>
     {{ activeCards }}
-    <div class="grid-stack">
+    <div class="grid-stack" v-if="reload">
       <div
         v-for="(card, index) in activeCards"
         :key="card.id"
@@ -77,6 +77,7 @@ const widgetStore = useWidgetStore();
 
 const showModal = ref(false);
 const automaticPosition = ref(false);
+const reload = ref(true);
 
 const toggleModal = () => {
   showModal.value = !showModal.value;
@@ -168,6 +169,7 @@ watch(activeCards, async () => {
 
 onMounted(async () => {
   await nextTick();
+  automaticPosition.value = false;
   initGridStack();
   widgetStore.fetchKpi();
 });
@@ -185,29 +187,16 @@ const getComponentType = (type) => {
   }
 };
 
-const reorganizeAllCards = () => {
-  widgetStore.cards.forEach((card, index) => {
-    const newX = index % 3; // Nouvelle position en x
-    const newY = Math.floor(index / 3); // Nouvelle position en y
-
-    const element = document.querySelector(`[data-gs-id='${card.id}']`);
-    if (element) {
-      grid.update(element, { x: newX, y: newY }); // Met à jour la position de l'élément
-    }
-
-    card.x = newX;
-    card.y = newY;
-  });
-
-  widgetStore.setCards([...widgetStore.cards]); // Sauvegarder les nouvelles positions
-};
-
 // Appeler cette fonction pour réorganiser les cartes
 const reorderGrid = () => {
-  reorganizeAllCards();
-  automaticPosition.value = !automaticPosition.value;
+  automaticPosition.value = true;
+  reload.value = false;
   widgetStore.deleteLocalCards();
-  automaticPosition.value = !automaticPosition.value;
+  setTimeout(() => {
+    reload.value = true;
+    automaticPosition.value = false;
+    resetGridStack();
+  }, 500);
 };
 </script>
 
@@ -260,9 +249,7 @@ const reorderGrid = () => {
           cursor: pointer;
           transform: scale(1.3);
         }
-      
       }
-
 
       p {
         font-family: "Montserrat", sans-serif;

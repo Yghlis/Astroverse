@@ -10,24 +10,6 @@
     <div class="title">
       <span class="material-symbols-outlined"> {{ card.icon }} </span>
       <h3>{{ card.title }}</h3>
-      <div class="data">
-        <div class="data-item">
-          <p class="label">Jour:</p>
-          <p class="value">{{ card.sales.day }}</p>
-        </div>
-        <div class="data-item">
-          <p class="label">Mois:</p>
-          <p class="value">{{ card.sales.month }}</p>
-        </div>
-        <div class="data-item">
-          <p class="label">Année:</p>
-          <p class="value">{{ card.sales.year }}</p>
-        </div>
-        <div class="data-item">
-          <p class="label">Total:</p>
-          <p class="value">{{ card.sales.total }}</p>
-        </div>
-      </div>
     </div>
     <div class="canvas-container" :style="{ height: chartHeight }">
       <canvas ref="salesChart" />
@@ -55,7 +37,8 @@ const chartHeight = ref("370px");
 
 const updateChartHeight = () => {
   if (cardElement.value) {
-    chartHeight.value = cardElement.value.offsetHeight < 730 ? "370px" : "740px";
+    chartHeight.value =
+      cardElement.value.offsetHeight < 730 ? "370px" : "740px";
   }
 };
 
@@ -67,7 +50,7 @@ const resizeChart = () => {
   if (chartInstance) {
     const parent = salesChart.value.parentNode;
     parent.style.height = chartHeight.value;
-    parent.style.width = "100%"; 
+    parent.style.width = "100%";
     chartInstance.resize();
   }
 };
@@ -78,57 +61,67 @@ onMounted(() => {
     observer.observe(cardElement.value);
   }
 
-  chartInstance = new Chart(salesChart.value, {
-    type: "line",
-    data: {
-      labels: ["Jour", "Mois", "Année"],
-      datasets: [
-        {
-          label: "Ventes",
-          data: [
-            props.card.sales.day,
-            props.card.sales.month,
-            props.card.sales.year,
-          ],
-          backgroundColor: "rgba(75, 192, 192, 0.2)",
-          borderColor: "rgba(75, 192, 192, 1)",
-          borderWidth: 2,
-        },
-      ],
-    },
-    options: {
-      responsive: false, // Disable responsive
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            font: {
-              size: 18,
-            },
-          },
-        },
-        x: {
-          ticks: {
-            font: {
-              size: 18,
-            },
-          },
-        },
-      },
-      plugins: {
-        legend: {
-          labels: {
-            font: {
-              size: 18,
-            },
-          },
-        },
-      },
-    },
-  });
+  if (
+    props.card.dailyProfitsForMonth &&
+    Array.isArray(props.card.dailyProfitsForMonth)
+  ) {
+    const dailyProfits = props.card.dailyProfitsForMonth.map(
+      (entry) => entry.profit
+    );
+    const days = props.card.dailyProfitsForMonth.map((entry) =>
+      new Date(entry.day).getDate()
+    );
 
-  resizeChart();
+    chartInstance = new Chart(salesChart.value, {
+      type: "line",
+      data: {
+        labels: days,
+        datasets: [
+          {
+            label: "Profit des ventes par jour",
+            data: dailyProfits,
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: false, // Disable responsive
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              font: {
+                size: 18,
+              },
+            },
+          },
+          x: {
+            ticks: {
+              font: {
+                size: 18,
+              },
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            labels: {
+              font: {
+                size: 18,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    resizeChart();
+  } else {
+    console.error("dailyProfitsForMonth is not defined or not an array");
+  }
 });
 
 onBeforeUnmount(() => {
