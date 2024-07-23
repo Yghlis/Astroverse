@@ -157,24 +157,18 @@ const calculateDailySalesForMonth = async (startDate, endDate) => {
         [Op.gte]: startDate,
         [Op.lte]: endDate
       }
-    }
+    },
+    attributes: [
+      [fn('DATE_TRUNC', 'day', col('createdAt')), 'day'],
+      [fn('SUM', literal(`(jsonb_array_elements("products") ->> 'quantity')::int`)), 'totalQuantity']
+    ],
+    group: ['day'],
+    order: [['day', 'ASC']]
   });
 
-  const dailySales = {};
-
-  orders.forEach(order => {
-    const day = new Date(order.createdAt).toISOString().split('T')[0];
-    const totalQuantity = order.products.reduce((sum, product) => sum + product.quantity, 0);
-    if (dailySales[day]) {
-      dailySales[day] += totalQuantity;
-    } else {
-      dailySales[day] = totalQuantity;
-    }
-  });
-
-  return Object.keys(dailySales).map(day => ({
-    day: new Date(day),
-    totalQuantity: dailySales[day]
+  return orders.map(order => ({
+    day: order.getDataValue('day'),
+    totalQuantity: parseInt(order.getDataValue('totalQuantity'), 10)
   }));
 };
 

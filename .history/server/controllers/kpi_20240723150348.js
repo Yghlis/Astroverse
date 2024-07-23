@@ -1,4 +1,4 @@
-import { Sequelize, Op, fn, col, literal } from 'sequelize';
+import { Sequelize, Op, fn, col } from 'sequelize';
 import Product from '../models/Product.js';
 import Universe from '../models/Universe.js';
 import Follow from '../models/Follow.js';
@@ -138,73 +138,42 @@ export const getTotalProductSales = async () => {
   }
 };
 
-// Générer un tableau de jours pour le mois actuel
-const generateDaysForCurrentMonth = () => {
-  const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const days = [];
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(new Date(now.getFullYear(), now.getMonth(), i));
-  }
-  return days;
-};
-
-// Fonction pour calculer les ventes journalières pour le mois actuel
-const calculateDailySalesForMonth = async (startDate, endDate) => {
-  const orders = await Order.findAll({
-    where: {
-      createdAt: {
-        [Op.gte]: startDate,
-        [Op.lte]: endDate
-      }
-    }
-  });
-
-  const dailySales = {};
-
-  orders.forEach(order => {
-    const day = new Date(order.createdAt).toISOString().split('T')[0];
-    const totalQuantity = order.products.reduce((sum, product) => sum + product.quantity, 0);
-    if (dailySales[day]) {
-      dailySales[day] += totalQuantity;
-    } else {
-      dailySales[day] = totalQuantity;
-    }
-  });
-
-  return Object.keys(dailySales).map(day => ({
-    day: new Date(day),
-    totalQuantity: dailySales[day]
-  }));
-};
-
-// Contrôleur pour obtenir le total des ventes par jour pour le mois actuel et le mois actuel
+// Contrôleur pour obtenir le total des ventes par période
 export const getTotalSalesByPeriod = async () => {
   try {
     const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    // Ventes journalières pour le mois actuel
-    const dailySalesForMonth = await calculateDailySalesForMonth(startOfMonth, now);
-
-    // Générer un tableau de jours pour le mois actuel
-    const daysInMonth = generateDaysForCurrentMonth();
-
-    // Combiner les jours et les ventes
-    const salesWithAllDays = daysInMonth.map(day => {
-      const salesData = dailySalesForMonth.find(sale => sale.day.getTime() === day.getTime());
-      return {
-        day: day.toISOString(),
-        totalQuantity: salesData ? salesData.totalQuantity : 0
-      };
+    const totalSales = await Order.sum('totalPrice');
+    const dailySales = await Order.sum('totalPrice', {
+      where: {
+        createdAt: {
+          [Op.gte]: startOfDay
+        }
+      }
+    });
+    const monthlySales = await Order.sum('totalPrice', {
+      where: {
+        createdAt: {
+          [Op.gte]: startOfMonth
+        }
+      }
+    });
+    const yearlySales = await Order.sum('totalPrice', {
+      where: {
+        createdAt: {
+          [Op.gte]: startOfYear
+        }
+      }
     });
 
-    // Calculer les ventes pour le mois actuel
-    const monthlySales = salesWithAllDays.reduce((acc, sale) => acc + sale.totalQuantity, 0);
-
     return {
+      totalSales,
+      dailySales,
       monthlySales,
-      dailySalesForMonth: salesWithAllDays
+      yearlySales
     };
   } catch (error) {
     console.error('Error fetching total sales by period:', error);
@@ -431,6 +400,17 @@ const calculateDailyProfitsForMonth = async (startDate, endDate) => {
     day: order.getDataValue('day'),
     profit: parseFloat(order.getDataValue('totalPrice')) - parseFloat(order.getDataValue('tax'))
   }));
+};
+
+// Générer un tableau de jours pour le mois actuel
+const generateDaysForCurrentMonth = () => {
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const days = [];
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(new Date(now.getFullYear(), now.getMonth(), i));
+  }
+  return days;
 };
 
 // Contrôleur pour obtenir les données de bénéfices (mois actuel)

@@ -1,4 +1,4 @@
-import { Sequelize, Op, fn, col, literal } from 'sequelize';
+import { Sequelize, Op, fn, col } from 'sequelize';
 import Product from '../models/Product.js';
 import Universe from '../models/Universe.js';
 import Follow from '../models/Follow.js';
@@ -157,32 +157,32 @@ const calculateDailySalesForMonth = async (startDate, endDate) => {
         [Op.gte]: startDate,
         [Op.lte]: endDate
       }
-    }
+    },
+    attributes: [
+      [fn('DATE_TRUNC', 'day', col('createdAt')), 'day'],
+      [fn('SUM', col('products.quantity')), 'totalQuantity']
+    ],
+    include: [{
+      model: Product,
+      attributes: [],
+    }],
+    group: ['day'],
+    order: [['day', 'ASC']]
   });
 
-  const dailySales = {};
-
-  orders.forEach(order => {
-    const day = new Date(order.createdAt).toISOString().split('T')[0];
-    const totalQuantity = order.products.reduce((sum, product) => sum + product.quantity, 0);
-    if (dailySales[day]) {
-      dailySales[day] += totalQuantity;
-    } else {
-      dailySales[day] = totalQuantity;
-    }
-  });
-
-  return Object.keys(dailySales).map(day => ({
-    day: new Date(day),
-    totalQuantity: dailySales[day]
+  return orders.map(order => ({
+    day: order.getDataValue('day'),
+    totalQuantity: parseInt(order.getDataValue('totalQuantity'), 10)
   }));
 };
 
-// Contrôleur pour obtenir le total des ventes par jour pour le mois actuel et le mois actuel
+// Contrôleur pour obtenir le total des ventes par jour pour le mois actuel
 export const getTotalSalesByPeriod = async () => {
   try {
     const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
 
     // Ventes journalières pour le mois actuel
     const dailySalesForMonth = await calculateDailySalesForMonth(startOfMonth, now);
@@ -199,11 +199,25 @@ export const getTotalSalesByPeriod = async () => {
       };
     });
 
-    // Calculer les ventes pour le mois actuel
+    // Calculer les ventes pour le jour actuel, le mois actuel, et l'année actuelle
+    const dailySales = salesWithAllDays.find(sale => sale.day === startOfDay.toISOString())?.totalQuantity || 0;
     const monthlySales = salesWithAllDays.reduce((acc, sale) => acc + sale.totalQuantity, 0);
+    const yearlySales = await Order.sum('products.quantity', {
+      where: {
+        createdAt: {
+          [Op.gte]: startOfYear
+        }
+      },
+      include: [{
+        model: Product,
+        attributes: [],
+      }]
+    });
 
     return {
+      dailySales,
       monthlySales,
+      yearlySales,
       dailySalesForMonth: salesWithAllDays
     };
   } catch (error) {

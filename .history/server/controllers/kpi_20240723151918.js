@@ -1,4 +1,4 @@
-import { Sequelize, Op, fn, col, literal } from 'sequelize';
+import { Sequelize, Op, fn, col } from 'sequelize';
 import Product from '../models/Product.js';
 import Universe from '../models/Universe.js';
 import Follow from '../models/Follow.js';
@@ -6,6 +6,7 @@ import Order from '../models/Order.js';
 import Favorite from '../models/Favorite.js';
 import Character from '../models/Character.js';
 import User from '../models/user.js';
+import sequelize from '../config/database.js';
 
 // Récupérer les modifications de stock
 const getStockChanges = async (productId) => {
@@ -138,73 +139,42 @@ export const getTotalProductSales = async () => {
   }
 };
 
-// Générer un tableau de jours pour le mois actuel
-const generateDaysForCurrentMonth = () => {
-  const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const days = [];
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(new Date(now.getFullYear(), now.getMonth(), i));
-  }
-  return days;
-};
-
-// Fonction pour calculer les ventes journalières pour le mois actuel
-const calculateDailySalesForMonth = async (startDate, endDate) => {
-  const orders = await Order.findAll({
-    where: {
-      createdAt: {
-        [Op.gte]: startDate,
-        [Op.lte]: endDate
-      }
-    }
-  });
-
-  const dailySales = {};
-
-  orders.forEach(order => {
-    const day = new Date(order.createdAt).toISOString().split('T')[0];
-    const totalQuantity = order.products.reduce((sum, product) => sum + product.quantity, 0);
-    if (dailySales[day]) {
-      dailySales[day] += totalQuantity;
-    } else {
-      dailySales[day] = totalQuantity;
-    }
-  });
-
-  return Object.keys(dailySales).map(day => ({
-    day: new Date(day),
-    totalQuantity: dailySales[day]
-  }));
-};
-
-// Contrôleur pour obtenir le total des ventes par jour pour le mois actuel et le mois actuel
+// Contrôleur pour obtenir le total des ventes par période
 export const getTotalSalesByPeriod = async () => {
   try {
     const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-    // Ventes journalières pour le mois actuel
-    const dailySalesForMonth = await calculateDailySalesForMonth(startOfMonth, now);
-
-    // Générer un tableau de jours pour le mois actuel
-    const daysInMonth = generateDaysForCurrentMonth();
-
-    // Combiner les jours et les ventes
-    const salesWithAllDays = daysInMonth.map(day => {
-      const salesData = dailySalesForMonth.find(sale => sale.day.getTime() === day.getTime());
-      return {
-        day: day.toISOString(),
-        totalQuantity: salesData ? salesData.totalQuantity : 0
-      };
+    const totalSales = await Order.sum('totalPrice');
+    const dailySales = await Order.sum('totalPrice', {
+      where: {
+        createdAt: {
+          [Op.gte]: startOfDay
+        }
+      }
+    });
+    const monthlySales = await Order.sum('totalPrice', {
+      where: {
+        createdAt: {
+          [Op.gte]: startOfMonth
+        }
+      }
+    });
+    const yearlySales = await Order.sum('totalPrice', {
+      where: {
+        createdAt: {
+          [Op.gte]: startOfYear
+        }
+      }
     });
 
-    // Calculer les ventes pour le mois actuel
-    const monthlySales = salesWithAllDays.reduce((acc, sale) => acc + sale.totalQuantity, 0);
-
     return {
+      totalSales,
+      dailySales,
       monthlySales,
-      dailySalesForMonth: salesWithAllDays
+      yearlySales
     };
   } catch (error) {
     console.error('Error fetching total sales by period:', error);
@@ -409,8 +379,7 @@ export const getNewsletterSubscriptionStats = async () => {
   }
 };
 
-// Fonction pour calculer les bénéfices journaliers pour le mois actuel
-const calculateDailyProfitsForMonth = async (startDate, endDate) => {
+const calculateProfits = async (startDate, endDate) => {
   const orders = await Order.findAll({
     where: {
       createdAt: {
@@ -419,43 +388,76 @@ const calculateDailyProfitsForMonth = async (startDate, endDate) => {
       }
     },
     attributes: [
-      [fn('DATE_TRUNC', 'day', col('createdAt')), 'day'],
+      [fn('DATE_TRUNC', 'day', col('createdAt')), 'date'],
       [fn('SUM', col('totalPrice')), 'totalPrice'],
       [fn('SUM', col('tax')), 'tax']
     ],
-    group: ['day'],
-    order: [['day', 'ASC']]
+    group: ['date'],
+    order: [['date', 'ASC']]
   });
 
   return orders.map(order => ({
-    day: order.getDataValue('day'),
+    date: order.getDataValue('date'),
     profit: parseFloat(order.getDataValue('totalPrice')) - parseFloat(order.getDataValue('tax'))
   }));
 };
 
-// Contrôleur pour obtenir les données de bénéfices (mois actuel)
+const calculateMonthlyProfits = async (startDate, endDate) => {
+  const orders = await Order.findAll({
+    where: {
+      createdAt: {
+        [Op.gte]: startDate,
+        [Op.lte]: endDate
+      }
+    },
+    attributes: [
+      [fn('DATE_TRUNC', 'month', col('createdAt')), 'month'],
+      [fn('SUM', col('totalPrice')), 'totalPrice'],
+      [fn('SUM', col('tax')), 'tax']
+    ],
+    group: ['month'],
+    order: [['month', 'ASC']]
+  });
+
+  return orders.map(order => ({
+    month: order.getDataValue('month'),
+    profit: parseFloat(order.getDataValue('totalPrice')) - parseFloat(order.getDataValue('tax'))
+  }));
+};
+
+// Contrôleur pour obtenir les données de bénéfices (jour / mois / année)
 export const getProfitData = async () => {
   try {
     const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+
+    // Total profits
+    const totalOrders = await Order.findAll();
+    const totalProfit = totalOrders.reduce((acc, order) => acc + (order.totalPrice - order.tax), 0);
+
+    // Daily profit for today
+    const dailyOrders = await Order.findAll({
+      where: {
+        createdAt: {
+          [Op.gte]: startOfDay
+        }
+      }
+    });
+    const dailyProfit = dailyOrders.reduce((acc, order) => acc + (order.totalPrice - order.tax), 0);
 
     // Daily profits for the current month
-    const dailyProfitsForMonth = await calculateDailyProfitsForMonth(startOfMonth, now);
+    const dailyProfitsForMonth = await calculateProfits(startOfMonth, now);
 
-    // Générer un tableau de jours pour le mois actuel
-    const daysInMonth = generateDaysForCurrentMonth();
-
-    // Combiner les jours et les profits
-    const profitsWithAllDays = daysInMonth.map(day => {
-      const profitData = dailyProfitsForMonth.find(profit => profit.day.getTime() === day.getTime());
-      return {
-        day: day.toISOString(),
-        profit: profitData ? profitData.profit : 0
-      };
-    });
+    // Monthly profits for the current year
+    const monthlyProfitsForYear = await calculateMonthlyProfits(startOfYear, now);
 
     return {
-      dailyProfitsForMonth: profitsWithAllDays
+      totalProfit,
+      dailyProfit,
+      dailyProfitsForMonth,
+      monthlyProfitsForYear
     };
   } catch (error) {
     console.error('Error fetching profit data:', error);
