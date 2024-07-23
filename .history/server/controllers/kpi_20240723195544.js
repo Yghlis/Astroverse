@@ -169,6 +169,7 @@ export const getTotalProductSalesLandingPage = async () => {
       productId: product.id,
       title: product.title,
       quantity: productSales[product.id].quantity,
+    
     }));
 
     const topProductSales = detailedProductSales.sort((a, b) => b.quantity - a.quantity).slice(0, 10);
@@ -552,8 +553,7 @@ export const getAllKpis = async (req, res) => {
       profitData,
       totalProducts,
       totalUniverses,
-      totalCharacters,
-      topTenProductSales // Ajout de la fonction getTotalProductSalesLandingPage
+      totalCharacters
     ] = await Promise.all([
       getTotalProductSales(),
       getTotalSalesByPeriod(),
@@ -565,8 +565,7 @@ export const getAllKpis = async (req, res) => {
       getProfitData(),
       getTotalProducts(),
       getTotalUniverses(),
-      getTotalCharacters(),
-      getTotalProductSalesLandingPage() // Appel de la fonction getTotalProductSalesLandingPage
+      getTotalCharacters()
     ]);
 
     res.status(200).json({
@@ -580,8 +579,7 @@ export const getAllKpis = async (req, res) => {
       profitData,
       totalProducts,
       totalUniverses,
-      totalCharacters,
-      topTenProductSales // Ajout du résultat dans la réponse JSON
+      totalCharacters
     });
   } catch (error) {
     console.error('Error fetching all KPIs:', error);
