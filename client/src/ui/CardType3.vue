@@ -12,7 +12,7 @@
       <h3>{{ card.title }}</h3>
     </div>
     <div class="canvas-container" :style="{ height: chartHeight }">
-      <canvas ref="salesChart" />
+      <canvas ref="chart" />
     </div>
   </div>
 </template>
@@ -29,7 +29,7 @@ const props = defineProps({
   },
 });
 
-const salesChart = ref(null);
+const chart = ref(null);
 const cardElement = ref(null);
 let chartInstance = null;
 
@@ -48,11 +48,65 @@ const observer = new ResizeObserver(() => {
 
 const resizeChart = () => {
   if (chartInstance) {
-    const parent = salesChart.value.parentNode;
+    const parent = chart.value.parentNode;
     parent.style.height = chartHeight.value;
     parent.style.width = "100%";
     chartInstance.resize();
   }
+};
+
+const initializeChart = (canvasRef, label, data, backgroundColor, borderColor) => {
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(canvasRef, {
+    type: "line",
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: label,
+          data: data.values,
+          backgroundColor: backgroundColor,
+          borderColor: borderColor,
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: false, // Disable responsive
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            font: {
+              size: 18,
+            },
+          },
+        },
+        x: {
+          ticks: {
+            font: {
+              size: 18,
+            },
+          },
+        },
+      },
+      plugins: {
+        legend: {
+          labels: {
+            font: {
+              size: 18,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  resizeChart();
 };
 
 onMounted(() => {
@@ -61,73 +115,44 @@ onMounted(() => {
     observer.observe(cardElement.value);
   }
 
-  const dataKey =
-    props.card.dailySalesForMonth?.[0]?.profit !== undefined
-      ? "profit"
-      : "totalQuantity";
-  const label =
-    dataKey === "profit" ? "Profit des ventes par jour" : "Ventes par Jour";
-
   if (
+    props.card.dailyProfitsForMonth &&
+    Array.isArray(props.card.dailyProfitsForMonth)
+  ) {
+    const dailyProfits = props.card.dailyProfitsForMonth.map(
+      (entry) => entry.profit
+    );
+    const days = props.card.dailyProfitsForMonth.map((entry) =>
+      new Date(entry.day).getDate()
+    );
+
+    initializeChart(
+      chart.value,
+      "Profit des ventes par jour",
+      { labels: days, values: dailyProfits },
+      "rgba(75, 192, 192, 0.2)",
+      "rgba(75, 192, 192, 1)"
+    );
+  } else if (
     props.card.dailySalesForMonth &&
     Array.isArray(props.card.dailySalesForMonth)
   ) {
-    const dailyData = props.card.dailySalesForMonth.map(
-      (entry) => entry[dataKey]
+    const dailyQuantities = props.card.dailySalesForMonth.map(
+      (entry) => entry.totalQuantity
     );
     const days = props.card.dailySalesForMonth.map((entry) =>
       new Date(entry.day).getDate()
     );
 
-    chartInstance = new Chart(salesChart.value, {
-      type: "line",
-      data: {
-        labels: days,
-        datasets: [
-          {
-            label: label,
-            data: dailyData,
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
-            borderColor: "rgba(75, 192, 192, 1)",
-            borderWidth: 2,
-          },
-        ],
-      },
-      options: {
-        responsive: false, // Disable responsive
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              font: {
-                size: 18,
-              },
-            },
-          },
-          x: {
-            ticks: {
-              font: {
-                size: 18,
-              },
-            },
-          },
-        },
-        plugins: {
-          legend: {
-            labels: {
-              font: {
-                size: 18,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    resizeChart();
+    initializeChart(
+      chart.value,
+      "Ventes par jour",
+      { labels: days, values: dailyQuantities },
+      "rgba(153, 102, 255, 0.2)",
+      "rgba(153, 102, 255, 1)"
+    );
   } else {
-    console.error("dailySalesForMonth is not defined or not an array");
+    console.error("No valid data provided for the chart");
   }
 });
 
