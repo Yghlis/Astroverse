@@ -26,7 +26,7 @@ export const getUserById = async (req, res) => {
   const { id } = req.params;
   const authenticatedUserId = req.user.userId;
 
-  if (id !== authenticatedUserId && req.user.role !== 'ROLE_ADMIN' && req.user.role !== 'ROLE_STORE_KEEPER') {
+  if (id !== authenticatedUserId && req.user.role !== 'ROLE_ADMIN') {
     return res.sendStatus(403);
   }
 
