@@ -86,13 +86,11 @@ export const getAllOrders = async (req, res) => {
           if (!product) {
             throw new Error(`Product with id ${item.productId} not found`);
           }
-          // Determine the price to use based on promotion status
-          const priceToUse = product.is_promotion && product.discounted_price != null ? parseFloat(product.discounted_price) : parseFloat(product.price);
-          totalPrice += priceToUse * item.quantity;
+          totalPrice += parseFloat(product.price) * item.quantity;
           return {
             productId: product.id,
             quantity: item.quantity,
-            price: priceToUse,  
+            price: parseFloat(product.price),
           };
         })
       );
@@ -253,7 +251,7 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    if (order.userId !== userId && userRole !== 'ROLE_ADMIN' && userRole !== 'ROLE_STORE_KEEPER') {
+    if (order.userId !== userId && userRole !== 'ROLE_ADMIN') {
       await transaction.rollback();
       return res.status(403).json();
     }
