@@ -20,6 +20,7 @@ import SearchBar from "../../ui/SearchBar.vue";
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+  z-index: 100;
   h2 {
     font-size: 2.5rem;
     font-weight: 700;

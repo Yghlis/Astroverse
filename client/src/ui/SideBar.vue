@@ -1,4 +1,3 @@
-
 <template>
   <Transition name="fade">
     <div v-if="showSideBar" class="overlay"></div>
@@ -17,7 +16,6 @@
   </Transition>
 </template>
 <script setup>
-
 const props = defineProps({
   showSideBar: {
     type: Boolean,
@@ -29,13 +27,11 @@ const props = defineProps({
   },
 });
 
-
 const emit = defineEmits([
   "update:hideUserSideBar",
   "update:hideCartSideBar",
   "update:hideFavoriteSideBar",
 ]);
-
 
 const toggle = () => {
   if (props.type === "user") {
@@ -72,6 +68,9 @@ const toggle = () => {
   z-index: 1000;
   padding-top: 20px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
   .close-btn {
     cursor: pointer;
     color: black;
@@ -103,7 +102,6 @@ const toggle = () => {
   }
 }
 
-
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.5s ease;
@@ -113,7 +111,6 @@ const toggle = () => {
 .slide-leave-to {
   transform: translateX(100%);
 }
-
 
 .fade-enter-active,
 .fade-leave-active {

@@ -321,6 +321,9 @@ const handleRowDeleted = (id) => {
   justify-content: flex-end;
   margin: 0;
   overflow: hidden;
+  @media (max-width: 1024px) {
+    overflow:  visible;
+  }
   h2 {
     margin: 0;
     padding: 20px;

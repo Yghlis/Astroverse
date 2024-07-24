@@ -71,6 +71,9 @@ onMounted(() => {
     align-items: center;
     flex-wrap: wrap;
     gap: 20px;
+    @media (max-width: 1024px) {
+      justify-content: center;
+    }
   }
 
   .error-message {
