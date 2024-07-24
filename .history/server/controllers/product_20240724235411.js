@@ -258,34 +258,28 @@ export const addProduct = async (req, res) => {
     const existingProduct = await Product.findOne({ where: { reference }, transaction });
     if (existingProduct) {
       await transaction.rollback();
-      return res.status(409).json({ message: 'Product with this reference already exists' });
+      return res.status(409).json({ message: 'Produit avec cette référence existe déjà.' });
     }
 
     const image_preview = req.files && req.files['image_preview'] ? req.files['image_preview'][0].path : null;
     const image_gallery = req.files && Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
 
-    let universeRecord;
-    if (isUUIDValid(universe)) {
-      universeRecord = await Universe.findByPk(universe, { transaction });
-    } else {
-      universeRecord = await Universe.findOne({ where: { name: universe }, transaction });
-    }
+    const universeRecord = isUUIDValid(universe)
+      ? await Universe.findByPk(universe, { transaction })
+      : await Universe.findOne({ where: { name: universe }, transaction });
 
     if (!universeRecord) {
       await transaction.rollback();
-      return res.status(404).json({ message: 'Universe not found', universe });
+      return res.status(404).json({ message: 'Univers non trouvé.' });
     }
 
-    let characterRecord;
-    if (isUUIDValid(character)) {
-      characterRecord = await Character.findByPk(character, { transaction });
-    } else {
-      characterRecord = await Character.findOne({ where: { name: character }, transaction });
-    }
+    const characterRecord = isUUIDValid(character)
+      ? await Character.findByPk(character, { transaction })
+      : await Character.findOne({ where: { name: character }, transaction });
 
     if (!characterRecord) {
       await transaction.rollback();
-      return res.status(404).json({ message: 'Character not found', character });
+      return res.status(404).json({ message: 'Personnage non trouvé.' });
     }
 
     const productTags = tags ? tags.split(',').map(tag => tag.trim()) : [];
@@ -352,8 +346,15 @@ export const addProduct = async (req, res) => {
 
     res.status(201).json(product);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      const errors = error.errors.map(err => err.message);
+      console.error('Erreur de validation Zod :', errors);
+      await transaction.rollback();
+      return res.status(400).json({ message: 'Erreur de validation', details: errors });
+    }
+    console.error('Erreur lors de la création du produit :', error);
     await transaction.rollback();
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    res.status(500).json({ message: 'Erreur interne du serveur', details: error.message });
   }
 };
 
