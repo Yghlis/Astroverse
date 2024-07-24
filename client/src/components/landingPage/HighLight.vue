@@ -17,7 +17,7 @@
 import shopCard from "../../ui/shopCard.vue";
 import TheCarousel from "../../ui/TheCarousel.vue";
 
-// ################################################################# API CALL #################################################################
+
 
 const props = defineProps({
   topProducts: {

@@ -44,11 +44,11 @@ const changePassword = async () => {
       successMessage.value = 'Mot de passe changé avec succès';
 
       if (!data.mustChangePassword) {
-        // Update the token and navigate away from the change password page
-        localStorage.setItem('jwt', data.token); // Store the new token
+        
+        localStorage.setItem('jwt', data.token); 
         setTimeout(() => {
           router.push('/');
-        }, 2000); // Rediriger après 2 secondes
+        }, 2000); 
       }
     } else {
       const data = await response.json();

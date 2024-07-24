@@ -27,7 +27,7 @@ import SearchBar from "../ui/SearchBar.vue";
 import { useShopStore } from "../stores/useShopStore";
 import TheLoader from "../ui/TheLoader.vue";
 
-//################################################# API CALL #################################################
+
 
 const shopStore = useShopStore();
 
@@ -41,7 +41,7 @@ const filterOptions = computed(() => {
   const options = [];
   let idCounter = 1;
 
-  // Handle checkbox filters
+
   for (const key in shopStore.filters.checkboxes) {
     options.push({
       id: idCounter++,
@@ -54,7 +54,7 @@ const filterOptions = computed(() => {
     });
   }
 
-  // Handle range filters
+ 
   for (const key in shopStore.filters.ranges) {
     options.push({
       id: idCounter++,
@@ -65,7 +65,7 @@ const filterOptions = computed(() => {
     });
   }
 
-  // Handle promotion filter
+
   options.push({
     id: idCounter++,
     optionName: "promotion",
@@ -78,7 +78,9 @@ const filterOptions = computed(() => {
 
 onMounted(async () => {
   await shopStore.fetchProducts();
+  shopStore.updatePriceRange();
   await shopStore.fetchFilterOptions();
+
 });
 
 onBeforeUnmount(() => {
@@ -108,7 +110,7 @@ onBeforeUnmount(() => {
 .fade-leave-active {
   transition: opacity 1s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-enter, .fade-leave-to {
   opacity: 0;
 }
 </style>

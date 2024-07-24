@@ -4,7 +4,7 @@
       :class="['filter-section-title', { active: isOptionVisible }]"
       @click="toggleOption"
     >
-      <p>{{ optionName }}</p>
+      <p>{{ optionNameInFrench }}</p>
       <span ref="arrowDown" class="material-symbols-outlined"
         >keyboard_arrow_down</span
       >
@@ -33,7 +33,9 @@
         </div>
         <div v-else-if="optionType === 'range'" class="range-option">
           <div class="range-controls">
-            <label :for="optionName + '-min'">{{ optionName }} Min</label>
+            <label :for="optionName + '-min'"
+              >{{ optionNameInFrench }} Min</label
+            >
             <input
               type="range"
               :id="optionName + '-min'"
@@ -45,7 +47,9 @@
             <span>{{ selectedMin }} €</span>
           </div>
           <div class="range-controls">
-            <label :for="optionName + '-max'">{{ optionName }} Max</label>
+            <label :for="optionName + '-max'"
+              >{{ optionNameInFrench }} Max</label
+            >
             <input
               type="range"
               :id="optionName + '-max'"
@@ -63,7 +67,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch } from "vue";
+import { ref, nextTick, watch, computed } from "vue";
 import { timeline } from "motion";
 
 const arrowDown = ref(null);
@@ -84,6 +88,21 @@ const selectedCheckboxes = ref([]);
 const selectedMin = ref(props.rangeMin);
 const selectedMax = ref(props.rangeMax);
 const isOptionVisible = ref(false);
+
+const optionNameInFrench = computed(() => {
+  switch (props.optionName) {
+    case "price":
+      return "Prix";
+    case "characters":
+      return "Personnages";
+    case "universes":
+      return "Univers";
+    case "ratings":
+      return "Évaluations";
+    default:
+      return props.optionName;
+  }
+});
 
 const toggleOption = async () => {
   isOptionVisible.value = !isOptionVisible.value;
@@ -155,20 +174,18 @@ watch(
   }
 );
 
-// Ajoutez ce watcher pour initialiser les valeurs sélectionnées
 watch(
   () => props.selectedValues,
   (newVal) => {
-    if (props.optionType === 'checkbox') {
+    if (props.optionType === "checkbox") {
       selectedCheckboxes.value = newVal || [];
-    } else if (props.optionType === 'range') {
+    } else if (props.optionType === "range") {
       selectedMin.value = newVal?.min || props.rangeMin;
       selectedMax.value = newVal?.max || props.rangeMax;
     }
   },
   { immediate: true }
 );
-
 
 const resetFilters = () => {
   selectedCheckboxes.value = [];

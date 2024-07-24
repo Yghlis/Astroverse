@@ -1,4 +1,4 @@
-<!-- src/components/NavBar.vue -->
+
 <template>
   <Transition name="fade">
     <div v-if="showSideBar" class="overlay"></div>
@@ -17,7 +17,7 @@
   </Transition>
 </template>
 <script setup>
-// Watch the parent prop to sync with the ref
+
 const props = defineProps({
   showSideBar: {
     type: Boolean,
@@ -29,14 +29,14 @@ const props = defineProps({
   },
 });
 
-// Définir les événements
+
 const emit = defineEmits([
   "update:hideUserSideBar",
   "update:hideCartSideBar",
   "update:hideFavoriteSideBar",
 ]);
 
-// Fonction pour émettre l'événement
+
 const toggle = () => {
   if (props.type === "user") {
     emit("update:hideUserSideBar", false);
@@ -103,7 +103,7 @@ const toggle = () => {
   }
 }
 
-// Transition de slide
+
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.5s ease;
@@ -114,7 +114,7 @@ const toggle = () => {
   transform: translateX(100%);
 }
 
-/* Transition de fondu */
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;

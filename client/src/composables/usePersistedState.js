@@ -1,4 +1,3 @@
-// usePersistedState.js
 import { watch } from 'vue';
 
 export function usePersistedState(store, key) {

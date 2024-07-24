@@ -29,8 +29,8 @@
               </p>
               <p><strong>Description :</strong> {{ item.description }}</p>
               <p><strong>Stock :</strong> {{ item.stock }}</p>
-              <p><strong>Personnage :</strong> {{ item.character?.name }}</p>
-              <p><strong>Univers :</strong> {{ item.universe?.name }}</p>
+              <p><strong>Personnage :</strong> {{ characterName }}</p>
+              <p><strong>Univers :</strong> {{ universeName }}</p>
               <p><strong>Référence :</strong> {{ item.reference }}</p>
               <p>
                 <strong>Dimensions :</strong> {{ parsedDetails.dimensions }}
@@ -67,17 +67,21 @@
               <p><strong>Nom du personnage :</strong> {{ item.name }}</p>
               <p><strong>Univers :</strong> {{ universeName }}</p>
             </div>
-            
+
             <div v-if="currentDataType === 'universes'">
               <p><strong>Nom de l'univers :</strong> {{ item.name }}</p>
               <p><strong>Couleur 1 :</strong> {{ item.color1 }}</p>
               <p><strong>Couleur 2 :</strong> {{ item.color2 }}</p>
               <p><strong>Couleur du Texte :</strong> {{ item.colorText }}</p>
             </div>
-            
+
             <div v-if="currentDataType === 'orders'">
               <p><strong>Numéro de commande :</strong> {{ item.id }}</p>
-              <div v-for="product in item.products" :key="product.productId" class="product-details">
+              <div
+                v-for="product in item.products"
+                :key="product.productId"
+                class="product-details"
+              >
                 <img
                   :src="getImageUrl(product.image_preview)"
                   alt="Image Preview"
@@ -92,7 +96,7 @@
               </div>
               <p><strong>Prix total :</strong> {{ item.totalPrice }}</p>
             </div>
-            
+
             <div v-if="currentDataType === 'users'">
               <p><strong>Prénom :</strong> {{ item.first_name }}</p>
               <p><strong>Nom :</strong> {{ item.last_name }}</p>
@@ -145,6 +149,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useCharacterFormStore } from "../stores/characterFormStore";
+import { useProductFormStore } from "../stores/productFormStore";
 
 const props = defineProps({
   currentDataType: String,
@@ -161,7 +166,9 @@ const props = defineProps({
 
 const item = ref(null);
 const characterFormStore = useCharacterFormStore();
+const productFormStore = useProductFormStore();
 const universeName = ref("");
+const characterName = ref("");
 const apiUrl = import.meta.env.VITE_API_URL;
 
 const getImageUrl = (filename) => {
@@ -192,6 +199,20 @@ onMounted(async () => {
     }
     item.value = await response.json();
 
+    if (props.currentDataType === "products" && item.value.universe) {
+      await characterFormStore.fetchUniverseNameById(item.value.universe);
+      universeName.value = characterFormStore.universeName;
+    }
+
+    if (props.currentDataType === "products" && item.value.character) {
+      await productFormStore.fetchCharacters();
+      console.log(productFormStore.characters);
+      const character = productFormStore.characters.find(
+        (character) => character.id === item.value.character
+      );
+      console.log(character);
+      characterName.value = character.name;
+    }
 
     if (props.currentDataType === "characters" && item.value.universe) {
       await characterFormStore.fetchUniverseNameById(item.value.universe);
@@ -204,11 +225,12 @@ onMounted(async () => {
 
 const parsedDetails = computed(() => {
   try {
-    return item.value && item.value.details
-      ? JSON.parse(item.value.details)
-      : {};
+    if (item.value && item.value.details) {
+      return item.value.details;
+    }
+    return {};
   } catch (e) {
-    console.error("Invalid JSON:", e);
+    console.error("Erreur lors de l'accès aux détails:", e);
     return {};
   }
 });

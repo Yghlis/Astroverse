@@ -75,7 +75,7 @@ const goToLink = () => {
   }
 };
 
-// Automatic slide transition every 5 seconds
+
 let slideInterval;
 
 const startSlideShow = () => {
@@ -96,7 +96,7 @@ onUnmounted(() => {
   stopSlideShow();
 });
 
-// Reset slide interval on user interaction
+
 watch(
   () => currentIndex.value,
   () => {

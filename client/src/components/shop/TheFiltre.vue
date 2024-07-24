@@ -83,8 +83,6 @@ const props = defineProps({
   },
 });
 
-// ###################################################### URL Gestion ########################################################
-
 const route = useRoute();
 const router = useRouter();
 
@@ -108,12 +106,17 @@ const initializeFiltersFromURL = () => {
     const [min, max] = query.priceRange.split("-").map(Number);
     if (!isNaN(min) && !isNaN(max)) {
       props.selectedFilters.priceRange = { min, max };
+    } else {
+      props.selectedFilters.priceRange = { ...initialPriceRange };
     }
+  } else {
+    props.selectedFilters.priceRange = { ...initialPriceRange };
   }
   if (query.promotion) {
     props.selectedFilters.promotion = query.promotion === "true";
   }
 };
+
 
 const updateURLFromFilters = () => {
   const filters = props.selectedFilters;
@@ -162,7 +165,6 @@ const updateURLFromFilters = () => {
     params.delete("promotion");
   }
 
-  // If title is present, keep it and add filters
   if (route.query.title) {
     params.set("title", route.query.title);
   } else {
@@ -172,7 +174,6 @@ const updateURLFromFilters = () => {
   router.push({ query: Object.fromEntries(params.entries()) });
 };
 
-// Stockage des valeurs initiales de priceRange
 const initialPriceRange = reactive({ min: 0, max: 0 });
 const isInitialized = ref(false);
 
@@ -185,11 +186,10 @@ const updateInitialPriceRange = () => {
 
 onMounted(() => {
   updateInitialPriceRange();
-  initializeFiltersFromURL(); // URL gestion
+  initializeFiltersFromURL();
   updateNombreDeFilter();
 });
 
-// Watcher pour initialPriceRange
 watch(
   () => props.selectedFilters.priceRange,
   () => {
@@ -201,7 +201,6 @@ watch(
   }
 );
 
-// Watchers pour surveiller les modifications des filtres et mettre à jour l'URL
 watch(
   () => props.selectedFilters,
   () => {
@@ -210,16 +209,15 @@ watch(
   { deep: true }
 );
 
-// Watcher pour surveiller les modifications de l'URL et mettre à jour les filtres
 watch(
   () => route.query,
   () => {
+    updateInitialPriceRange();
     initializeFiltersFromURL();
+    updateNombreDeFilter();
   },
   { deep: true }
 );
-
-// ################################################################# Filter Logic #################################################################
 
 const updateNombreDeFilter = () => {
   let count = 0;
@@ -243,7 +241,6 @@ const updateNombreDeFilter = () => {
   NombreDeFilter.value = count;
 };
 
-// Watchers pour surveiller les modifications des filtres
 watch(() => props.selectedFilters.characters, updateNombreDeFilter, {
   deep: true,
 });
@@ -280,8 +277,6 @@ const resetFilters = () => {
     resetEvent.value = false;
   }, 0);
 };
-
-// ################################################################# RESPONSIVE FILTER #################################################################
 
 const openFilter = () => {
   responsiveFilter.value = !responsiveFilter.value;
@@ -503,7 +498,7 @@ watch(screenWidth, (newWidth) => {
   }
 }
 
-// Transition de slide vers le haut
+
 .slideUp-enter-active,
 .slideUp-leave-active {
   transition: transform 0.5s ease;
@@ -514,7 +509,7 @@ watch(screenWidth, (newWidth) => {
   transform: translateY(100%);
 }
 
-/* Transition de fondu */
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;

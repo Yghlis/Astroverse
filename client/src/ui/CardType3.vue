@@ -81,7 +81,7 @@ const initializeChart = (
       ],
     },
     options: {
-      responsive: false, // Disable responsive
+      responsive: false, 
       maintainAspectRatio: false,
       scales: {
         y: {

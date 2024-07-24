@@ -37,7 +37,7 @@
 import { ref, computed, watch } from "vue";
 import shopCard from "../../ui/shopCard.vue";
 
-// Props
+
 const props = defineProps({
   products: {
     type: Array,

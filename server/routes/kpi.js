@@ -24,7 +24,6 @@ router.get('/all-kpis', authenticateToken, requireRole('ROLE_ADMIN'), getAllKpis
 // Route pour récupérer les données de l'évolution des stocks
 router.get('/stock-evolution', authenticateToken, requireRole(['ROLE_ADMIN', 'ROLE_STORE_KEEPER']), getStockEvolution);
 
-
 // Route pour obtenir le top 3 des ventes de produits
 router.get('/total-sales', authenticateToken, getTotalProductSales);
 

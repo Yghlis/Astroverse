@@ -29,27 +29,27 @@ const firstName = ref("");
 const lastName = ref("");
 const cartStore = useCartStore();
 
-// Vérifier si l'utilisateur est connecté lors du chargement du composant
+
 onMounted(() => {
   isLoggedIn.value = !!localStorage.getItem("token");
   firstName.value = localStorage.getItem("firstName");
   lastName.value = localStorage.getItem("lastName");
 
-  // Synchroniser le panier immédiatement lors du montage
+ 
   cartStore.syncCart();
 
-  // Synchroniser le panier toutes les minutes
+
   const interval = setInterval(() => {
     cartStore.syncCart();
-  }, 60000); // 60000 ms = 1 minute
+  }, 60000); 
 
-  // Nettoyer l'intervalle lorsqu'on démonte le composant
+ 
   onUnmounted(() => {
     clearInterval(interval);
   });
 });
 
-// Fonction pour gérer la déconnexion
+
 const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("firstName");

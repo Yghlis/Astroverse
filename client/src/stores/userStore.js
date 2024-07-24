@@ -1,11 +1,12 @@
 import { defineStore } from "pinia";
-import { jwtDecode } from "jwt-decode"; // Corrigé l'import
+import { jwtDecode } from "jwt-decode"; 
 import { z } from "zod";
 import useFlashMessageStore from "../composables/useFlashMessageStore";
 
 export const useUserStore = defineStore("user", {
   state: () => ({
     isAdmin: false,
+    isStoreKeeper: false,
     userData: {},
     errors: {},
   }),
@@ -17,6 +18,7 @@ export const useUserStore = defineStore("user", {
           const decoded = jwtDecode(token);
           let userRole = decoded.role;
           this.isAdmin = userRole === "ROLE_ADMIN";
+          this.isStoreKeeper = userRole === "ROLE_STORE_KEEPER";
         } catch (error) {
           console.error("Échec du décodage du JWT :", error);
           this.isAdmin = false;
