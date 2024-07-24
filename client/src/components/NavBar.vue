@@ -7,7 +7,7 @@
       >Boutique</RouterLink
     >
     <RouterLink
-      v-if="isAdmin"
+      v-if="isAdmin || isStoreKeeper"
       to="/admin"
       :class="{ active: $route.path === '/admin' }"
       >Administration</RouterLink
@@ -25,7 +25,8 @@ onMounted(() => {
   userStore.checkAdmin();
 });
 
-const isAdmin = computed(() => userStore.isAdmin);
+const isAdmin = computed(() => userStore.isAdmin );
+const isStoreKeeper = computed(() => userStore.isStoreKeeper);
 </script>
 
 <style lang="scss" scoped>

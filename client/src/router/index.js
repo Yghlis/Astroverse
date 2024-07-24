@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { jwtDecode } from "jwt-decode"; // Correct named import
+import { jwtDecode } from "jwt-decode"; 
 import LandingPage from "../views/LandingPage.vue";
 import TheShop from "../views/TheShop.vue";
 import Register from "../views/Register.vue";
@@ -8,7 +8,7 @@ import ResetPassword from "../components/ResetPassword.vue";
 import AdminDashboard from "../views/AdminDashboard.vue";
 import TheForm from "../ui/TheForm.vue";
 import ShopItem from "../views/ShopItem.vue";
-import ChangePassword from "../components/ChangePassword.vue"; // Importation du composant ChangePassword
+import ChangePassword from "../components/ChangePassword.vue"; 
 import CartCheckout from "../views/CartCheckout.vue";
 import UserProfile from "../views/UserProfile.vue";
 import Confirmation from "../components/Confirmation.vue";
@@ -23,9 +23,9 @@ const routes = [
   { path: "/admin", component: AdminDashboard, meta: { requiresAuth: true, role: "ROLE_ADMIN" } },
   { path: "/form", component: TheForm },
   { path: "/item/:id", component: ShopItem },
-  { path: "/change-password/:userId/:token", name: "ChangePassword", component: ChangePassword }, // Nouvelle route pour changer le mot de passe
+  { path: "/change-password/:userId/:token", name: "ChangePassword", component: ChangePassword }, 
   { path: "/cart-checkout", component: CartCheckout },
-  { path: "/profile", component: UserProfile, meta: { requiresAuth: false } },	//a changer 
+  { path: "/profile", component: UserProfile, meta: { requiresAuth: false } },	
   { path: '/confirmation', name: 'Confirmation', component: Confirmation },
   { path: '/legal/:section', name: 'LegalContent', component: LegalContent },
 ];
@@ -44,10 +44,10 @@ router.beforeEach((to, from, next) => {
 
   if (token) {
     try {
-      const decoded = jwtDecode(token); // Utiliser l'import correctement ici
+      const decoded = jwtDecode(token); 
       isAuthenticated = true;
       userRole = decoded.role;
-      mustChangePassword = decoded.mustChangePassword; // Assurez-vous que mustChangePassword est inclus dans le JWT
+      mustChangePassword = decoded.mustChangePassword; 
       userId = decoded.userId;
     } catch (error) {
       console.error("Failed to decode JWT:", error);

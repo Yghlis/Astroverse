@@ -23,13 +23,13 @@ onMounted(async () => {
   await shopStore.fetchProducts();
 });
 
-// Utility function to get random elements from an array
+
 function getRandomElements(array, count) {
   const shuffled = array.slice().sort(() => 0.5 - Math.random());
   return shuffled.slice(0, count);
 }
 
-// Transform products into mediaItems
+
 const mediaItems = computed(() => {
   if (!products.value || products.value.length === 0) return [];
   const randomProducts = getRandomElements(products.value, 5);
@@ -43,7 +43,7 @@ const mediaItems = computed(() => {
   });
 });
 
-// Get top 10 viewed products
+
 const topViewedProducts = computed(() => {
   if (!products.value || products.value.length === 0) return [];
   return products.value

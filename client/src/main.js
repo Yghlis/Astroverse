@@ -1,8 +1,8 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import { createPinia } from 'pinia'; // Importer Pinia
-import { jwtDecode } from "jwt-decode"; // Importation nommée, s'assurer que jwt-decode expose vraiment cette fonction
+import { createPinia } from 'pinia'; 
+import { jwtDecode } from "jwt-decode"; 
 import './style.css';
 import './assets/global.css';
 import { usePersistedState } from './composables/usePersistedState';

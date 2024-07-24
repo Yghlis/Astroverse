@@ -56,7 +56,7 @@ const toggleNav = () => {
 const animateSidebar = async (newVal) => {
   await nextTick();
   if (!sidebar.value) {
-    //le if pour fix the bug of the first render
+    
     return;
   }
   isAnimating.value = true;

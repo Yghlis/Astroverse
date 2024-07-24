@@ -3,6 +3,7 @@
     <SideAdmin :showSideBar="showSideBar" @update:hideSideBarAdmin="toggleNav">
       <div class="admin-options">
         <button
+          v-if="isAdmin"
           :class="{
             active: currentDataType === 'dashboard',
             mini: !showSideBar,
@@ -15,6 +16,7 @@
           </transition>
         </button>
         <button
+          v-if="isAdmin"
           :class="{
             active: currentDataType === 'products',
             mini: !showSideBar,
@@ -27,6 +29,7 @@
           </transition>
         </button>
         <button
+          v-if="isAdmin"
           :class="{ active: currentDataType === 'users', mini: !showSideBar }"
           @click="fetchData('users')"
         >
@@ -36,6 +39,7 @@
           </transition>
         </button>
         <button
+          v-if="isAdmin"
           :class="{
             active: currentDataType === 'universes',
             mini: !showSideBar,
@@ -48,6 +52,7 @@
           </transition>
         </button>
         <button
+          v-if="isAdmin"
           :class="{
             active: currentDataType === 'characters',
             mini: !showSideBar,
@@ -79,6 +84,7 @@
         </button>
 
         <button
+          v-if="isAdmin"
           :class="{
             active: currentDataType === 'newsletters',
             mini: !showSideBar,
@@ -138,6 +144,12 @@ import AdminTable from "../components/admin/AdminTable.vue";
 import StockManagement from "../components/admin/StockManagement.vue";
 import NewsletterManagement from "../components/admin/NewsletterManagement.vue";
 import { ref, onMounted, provide } from "vue";
+import { useUserStore } from "../stores/userStore";
+
+const userStore = useUserStore();
+
+const isAdmin = computed(() => userStore.isAdmin);
+
 
 const showSideBar = ref(true);
 const tableData = ref([]);
@@ -373,7 +385,7 @@ const handleRowDeleted = (id) => {
   }
 }
 
-//transtions fade-translate
+
 .fade-translate-enter-active,
 .fade-translate-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -385,7 +397,7 @@ const handleRowDeleted = (id) => {
   transform: translateX(-30px);
 }
 
-/* Transitions slide */
+
 .slide-enter-active,
 .slide-leave-active {
   transition: transform 0.5s ease, opacity 0.5s ease;

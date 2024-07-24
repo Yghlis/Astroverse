@@ -8,7 +8,7 @@
   import { ref } from 'vue';
   import { defineEmits } from 'vue';
   
-  // Définir les props
+  
   const props = defineProps({
     imageSrc: {
       type: String,
@@ -24,7 +24,7 @@
   
 const emit = defineEmits(['update:isFullscreen']);
 
-// Fonction pour fermer le mode plein écran
+
 const closeFullscreen = () => {
   emit('update:isFullscreen', false);
 };

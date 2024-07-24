@@ -94,12 +94,12 @@ const evaluatePassword = () => {
   ) {
     state.passwordStrength.message = "Mot de passe solide";
     state.passwordStrength.color = "green";
-    state.canSubmit = true; // Permet la soumission si le mot de passe est solide
+    state.canSubmit = true;
   } else {
     state.passwordStrength.message =
       "Mot de passe trop faible. Il doit contenir au moins 12 caractères, avec au moins un symbole, un chiffre, une lettre minuscule et une lettre majuscule.";
     state.passwordStrength.color = "red";
-    state.canSubmit = false; // Empêche la soumission si le mot de passe est faible
+    state.canSubmit = false; 
   }
 };
 

@@ -156,10 +156,10 @@ const initGridStack = () => {
 
 const resetGridStack = async () => {
   if (grid) {
-    grid.destroy(false); // Détruire GridStack sans enlever les éléments du DOM
+    grid.destroy(false); 
   }
   await nextTick();
-  initGridStack(); // Réinitialiser GridStack
+  initGridStack();
 };
 
 watch(activeCards, async () => {
@@ -186,7 +186,7 @@ const getComponentType = (type) => {
   }
 };
 
-// Appeler cette fonction pour réorganiser les cartes
+
 const reorderGrid = () => {
   automaticPosition.value = true;
   setTimeout(() => {

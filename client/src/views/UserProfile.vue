@@ -195,7 +195,7 @@ const fetchUserOrders = async (userId) => {
     const response = await fetch(`${apiUrl}/orders?userId=${userId}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-        "Content-Type": "application/json", // Ajout du Content-Type
+        "Content-Type": "application/json", 
       },
     });
     if (!response.ok) {
@@ -221,7 +221,7 @@ const filteredOrders = computed(() => {
 });
 
 const getImageUrl = (imagePath) => {
-  // Retirer '/home/node' du chemin si présent
+  
   const apiUrl = import.meta.env.VITE_API_URL;
   const cleanPath = imagePath.replace("/home/node", "");
   return cleanPath.startsWith("http") ? cleanPath : `${apiUrl}${cleanPath}`;
@@ -684,7 +684,7 @@ const deleteAccount = async () => {
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    width: 80%; /* Ajuster la largeur */
+    width: 80%; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 
     .order-header {
@@ -786,7 +786,7 @@ const deleteAccount = async () => {
       width: 90%;
     }
     .order-container {
-      width: 100%; /* Ajuster la largeur pour les mobiles */
+      width: 100%; 
     }
   }
 }

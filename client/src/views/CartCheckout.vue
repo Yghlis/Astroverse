@@ -529,7 +529,7 @@ const fetchUserAddress = async () => {
       fullAddress.postal_code = data.address.postal_code;
       fullAddress.country = data.address.country;
 
-      // Trigger fetching suggestions for pre-filled address
+      
       fetchSuggestions(address.value);
     }
   } catch (error) {
@@ -541,7 +541,7 @@ let stripe, elements, paymentElement;
 
 onMounted(async () => {
   stripe = await stripePromise;
-  await fetchUserAddress(); // Fetch user address on mount
+  await fetchUserAddress(); 
 });
 
 const updateUserAddress = async (address) => {
@@ -556,13 +556,13 @@ const updateUserAddress = async (address) => {
   let userId;
   try {
     const decodedJwt = jwtDecode(jwt);
-    userId = decodedJwt.userId; // Assurez-vous que l'ID utilisateur est correctement décodé
+    userId = decodedJwt.userId; 
   } catch (error) {
     console.error("Failed to decode JWT:", error);
     return;
   }
 
-  // Extraire les informations pertinentes
+  
   const simplifiedAddress = {
     city: address.city,
     street: `${address.housenumber || ""} ${address.street || ""}`.trim(),
@@ -644,7 +644,7 @@ const handleSubmit = async () => {
   }
 
   try {
-    // Créer une commande
+    
     const orderResponse = await fetch(`${apiUrl}/orders`, {
       method: "POST",
       headers: {

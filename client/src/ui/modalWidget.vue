@@ -89,7 +89,7 @@
     }
   }
   
-  // Transition de slide
+  
   .slide-enter-active,
   .slide-leave-active {
     transition: transform 0.5s ease;
@@ -100,7 +100,7 @@
     transform: translateX(100%);
   }
   
-  /* Transition de fondu */
+ 
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.5s ease;

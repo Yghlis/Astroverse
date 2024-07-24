@@ -498,7 +498,7 @@ watch(screenWidth, (newWidth) => {
   }
 }
 
-// Transition de slide vers le haut
+
 .slideUp-enter-active,
 .slideUp-leave-active {
   transition: transform 0.5s ease;
@@ -509,7 +509,7 @@ watch(screenWidth, (newWidth) => {
   transform: translateY(100%);
 }
 
-/* Transition de fondu */
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;

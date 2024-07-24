@@ -80,58 +80,87 @@
   });
   </script>
   
-  <style scoped>
+  <style scoped lang="scss">
   .confirmation {
-    background-color: #ccc;
+    background: linear-gradient(to bottom right, #f7f8fc, #e2e5f1);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
     &-content {
-      padding: 20px;
-      max-width: 700px;
-      margin: 50px auto;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      max-width: 800px;
+      width: 100%;
+      margin: 20px;
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       text-align: center;
+      font-family: 'Helvetica Neue', sans-serif;
   
       h2 {
-        margin-bottom: 20px;
-        font-size: 24px;
+        margin-bottom: 25px;
+        font-size: 28px;
+        color: #333;
+        font-weight: bold;
+        text-transform: uppercase;
       }
   
       p {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         font-size: 18px;
+        color: #666;
       }
   
       img {
-        width: 100px;
-        height: 100px;
+        width: 120px;
+        height: 120px;
         object-fit: cover;
-        border-radius: 8px;
+        border-radius: 10px;
+        margin-right: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
   
       ul {
         list-style-type: none;
         padding: 0;
-      }
+        margin: 0;
   
-      li {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
+        li {
+          display: flex;
+          align-items: center;
+          margin-bottom: 20px;
+          background: #f1f1f1;
+          padding: 10px;
+          border-radius: 8px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  
+          p {
+            margin: 0;
+            font-size: 16px;
+            color: #555;
+          }
+        }
       }
   
       a {
         display: inline-block;
-        padding: 10px 20px;
+        padding: 12px 25px;
         background-color: #41c902;
-        color: white;
-        border-radius: 4px;
+        color: #fff;
+        border-radius: 5px;
         text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+  
         &:hover {
-          background-color: #55af00;
+          background-color: #36a201;
         }
       }
     }
   }
   </style>
+  
   

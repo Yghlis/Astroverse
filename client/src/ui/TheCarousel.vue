@@ -16,7 +16,7 @@ const carousel = ref(null);
 const carouselContainer = ref(null);
 const currentIndex = ref(0);
 const items = ref([]);
-const itemWidth = 320; // Largeur de chaque carte
+const itemWidth = 320; 
 const containerWidth = ref(0);
 
 onMounted(async () => {

@@ -5,7 +5,7 @@
       <button @click="uploadNewsletter">Valider et lancer l'upload</button>
       <button @click="downloadCurrentNewsletter">Télécharger la newsletter actuelle</button>
       
-      <!-- Tableau des utilisateurs abonnés à la newsletter -->
+      
       <div class="tab-container">
         <h1>Utilisateurs Abonnés à la Newsletter : {{ subscribedUsers.length }}</h1>
         <table>

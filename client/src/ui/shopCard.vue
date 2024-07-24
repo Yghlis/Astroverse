@@ -51,7 +51,7 @@ const getImageUrl = (absolutePath) => {
   if (!absolutePath) {
     return "";
   }
-  // Extraire la partie relative du chemin absolu
+  
   const relativePath = absolutePath.split("/uploads/")[1];
   const apiUrl = import.meta.env.VITE_API_URL;
   return `${apiUrl}/uploads/${relativePath}`;
@@ -72,7 +72,7 @@ const discountPercentage = computed(() => {
   return 0;
 });
 
-//STORE PANIER ICI
+
 const cartStore = useCartStore();
 
 const addToCart = () => {
