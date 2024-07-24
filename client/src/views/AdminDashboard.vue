@@ -143,7 +143,7 @@ import TheDashboard from "../components/admin/TheDashboard.vue";
 import AdminTable from "../components/admin/AdminTable.vue";
 import StockManagement from "../components/admin/StockManagement.vue";
 import NewsletterManagement from "../components/admin/NewsletterManagement.vue";
-import { ref, onMounted, provide } from "vue";
+import { ref, onMounted, provide, computed } from "vue";
 import { useUserStore } from "../stores/userStore";
 
 const userStore = useUserStore();
