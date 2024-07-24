@@ -115,8 +115,8 @@ export const useProductFormStore = defineStore("productForm", () => {
       character:
         data.character != null ? data.character.id || data.character : "",
       universe: data.universe != null ? data.universe.id || data.universe : "",
-      tags: parsedTags, // Utiliser parsedTags ici
-      details: parsedDetails, // Utiliser les détails analysés ici
+      tags: parsedTags, 
+      details: parsedDetails, 
       image_preview_url: data.image_preview
         ? ensureAbsoluteUrl(data.image_preview)
         : "",
@@ -141,7 +141,7 @@ export const useProductFormStore = defineStore("productForm", () => {
   }
 
   async function fetchCharacters() {
-    const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
+    const apiUrl = import.meta.env.VITE_API_URL; 
     try {
       const response = await fetch(`${apiUrl}/characters`, {
         method: "GET",
@@ -158,7 +158,7 @@ export const useProductFormStore = defineStore("productForm", () => {
   }
 
   async function fetchUniverses() {
-    const apiUrl = import.meta.env.VITE_API_URL; // Utiliser l'URL d'API dynamique
+    const apiUrl = import.meta.env.VITE_API_URL;
     try {
       const response = await fetch(`${apiUrl}/universes`, {
         method: "GET",

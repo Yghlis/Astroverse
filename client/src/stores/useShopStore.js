@@ -31,6 +31,7 @@ export const useShopStore = defineStore("shop", {
     async fetchProducts(url = null) {
       this.loading = true;
       this.fetching = true;
+      console.log("fetching", url);
       const apiUrl = url || import.meta.env.VITE_API_URL + "/products";
 
       this.error = null;
@@ -41,9 +42,6 @@ export const useShopStore = defineStore("shop", {
         }
         const data = await response.json();
         this.products = data;
-        if (!url) {
-          this.updatePriceRange(data);
-        }
       } catch (error) {
         this.error = "Failed to fetch products";
       } finally {
@@ -81,13 +79,18 @@ export const useShopStore = defineStore("shop", {
       }
     },
 
-    updatePriceRange(products) {
-      const prices = products.map((product) =>
+    updatePriceRange() {
+      const prices = this.products.map((product) =>
         product.is_promotion ? product.discounted_price : product.price
       );
       this.filters.ranges.price.min = Math.min(...prices);
       this.filters.ranges.price.max = Math.max(...prices);
     },
+
+    updateSelectedFilters(selectedFilters) {
+      this.selectedFilters = { ...this.selectedFilters, ...selectedFilters };
+    },
+
 
     updateSelectedFilters(selectedFilters) {
       this.selectedFilters = { ...this.selectedFilters, ...selectedFilters };
@@ -117,7 +120,10 @@ export const useShopStore = defineStore("shop", {
       const { min: selectedMin, max: selectedMax } = filters.priceRange;
       const { min: defaultMin, max: defaultMax } = this.filters.ranges.price;
 
-      if (selectedMin !== defaultMin || selectedMax !== defaultMax) {
+      if (
+        (selectedMin !== 0 || selectedMax !== 0) &&
+        (selectedMin !== defaultMin || selectedMax !== defaultMax)
+      ) {
         params.set("priceRange", `${selectedMin}-${selectedMax}`);
       } else {
         params.delete("priceRange");
@@ -129,6 +135,7 @@ export const useShopStore = defineStore("shop", {
       }
 
       const url = `${apiUrl}?${params.toString()}`;
+      console.log("url", url);
 
       this.fetchProducts(url);
     },

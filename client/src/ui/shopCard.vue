@@ -20,7 +20,10 @@
         </div>
       </div>
 
-      <button @click.stop="addToCart">Ajouter au panier</button>
+      <button v-if="stockDispo" @click.stop="addToCart">
+        Ajouter au panier
+      </button>
+      <button v-else disabled>Produit en rupture de stock</button>
     </div>
   </div>
 </template>
@@ -32,6 +35,10 @@ import { useCartStore } from "../stores/cartStore";
 
 const props = defineProps({
   product: Object,
+});
+
+const stockDispo = computed(() => {
+  return props.product.stock > 0 ? true : false;
 });
 
 const router = useRouter();
@@ -49,7 +56,6 @@ const getImageUrl = (absolutePath) => {
   const apiUrl = import.meta.env.VITE_API_URL;
   return `${apiUrl}/uploads/${relativePath}`;
 };
-
 
 const discountPercentage = computed(() => {
   if (
@@ -71,7 +77,6 @@ const cartStore = useCartStore();
 
 const addToCart = () => {
   cartStore.addItemToCart(props.product);
-
 };
 </script>
 
@@ -204,6 +209,11 @@ const addToCart = () => {
 
       &:hover {
         background-color: #000;
+      }
+      &:disabled {
+        background-color: #e2e2e2;
+        color: #797979;
+        cursor: not-allowed;
       }
     }
 

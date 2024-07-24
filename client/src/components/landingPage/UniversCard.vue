@@ -1,7 +1,7 @@
 <template>
   <div class="card-wrapper">
-    <a
-      :href="url"
+    <RouterLink
+      :to="url"
       class="card"
       :style="{
         background: `linear-gradient(45deg, ${color1}, ${color2})`,
@@ -9,7 +9,7 @@
       }"
     >
       <h3>{{ title }}</h3>
-    </a>
+    </RouterLink>
     <span
       @click="toggleFollow"
       class="material-symbols-outlined follow-icon"
@@ -23,6 +23,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useUniversesStore } from '../../stores/useUniversesStore';
+import { RouterLink } from "vue-router";
 
 
 

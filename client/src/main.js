@@ -9,26 +9,25 @@ import { usePersistedState } from './composables/usePersistedState';
 import { useCartStore } from './stores/cartStore';
 import { useShopStore, setupStoreWatchers } from './stores/useShopStore';
 import { v4 as uuidv4 } from 'uuid';
-import 'gridstack/dist/gridstack.min.css'; // Importer le CSS de GridStack
-import 'gridstack/dist/gridstack-extra.min.css'; // Importer le CSS additionnel de GridStack
+import 'gridstack/dist/gridstack.min.css'; 
+import 'gridstack/dist/gridstack-extra.min.css'; 
 import { initializeAuth } from './utils/auth';
 const app = createApp(App);
 
-// Créer une instance de Pinia
+
 const pinia = createPinia();
 
 
-// Utiliser Pinia dans l'application Vue
 app.use(pinia);
 
-// Initialiser l'authentification
+
 initializeAuth();
 
 const cartStore = useCartStore();
-usePersistedState(cartStore, 'cartStore'); // Utiliser usePersistedState pour sauvegarder le panier dans localStorage
+usePersistedState(cartStore, 'cartStore');
 
 const shopStore = useShopStore();
-setupStoreWatchers(shopStore); // Appeler la fonction pour regarder les changements du filtre
+setupStoreWatchers(shopStore);
 
-// Utiliser le router et monter l'application
+
 app.use(router).mount('#app');
