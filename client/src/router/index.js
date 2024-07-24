@@ -20,7 +20,7 @@ const routes = [
   { path: "/register", component: Register, meta: { requiresGuest: true } },
   { path: "/forgot-password", component: ForgotPassword },
   { path: "/reset-password/:token", component: ResetPassword },
-  { path: "/admin", component: AdminDashboard, meta: { requiresAuth: true, role: "ROLE_ADMIN" } },
+  { path: "/admin", component: AdminDashboard, meta: { requiresAuth: true, roles: ["ROLE_ADMIN", "ROLE_STORE_KEEPER"] } },
   { path: "/form", component: TheForm },
   { path: "/item/:id", component: ShopItem },
   { path: "/change-password/:userId/:token", name: "ChangePassword", component: ChangePassword }, 
