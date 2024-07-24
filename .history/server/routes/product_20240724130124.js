@@ -60,6 +60,7 @@ router.get('/:id', getProductById);
 // Route pour mettre à jour un produit avec upload d'images (accessible uniquement aux administrateurs)
 router.put('/:id', authenticateToken, requireRole(['ROLE_ADMIN', 'ROLE_STORE_KEEPER']), logRequest, upload.fields([{ name: 'image_preview', maxCount: 1 }, { name: 'image_gallery', maxCount: 4 }]), logMulterResult, updateProduct);
 
+
 // Route pour supprimer un produit (accessible uniquement aux administrateurs)
 router.delete('/:id', authenticateToken, requireRole('ROLE_ADMIN'), deleteProduct);
 
