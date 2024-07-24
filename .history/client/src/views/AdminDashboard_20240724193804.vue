@@ -250,6 +250,7 @@ const fetchData = async (type) => {
     let data = await response.json();
 
     if (type === "orders") {
+      
       const userResponses = await Promise.all(
         data.map((order) =>
           fetch(`${apiUrl}/users/${order.userId}`, {
