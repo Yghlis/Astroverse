@@ -62,7 +62,6 @@ const isAdminRoute = computed(() => route.path === "/admin");
 
 const sidebarStore = useSidebarStore();
 
-
 const userClicked = ref(false);
 const cartClicked = ref(false);
 const favoriteClicked = ref(false);
@@ -136,6 +135,9 @@ header {
   height: 100px;
   z-index: 1000;
   gap: 50px;
+  @media (max-width: 1024px) {
+    padding: 0 5px;
+  }
   .logo {
     display: flex;
     align-items: center;
@@ -146,6 +148,12 @@ header {
     img {
       width: 100px;
       height: 100px;
+      @media (max-width: 1024px) {
+        display: none;
+      }
+    }
+    @media (max-width: 1024px) {
+      display: none;
     }
   }
   .divider {
@@ -154,6 +162,9 @@ header {
     background-color: #ccc;
     border: none;
     margin: 20px 0;
+    @media (max-width: 1024px) {
+      display: none;
+    }
   }
   .right-btn {
     display: flex;

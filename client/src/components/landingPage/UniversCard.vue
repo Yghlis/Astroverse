@@ -5,7 +5,7 @@
       class="card"
       :style="{
         background: `linear-gradient(45deg, ${color1}, ${color2})`,
-        color: colorText
+        color: colorText,
       }"
     >
       <h3>{{ title }}</h3>
@@ -21,18 +21,16 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { useUniversesStore } from '../../stores/useUniversesStore';
+import { ref, computed, watch } from "vue";
+import { useUniversesStore } from "../../stores/useUniversesStore";
 import { RouterLink } from "vue-router";
-
-
 
 const props = defineProps({
   title: String,
   color1: String,
   color2: String,
   colorText: String,
-  id: String
+  id: String,
 });
 
 const emit = defineEmits(["followed", "unfollowed"]);
@@ -65,14 +63,14 @@ watch(isFollowed, (newVal) => {
     emit("unfollowed", props.id);
   }
 });
-
-
-
 </script>
 
 <style lang="scss" scoped>
 .card-wrapper {
   position: relative;
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
 }
 
 .card {
@@ -87,9 +85,15 @@ watch(isFollowed, (newVal) => {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
-  text-decoration: none;  
+  text-decoration: none;
   &:hover {
     transform: scale(1.05);
+  }
+  @media (max-width: 1024px) {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    margin: 0;
   }
   h3 {
     font-size: 2.5rem;

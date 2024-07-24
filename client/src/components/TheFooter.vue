@@ -142,6 +142,7 @@ const toggleSubscription = async () => {
 }
 
 .footer {
+  width: 100%;
   background-color: black;
   color: #fff;
   padding: 20px 0;
@@ -192,6 +193,7 @@ const toggleSubscription = async () => {
     margin: 10px 0 0;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
 
     li {
       margin: 0 15px;

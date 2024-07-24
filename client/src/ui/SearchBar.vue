@@ -92,6 +92,9 @@ const resetSearchText = () => {
   justify-content: flex-start;
   align-items: center;
   overflow: hidden;
+  @media (max-width: 1024px) {
+    width: 100%;
+  }
   .material-symbols-outlined {
     position: absolute;
     cursor: pointer;
