@@ -328,7 +328,6 @@
               <select id="roles" v-model="formData.roles" multiple>
                 <option value="ROLE_ADMIN">Administrateur</option>
                 <option value="ROLE_USER">Utilisateur</option>
-                <option value="ROLE_STORE_KEEPER">Responsable des stocks</option>
               </select>
               <span>{{ errors.roles }}</span>
             </div>
