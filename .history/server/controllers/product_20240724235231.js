@@ -202,6 +202,8 @@ export const checkStock = async (req, res) => {
 export const addProduct = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
+    console.log('Données reçues :', req.body);
+    
     const schema = z.object({
       title: z.string().nonempty('Le titre est requis'),
       brand: z.string().nonempty('La marque est requise'),
@@ -232,6 +234,7 @@ export const addProduct = async (req, res) => {
     });
 
     const validatedData = schema.parse(req.body);
+    console.log('Données validées :', validatedData);
 
     const {
       title,
@@ -258,34 +261,35 @@ export const addProduct = async (req, res) => {
     const existingProduct = await Product.findOne({ where: { reference }, transaction });
     if (existingProduct) {
       await transaction.rollback();
-      return res.status(409).json({ message: 'Product with this reference already exists' });
+      console.log('Produit existant trouvé :', existingProduct);
+      return res.status(409).json();
     }
 
     const image_preview = req.files && req.files['image_preview'] ? req.files['image_preview'][0].path : null;
     const image_gallery = req.files && Array.isArray(req.files['image_gallery']) ? req.files['image_gallery'].map(file => file.path) : [];
+    console.log('Image preview :', image_preview);
+    console.log('Image gallery :', image_gallery);
 
-    let universeRecord;
-    if (isUUIDValid(universe)) {
-      universeRecord = await Universe.findByPk(universe, { transaction });
-    } else {
-      universeRecord = await Universe.findOne({ where: { name: universe }, transaction });
-    }
+    const universeRecord = isUUIDValid(universe)
+      ? await Universe.findByPk(universe, { transaction })
+      : await Universe.findOne({ where: { name: universe }, transaction });
+    console.log('Enregistrement de l\'univers :', universeRecord);
 
     if (!universeRecord) {
       await transaction.rollback();
-      return res.status(404).json({ message: 'Universe not found', universe });
+      console.log('Univers non trouvé');
+      return res.status(404).json();
     }
 
-    let characterRecord;
-    if (isUUIDValid(character)) {
-      characterRecord = await Character.findByPk(character, { transaction });
-    } else {
-      characterRecord = await Character.findOne({ where: { name: character }, transaction });
-    }
+    const characterRecord = isUUIDValid(character)
+      ? await Character.findByPk(character, { transaction })
+      : await Character.findOne({ where: { name: character }, transaction });
+    console.log('Enregistrement du personnage :', characterRecord);
 
     if (!characterRecord) {
       await transaction.rollback();
-      return res.status(404).json({ message: 'Character not found', character });
+      console.log('Personnage non trouvé');
+      return res.status(404).json();
     }
 
     const productTags = tags ? tags.split(',').map(tag => tag.trim()) : [];
@@ -314,6 +318,7 @@ export const addProduct = async (req, res) => {
     }, { transaction });
 
     await transaction.commit();
+    console.log('Produit créé avec succès :', product);
 
     const productMongo = new ProductMongo({
       id: product.id,
@@ -348,12 +353,15 @@ export const addProduct = async (req, res) => {
     });
 
     await productMongo.save();
+    console.log('Produit sauvegardé dans MongoDB :', productMongo);
+
     await notifyNewProductInUniverse(product);
 
     res.status(201).json(product);
   } catch (error) {
     await transaction.rollback();
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error('Erreur lors de la création du produit :', error);
+    res.status(500).json();
   }
 };
 
