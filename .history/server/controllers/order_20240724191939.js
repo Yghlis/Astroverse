@@ -253,7 +253,7 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    if (order.userId !== userId && userRole !== 'ROLE_ADMIN' && userRole !== 'ROLE_STORE_KEEPER') {
+    if (order.userId !== userId && userRole !== 'ROLE_ADMIN') {
       await transaction.rollback();
       return res.status(403).json();
     }
@@ -269,7 +269,7 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
-  export const getOrderById = async (req, res) => {
+  export const xgetOrderById = async (req, res) => {
     const { orderId } = req.params;
     try {
       const order = await Order.findByPk(orderId);
