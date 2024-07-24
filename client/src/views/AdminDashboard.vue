@@ -177,6 +177,12 @@ const goToDashboard = () => {
   currentDataType.value = "dashboard";
 };
 
+onMounted(() => {
+  if (!isAdmin.value) {
+    fetchData("orders");
+  }
+});
+
 const fetchData = async (type) => {
   let url = "";
   let columns = [];
