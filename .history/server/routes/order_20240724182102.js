@@ -7,7 +7,9 @@ const router = express.Router();
 router.get('/:orderId', authenticateToken, getOrderById);
 router.post('/', authenticateToken, createOrder);   
 router.delete('/:orderId', authenticateToken, deleteOrder);
+
 router.get('/payment-intent/:paymentIntentId',authenticateToken, getOrderByPaymentIntent);
+// Route pour récupérer toutes les commandes
 router.get('/', authenticateToken, getAllOrders);
 
 router.post('/refund/:orderId', authenticateToken, refundOrder);

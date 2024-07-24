@@ -54,10 +54,19 @@ router.get('/', async (req, res) => {
 
 router.post('/check-stock', checkStock);
 router.get('/:id', getProductById);
+
 router.put('/:id', authenticateToken, requireRole(['ROLE_ADMIN', 'ROLE_STORE_KEEPER']), logRequest, upload.fields([{ name: 'image_preview', maxCount: 1 }, { name: 'image_gallery', maxCount: 4 }]), logMulterResult, updateProduct);
+
+
 router.delete('/:id', authenticateToken, requireRole('ROLE_ADMIN'), deleteProduct);
+
+// Route pour suivre un produit
 router.post('/:productId/follow', authenticateToken, followProduct);
+
+// Route pour arrêter de suivre un produit
 router.delete('/:productId/follow', authenticateToken, unfollowProduct);
+
+// Route pour récupérer les produits suivis par l'utilisateur
 router.get('/:userId/followed', authenticateToken, getFollowedProducts);
 
 export default router;

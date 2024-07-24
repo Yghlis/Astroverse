@@ -8,6 +8,8 @@ router.post('/', addToBasket);
 router.post('/decrement', decrementFromBasket);
 router.get('/', getBasket);
 router.get('/check-items', authenticateToken, checkBasketItems);
+
+// Route pour supprimer un produit du panier
 router.delete('/', removeFromBasket);
 
 export default router;
