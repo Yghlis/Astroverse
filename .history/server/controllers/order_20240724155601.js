@@ -92,7 +92,7 @@ export const getAllOrders = async (req, res) => {
           return {
             productId: product.id,
             quantity: item.quantity,
-            price: priceToUse,  
+            price: priceToUse,  // Use discounted price if applicable
           };
         })
       );
