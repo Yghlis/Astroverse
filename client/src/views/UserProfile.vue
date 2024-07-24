@@ -320,6 +320,7 @@ const sendResetEmail = async () => {
 
 const refundOrder = async (orderId) => {
   try {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const response = await fetch(`${apiUrl}/orders/${orderId}`, {
       method: "PATCH",
       headers: {
