@@ -90,45 +90,141 @@ Pour la gestion des tâches, nous avons utilisé [Trello](https://trello.com). L
 
 ## Répartition des Tâches
 
-| Tâche                                                                       | Achraf         |     Youri    |
-| --------------------------------------------------------------------------- | ------ | ----- | ----- | ---- |
-| --------------------------------------------------------------------------- | ------ | ----- | ----- | ---- |
-|                                                                             | Front  | Back  | Front | Back |
-| **Inscription avec confirmation par mail**                                  | x      |       |       | X    |
-| **Connexion et prévention de la connexion si le compte n’est pas confirmé** | X      |       |       | X    |
-| **Réinitialisation du mot de passe**                                        | X      |       | x     | X    |
-| **Conservation des mots de passes hachés**                                  |        |       |       | X    |
-| **Recherche via entrée utilisateur** : par nom                              | X      |       |       | X    |
-| **Recherche facettée** : Personnages, Univers, Évaluations, Prix, promotion | X      |       |       | X    |
-| **Alertes sur les nouveaux produits**                                       |        |       |       | X    |
-| **Alertes sur le restock de produits**                                      |        |       |       | X    |
-| **Alertes sur les changements de prix**                                     |        |       |       | X    |
-| **Inscription à la newsletter**                                             | X      |       |       | X    |
-| **Panier**                                                                  | X      |       |       | X    |
-| **Card du shop**                                                            | X      |       |       | X    |
-| **Intégration d’API de paiement** : [Stripe](https://stripe.com)            |        |       | x     | X    |
-| **Card KPI**                                                                | X      |       |       | X    |
-| **Navbar backoffice**                                                       | X      |       |       |      |
-| **Carrousel landing page**                                                  | X      |       |       | X    |
-| **Carrousel top product**                                                   | X      |       |       | X    |
-| **Card universe**                                                           | X      |       | x     | X    |
-| **CGU et autre droit**                                                      |        |       | x     | X    |
-| **Alertes en fin de stock**                                                 |        |       |       | X    |
-| **Graphique d’évolution des stocks**                                        | X      |       |       | X    |
-| **Demande de facturation**                                                  |        |       |       | X    |
-| **Demande de retour produit**                                               |        |       |       | X    |
-| **Recommander un produit**                                                  |        |       |       | X    |
-| **CRUD sur l’ensemble des ressources**                                      | X      |       |       | X    |
-| **Dashboard avec datavisualisation personnalisable**                        | X      |       |       | X    |
-| **Side bar multi utilisation (favoris, connexion, et toggle des KPI)**      | X      |       |       |      |
-| **Gestion des données personnelles d’un client**                            | X      |       |       | X    |
-| **Autocomplétion de l'adresse**                                             | X      | X     |       |      |
-| **Responsive navbar**                                                       | X      |       |       |      |
-| **Structures des pages avec gestion router view**                           | X      |       |       |      |
-| **Animation motion one + vue transition + scss**                            | X      |       |       |      |
-| **Gridstack grid gestion**                                                  | X      |       |       |      |
+# Liste des tâches
 
-Liste non exhaustive dans la mesure où beaucoup de tâches sont faites ensemble
+## Inscription avec confirmation par mail
+- Achraf : x
+- Youri : x
+
+## Connexion et prévention de la connexion si le compte n’est pas confirmé
+- Achraf : x
+- Youri : x
+
+## Réinitialisation du mot de passe
+- Achraf : x
+- Youri : x
+
+## Conservation des mots de passes hachés
+- Achraf : 
+- Youri : x
+
+## Recherche via entrée utilisateur : par nom
+- Achraf : x
+- Youri : x
+
+## Recherche facettée : Personnages, Univers, Évaluations, Prix, promotion
+- Achraf : x
+- Youri : x
+
+## Alertes sur les nouveaux produits
+- Achraf : 
+- Youri : x
+
+## Alertes sur le restock de produits
+- Achraf : 
+- Youri : x
+
+## Alertes sur les changements de prix
+- Achraf : 
+- Youri : x
+
+## Inscription à la newsletter
+- Achraf : x
+- Youri : x
+
+## Panier
+- Achraf : x
+- Youri : x
+
+## Card du shop
+- Achraf : x
+- Youri : x
+
+## Intégration d’API de paiement : Stripe
+- Achraf : x
+- Youri : x
+
+## Card KPI
+- Achraf : x
+- Youri : x
+
+## Navbar backoffice
+- Achraf : x
+- Youri : 
+
+## Carrousel landing page
+- Achraf : x
+- Youri : x
+
+## Carrousel top product
+- Achraf : x
+- Youri : x
+
+## Card universe
+- Achraf : x
+- Youri : x
+
+## CGU et autre droit
+- Achraf : 
+- Youri : x
+
+## Alertes en fin de stock
+- Achraf : 
+- Youri : x
+
+## Graphique d’évolution des stocks
+- Achraf : x
+- Youri : x
+
+## Demande de facturation
+- Achraf : 
+- Youri : x
+
+## Demande de retour produit
+- Achraf : 
+- Youri : x
+
+## Recommander un produit
+- Achraf : 
+- Youri : x
+
+## CRUD sur l’ensemble des ressources
+- Achraf : x
+- Youri : x
+
+## Dashboard avec datavisualisation personnalisable
+- Achraf : x
+- Youri : x
+
+## Side bar multi utilisation (favoris, connexion, et toggle des KPI)
+- Achraf : x
+- Youri : 
+
+## Gestion des données personnelles d’un client
+- Achraf : x
+- Youri : x
+
+## Autocomplétion de l'adresse
+- Achraf : x
+- Youri : x
+
+## Responsive navbar
+- Achraf : x
+- Youri : 
+
+## Structures des pages avec gestion router view
+- Achraf : x
+- Youri : 
+
+## Animation motion one + vue transition + scss
+- Achraf : x
+- Youri : 
+
+## Gridstack grid gestion
+- Achraf : x
+- Youri : 
+
+Liste non exhaustive dans la mesure où beaucoup de tâches sont faites ensemble.
 
 ## Installation
 ( utiliser la branche deploy-render )
